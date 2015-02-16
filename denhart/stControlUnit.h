@@ -1,29 +1,22 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-#include "st12bitReg.h"
-#include "stIR.h"
-#include "stMajorStateGen.h"
-#include "stMicro2Cont.h"
-#include "stTimer.h"
+extern class stBitReg;
 
 class stControlUnit
 {
 
 private:
 
-    st12bitReg rPC;
-    stIR rIR;
-    stMajorStateGen stateOps;
-    stMicro2Cont micro2;
-    stTimer clk;
+    stBitReg r12bit_PC;
+    stBitReg r3bit_IR;
 
 public:
 
-    void opJMP(st12bitReg rInReg);
-    void opISZ(st12bitReg rInReg);
+    void opJMP(stBitReg rInReg);
+    void opISZ(stBitReg rInReg);
     void loadNextInstruction();
-    void opJMS(st12bitReg rInReg);
+    void opJMS(stBitReg rInReg);
     void instructionDecoder();
 
 };

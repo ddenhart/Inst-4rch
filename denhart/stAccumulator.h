@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-#include "st12bitReg.h"
-#include "stMicro1.h"
-#include "stMicro2Acc.h"
+extern class stBitReg;
+
+#define HEX_4BIT 4
 
 
 class stAccumulator
@@ -11,27 +11,25 @@ class stAccumulator
 
 private:
 
-    st12bitReg rAC;
+    stBitReg r12bit_AC;
     bool bLink;
-    stMicro1 micro1;
-    stMicro2Acc micro2;
-    st12bitReg rMQ;
+    stBitReg r12bit_MQ;
 
 public:
 
     void setLinkBit();
     void getLinkBit();
-    st12bitReg sum(st12bitReg rInReg);
+    stBitReg sum(stBitReg rInReg);
     void clearLinkBit();
     void clearAC();
-    st12bitReg opAND(st12bitReg rInReg);
-    void opTAD(st12bitReg rInReg);
+    stBitReg opAND(stBitReg rInReg);
+    void opTAD(stBitReg rInReg);
     void handleCarry();
     void carryOrOverflow();
     void setAC();
     void getAC();
-    void opDCA(st12bitReg rInReg);
-    bool receiveISZ(st12bitReg rInReg);
+    void opDCA(stBitReg rInReg);
+    bool receiveISZ(stBitReg rInReg);
     void opEAE();
 };
 

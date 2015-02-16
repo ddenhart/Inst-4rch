@@ -1,7 +1,8 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-#include "st3bitReg.h"
+extern class stBitReg;
+extern class stOctConv;
 
 
 class stOpRow
@@ -9,18 +10,23 @@ class stOpRow
 
 private:
 
-    int iTotalCount;
-    char* sMnemonic;
-    int iCycles;
-    st3bitReg rOpcode;
-    bool bIsIndirect;
-    bool bAutoIncrement;
-
+    int m_iOpcodeLength;
+    int m_iTotalCount;
+    char* m_sMnemonic;
+    int m_iCycles;
+    stBitReg m_rOpcode;
+    
+    void fillOpRow();
+    void clearOpRow();
+    
 public:
 
-    char* sendName(int iIndex);
-    int sendType(char* sName);
-    void fillTypeTable();
-
+    stOpRow();
+    stOpRow(int total, char* mnem, int cycles, unsigned int index);
+    ~stOpRow();
+    char* getName();
+    int getOpcode();
+    int getCycles();
+    int getTotal();
 };
 
