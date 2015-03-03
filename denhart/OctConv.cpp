@@ -108,7 +108,11 @@ int OctConv::getLength(bool* rInReg)
 
     if(rInReg)
     {
-        count = sizeof(rInReg)/sizeof(bool*);
+        while(rInReg[count])
+        {
+            ++count;
+        }
+        //count = sizeof(rInReg)/sizeof(bool*);
     }
     else
     {
@@ -673,6 +677,7 @@ int OctConv::getLength(bool* rInReg)
          if(rInReg == m_sOctTable[i])
          {
              bFound = true;
+             break;
          } //else not this row, keep looking
      }
 

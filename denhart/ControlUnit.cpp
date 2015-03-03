@@ -279,7 +279,7 @@ void ControlUnit::load_from_file(char* filename)
     FILE* file = NULL;//(filename, std::ios::in);  // Open filename as file
     char line[MAX_BUFFER];               // String for getline
     //std::string line;               // String for getline
-    char sInput[ADDRESS_LENGTH_OCT];
+    char sInput[ADDRESS_LENGTH_OCT + 1];
     int maxGroup = 2;
     int maxOctLeng = 4;
     bool bPairFound = false;
@@ -288,10 +288,7 @@ void ControlUnit::load_from_file(char* filename)
     BitReg rInput(REG_12BIT);     // Current address 
     BitReg rData(REG_12BIT);     // Current address 
     unsigned int data = 0;
-    int i = 0;
-    bool bAbort = false;
-    std::streampos begin, end;
-    int total = 0;
+    int length = 0;
 
     file = fopen(filename, "r");
 
@@ -300,45 +297,83 @@ void ControlUnit::load_from_file(char* filename)
         while(!feof(file))
         {
             fgets(line, MAX_BUFFER, file);
-            if(strlen(line) == maxOctLeng) // expected format
+            length = strlen(line);
+
+            if(length <= ADDRESS_LENGTH_OCT) // expected format
             {
-                fprintf(stdout, "line: %s", line);
-                if((0 == i) && ('1' == line[0]))
+                fprintf(stdout, "DEBUG: line: %s\n", line);
+                if('1' == line[0])
                 {
                     bAddy = true;
                     bPairFound = false;
-                    ++i;
                 }
-                else if((0 == i) && ('0' == line[0]))
+                else if('0' == line[0])
                 {
                     bAddy = false;
                     bPairFound = false;
-                    ++i;
-                }
-                else if(1 == i)
-                {
-                    bPairFound = true;
-                    i = 0;
                 }
                 else
                 {
                     Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+                    bPairFound = false;
                 }
 
-                buffer.push_back(line);
-                fgets(line, MAX_BUFFER, file);
-                if(strlen(line) == maxOctLeng) // expected format
+                //buffer.push_back(line);
+                if(length == maxOctLeng)
                 {
-                    buffer.push_back(line);
+                    sInput[0] = line[1];
+                    sInput[1] = line[2];
                 }
+                else if(length == 3)
+                {
+                    sInput[0] = '0';
+                    sInput[1] = line[2];
+                }
+                else if(length == 2)
+                {
+                    Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                }
+
+                fgets(line, MAX_BUFFER, file);
+                length = strlen(line);
+                if(length <= ADDRESS_LENGTH_OCT) // expected format
+                {
+                    fprintf(stdout, "DEBUG: line: %s\n", line);
+                    //buffer.push_back(line);
+                    sInput[2] = line[1];
+                    sInput[3] = line[2];
+
+                    if(length == maxOctLeng)
+                    {
+                        sInput[2] = line[1];
+                        sInput[3] = line[2];
+                    }
+                    else if(length == 3)
+                    {
+                        sInput[2] = '0';
+                        sInput[3] = line[2];
+                    }
+                    else if(length == 2)
+                    {
+                        Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                    }
+                    
+                    bPairFound = true;
+                }
+                else
+                {
+                    Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                }
+            }
+            else
+            {
+                Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
             }
 
             if(bPairFound) // Ignore blank lines
             {
-                sInput[0] = buffer.front()[1];
-                sInput[1] = buffer.front()[2];
-                sInput[2] = buffer.back()[1];
-                sInput[3] = buffer.back()[2];
+                sInput[ADDRESS_LENGTH_OCT] = '\0';
+                fprintf(stdout, "DEBUG: addy: %s\n", sInput);
                 rInput.setReg(sInput);
                 if(m_memory->checkValidAddy(&rInput))
                 {

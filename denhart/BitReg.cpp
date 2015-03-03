@@ -280,7 +280,7 @@ void BitReg::copyValue(bool* reg)
 void BitReg::copyValue(char* reg)
 {
     int length = getLength(reg);
-    int total = length*OCT_3BIT; 
+    int total = length; 
     bool* temp = NULL;
 
     if(reg)
@@ -1121,7 +1121,12 @@ int BitReg::getLength()
      
      if(rInReg)
      {
-         count = sizeof(rInReg)/sizeof(char*); //number of chars
+         while(rInReg[count])// != '\0')
+         {
+             ++count;
+         }
+
+         //count = sizeof(rInReg)/sizeof(char*); //number of chars
          count *= 3; //convert to bits
      }
      else
@@ -1391,7 +1396,7 @@ char* BitReg::getString()
 
     if(m_rBitReg)
     {
-        temp = convertedChar(m_rBitReg);
+        temp = convertedChar(m_rBitReg, m_iLength);
     }
     else
     {
