@@ -15,6 +15,7 @@ Description:	 This file contains the classes InstFormat, EffectiveAddress,
 #include <cstdio>
 #include <cstring>
 #include <vector>
+#include <string>
 #include "Common.h"
 #include "BitReg.h"
 #include "OpTable.h"
@@ -37,8 +38,7 @@ extern RegTable RegisterFile;
 ControlUnit::ControlUnit()
 {
     m_memory = new Memory;
-    m_rCurrInst = new BitReg(REG_12BIT);
-    m_rCurrAddy = new BitReg(REG_12BIT);
+    m_eAddy.setMemory(m_memory);
 }
 
 
@@ -56,7 +56,7 @@ ControlUnit::~ControlUnit()
         delete m_memory; 
         m_memory = NULL;
     }
-    if(m_rCurrInst)
+    /*if(m_rCurrInst)
     {
         delete m_rCurrInst;
         m_rCurrInst = NULL;
@@ -65,7 +65,7 @@ ControlUnit::~ControlUnit()
     {
         delete m_rCurrAddy;
         m_rCurrAddy = NULL;
-    }
+    }*/
 }
 
 
@@ -81,7 +81,8 @@ void ControlUnit::instructionFetch(BitReg* reg)
     //contents of the PC are loaded into the MA
     if(reg)
     {
-        m_rCurrInst->setReg(reg);
+        m_memory->fetch(reg);
+        m_format.loadInstruction(reg);
     }
     else
     {
@@ -99,27 +100,49 @@ void ControlUnit::instructionFetch(BitReg* reg)
 //================================================================================== 
 void ControlUnit::instructionDecode()
 {
-    m_format.loadInstruction(m_rCurrInst);
-    //if MRI, get address
-    bool bMRI = m_format.isInstMRI();
-    bool bOPP = m_format.isInstMRI();
-    
-    if(bMRI)
+    BitReg* inst = NULL;
+    BitReg* indinst = NULL;
+    BitReg* currInst = NULL;
+
+    currInst = m_format.getInstruction();
+
+    if(m_format.isInstMRI())
     {
-        BitReg address(m_eAddy.getAddress(m_rCurrInst, m_memory)->getBool());
+        inst = m_eAddy.getAddress(currInst);
         
         if(m_format.getMRIindirect())
         {
+            indinst = inst->getReg();
+            delete inst;
+            inst = NULL;
             instructionDefer();
+            inst = m_eAddy.getAddress(indinst);
         }
+        
+        m_format.setAddress(inst);
     }
-    else if(m_format.isInstOperate())
+    /*else if(m_format.isInstOPP())
     {
         //micro setup
     }
+    else if(m_format.isInstIO())
+    {
+        //IO setup
+    }*/
     else
     {
         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+    }
+
+    if(inst)
+    {
+        delete inst;
+        inst = NULL;
+    }
+    if(indinst)
+    {
+        delete inst;
+        inst = NULL;
     }
 }
 
@@ -148,11 +171,9 @@ void ControlUnit::instructionDefer()
 //Outputs:
 //Return:
 //================================================================================== 
-void ControlUnit::instructionExecute()
+BitReg* ControlUnit::getPC()
 {
-    //opcodes 0-4 execute here
-    //opcode 7 micro instructions here
-    instructionReadWrite();
+    return RegisterFile.rPC->getReg();
 }
 
 
@@ -163,10 +184,84 @@ void ControlUnit::instructionExecute()
 //Outputs:
 //Return:
 //================================================================================== 
-void ControlUnit::instructionReadWrite()
+void ControlUnit::setPC(BitReg* addy)
 {
-    //opcode 5
-    //increment PC?
+    return RegisterFile.rPC->setReg(addy);
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void ControlUnit::instructionExecute()
+{
+    BitReg* addy = NULL;
+    BitReg* rpc = NULL;
+    int opcode = m_format.getOpcode();
+
+    addy = m_format.getAddress();
+    rpc = getPC();
+
+    if(0 == opcode)
+    {
+        //test code
+        m_memory->load(addy);
+        m_memory->load(rpc);
+    }
+    else if(1 == opcode)
+    {
+        //test code
+        m_memory->load(addy);
+        m_memory->load(rpc);
+
+    }
+    else if(2 == opcode)
+    {
+        //test code
+        m_memory->load(addy);
+        m_memory->load(rpc);
+
+    }
+    else if(3 == opcode)
+    {
+        //test code
+        //store result of accumulator
+        m_memory->store(addy,rpc);
+        m_memory->load(rpc);
+
+    }
+    else if(4 == opcode)
+    {
+        //test code
+        m_memory->load(addy);
+        m_memory->load(rpc);
+
+    }
+    else if(5 == opcode)
+    {
+        //test code
+        m_memory->load(addy);
+        m_memory->load(rpc);
+
+    }
+    else if(6 == opcode)
+    {
+        //noop
+    }
+    else if(7 == opcode)
+    {
+        //opcode 7 micro instructions here
+    }
+    else 
+    {
+        Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+    }
+
+    RegisterFile.incrementPC();
 }
 
 
@@ -181,60 +276,60 @@ void ControlUnit::instructionReadWrite()
 // INPUT: file name to load from
 void ControlUnit::load_from_file(char* filename)
 {
-    std::ifstream file(filename);  // Open filename as file
+    FILE* file = NULL;//(filename, std::ios::in);  // Open filename as file
     char line[MAX_BUFFER];               // String for getline
+    //std::string line;               // String for getline
     char sInput[ADDRESS_LENGTH_OCT];
     int maxGroup = 2;
-    int maxOctLeng = 3;
+    int maxOctLeng = 4;
     bool bPairFound = false;
     bool bAddy = false;
     std::vector<char*> buffer;
     BitReg rInput(REG_12BIT);     // Current address 
     BitReg rData(REG_12BIT);     // Current address 
     unsigned int data = 0;
+    int i = 0;
+    bool bAbort = false;
+    std::streampos begin, end;
+    int total = 0;
 
-    if(file.is_open())
+    file = fopen(filename, "r");
+
+    if(file)
     {
-        while(!file.eof())
+        while(!feof(file))
         {
-            for(int i = 0; i < maxGroup; ++i)
+            fgets(line, MAX_BUFFER, file);
+            if(strlen(line) == maxOctLeng) // expected format
             {
-                if(!file.eof())
+                fprintf(stdout, "line: %s", line);
+                if((0 == i) && ('1' == line[0]))
                 {
-                    file.getline(line, MAX_BUFFER, '\n'); 
-                    if(strlen(line) == maxOctLeng) // expected format
-                    {
-                        fprintf(stdout, "line: %s", line);
-                        if((0 == i) && ('1' == line[0]))
-                        {
-                            bAddy = true;
-                            bPairFound = false;
-                        }
-                        else if((0 == i) && ('0' == line[0]))
-                        {
-                            bAddy = false;
-                            bPairFound = false;
-                        }
-                        else if(1 == i)
-                        {
-                            bPairFound = true;
-                        }
-                        else
-                        {
-                            Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
-                        }
-
-                        buffer.push_back(line);
-                    }
-                    else
-                    {
-                        --i; //go another round and try the next line
-                    }
+                    bAddy = true;
+                    bPairFound = false;
+                    ++i;
+                }
+                else if((0 == i) && ('0' == line[0]))
+                {
+                    bAddy = false;
+                    bPairFound = false;
+                    ++i;
+                }
+                else if(1 == i)
+                {
+                    bPairFound = true;
+                    i = 0;
                 }
                 else
                 {
-                    bPairFound = false;
-                    break;//else end of file
+                    Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+                }
+
+                buffer.push_back(line);
+                fgets(line, MAX_BUFFER, file);
+                if(strlen(line) == maxOctLeng) // expected format
+                {
+                    buffer.push_back(line);
                 }
             }
 
@@ -245,22 +340,30 @@ void ControlUnit::load_from_file(char* filename)
                 sInput[2] = buffer.back()[1];
                 sInput[3] = buffer.back()[2];
                 rInput.setReg(sInput);
-                m_memory->checkValidAddy(&rInput);
-                fprintf(stdout, "addy: %s", rInput.getString());
+                if(m_memory->checkValidAddy(&rInput))
+                {
+                    //debug
+                    fprintf(stdout, "DEBUG: addy: %s\n", rInput.getString());
 
-                if(bAddy) //it's an address
-                {
-                    RegisterFile.rPC->setReg(&rInput);
+                    if(bAddy) //it's an address
+                    {
+                        RegisterFile.rPC->setReg(&rInput);
+                    }
+                    else //it's data
+                    {
+                        instructionFetch(&rInput);
+                        instructionDecode();
+                        instructionExecute();
+                    }
                 }
-                else //it's data
+                else
                 {
-                    instructionFetch(&rInput);
-                    instructionDecode();
-                    instructionExecute();
+                    Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
                 }
+                
             }
         }
-        file.close();
+        fclose(file);
     }
 
     data = 0;
@@ -301,7 +404,8 @@ void ControlUnit::printMemoryHistory(char* filename)
 InstFormat::InstFormat()
 {
     m_rInstruction = new BitReg(REG_12BIT);
-    //m_rOpcode = new BitReg(REG_3BIT);
+    m_rCurrAddy = new BitReg(REG_12BIT);
+    m_rOpcode = new BitReg(REG_3BIT);
     m_rOffset = new BitReg(REG_7BIT);
     m_rOffext = new BitReg(REG_9BIT);
     m_opTable = new OpTableHandle;
@@ -322,6 +426,16 @@ InstFormat::~InstFormat()
     {
         delete m_rInstruction;
         m_rInstruction = NULL;
+    }
+    if(m_rCurrAddy)
+    {
+        delete m_rCurrAddy;
+        m_rCurrAddy = NULL;
+    }
+    if(m_rOpcode)
+    {
+        delete m_rOpcode;
+        m_rOpcode = NULL;
     }
     if(m_rOffset)
     {
@@ -684,6 +798,58 @@ BitReg* InstFormat::getOPextended()
 int InstFormat::getMicroCode()
 {
     return m_iMicroCode;
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+int InstFormat::getOpcode()
+{
+    return m_rOpcode->getNumber();
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+BitReg* InstFormat::getInstruction()
+{
+    return m_rInstruction->getReg();
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+BitReg* InstFormat::getAddress()
+{
+    return m_rCurrAddy->getReg();
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void InstFormat::setAddress(BitReg* addy)
+{
+    m_rCurrAddy->setReg(addy);
 }
 
 
@@ -1066,17 +1232,29 @@ BitReg* EffectiveAddress::readIndirect(BitReg* reg)
 //Outputs:
 //Return:
 //================================================================================== 
+void EffectiveAddress::setMemory(Memory* mem)
+{
+    m_pMemory = mem;
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
 //inputs an MRI instruction and a pointer to the memory
 //returns 12 bit address of a memory location
-BitReg* EffectiveAddress::getAddress(BitReg* reg, Memory* memory)
+BitReg* EffectiveAddress::getAddress(BitReg* reg)
 {
     BitReg* tempReg = NULL;
     bool* temp = NULL; 
 
-    if(reg && memory)
+    if(reg)
     {
         int length = reg->getLength();
-        m_pMemory = memory;
         temp = reg->getBool();
 
         if((REG_12BIT == length) && temp)

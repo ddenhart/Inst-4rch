@@ -1267,7 +1267,7 @@ void BitReg::setReg(unsigned int rInReg)
 BitReg* BitReg::getReg()
 {
     //return temp, so the original register isn't changed
-    BitReg* temp = new BitReg(m_rBitReg);
+    BitReg* temp = new BitReg(m_rBitReg, m_iLength);
     return temp;
 }
 

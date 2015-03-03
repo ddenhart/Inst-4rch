@@ -72,9 +72,8 @@ Word::~Word()
 // INPUT: number of memory locations to create
 Memory::Memory()
 {
-    char* default_logfile = "mem.dmp";
-    logfile_name = new char[strlen(default_logfile) + 1];
-    strcpy(logfile_name, default_logfile);
+    logfile_name = new char[strlen(default_memfile) + 1];
+    strcpy(logfile_name, default_memfile);
     logfile.open(logfile_name, std::ios::app);
 }
 
@@ -199,15 +198,15 @@ int Memory::dump_memory(char* filename)
     memfile.open(filename, std::ios::app);
 
     // Setup stream format
-    //memfile << std::oct << std::setfill('0') << std::right;
+    memfile << std::oct << std::setfill('0') << std::right;
 
     for (int i = 0; i < MSIZE; ++i)
     {
         if(memory[i].access)
         {
             value = memory[i].value->getString(REG_4BIT);
-            memfile << std::setw(4) << i << ": ";
-            memfile << std::setw(4) << value << std::endl;
+            memfile << std::setw(5) << i << ": ";
+            memfile << std::setw(5) << value << std::endl;
             ++count;
         }
 
@@ -275,7 +274,7 @@ void Memory::load(BitReg* address)
     {
         log_type type(MREAD);
    
-        if (checkValidAddy(address))
+        if (!checkValidAddy(address))
         {
             throw std::out_of_range ("Array out of bounds");
             return;
@@ -283,12 +282,45 @@ void Memory::load(BitReg* address)
 
         RegisterFile.rMA->setReg(address);
         mem_get();
+        log(address, type);
     }
     else
     {
         Error.printError(ERROR_NULL, FILE_MEMORY);
     }
     
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+// log an address that was fetched
+// INPUT: address
+// read the rMB to get the value
+void Memory::fetch(BitReg* address)
+{
+    if(address)
+    {
+        log_type type(MFETCH);
+
+        if(!checkValidAddy(address))
+        {
+            throw std::out_of_range("Array out of bounds");
+            return;
+        }
+
+        log(address, type);
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_MEMORY);
+    }
+
 }
 
 

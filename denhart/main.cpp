@@ -27,7 +27,7 @@ OctConv OctTable;
 
 //Global constants
 //================================================================================== 
-const char* default_logfile = "mem.dmp";
+const char* default_logfile = "pdp8log.txt";
 const char* default_tracefile = "add01.as";
 
 //Global Methods

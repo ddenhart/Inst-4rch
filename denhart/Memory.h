@@ -63,6 +63,7 @@ struct Word
 class Memory
 {
 private:
+    const char* default_memfile = "mem.dmp";
     Word memory[MSIZE];
     char* logfile_name;
     std::ofstream logfile;
@@ -77,6 +78,7 @@ public:
     ~Memory();
     void store(BitReg* addy, BitReg* value);
     void load(BitReg* addy);
+    void fetch(BitReg* addy);
     bool getAccess(BitReg* addy);
     bool checkValidAddy(BitReg* addy);
     void setAccess(BitReg* addy);

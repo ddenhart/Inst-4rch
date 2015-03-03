@@ -27,14 +27,15 @@ class InstFormat
 {
 private:
     BitReg* m_rInstruction;
+    BitReg* m_rCurrAddy;
+    BitReg* m_rOpcode; //3 bit opcode
+    BitReg* m_rOffset; //7 bit offset
+    BitReg* m_rOffext; //9 bit offset
     bool m_bMRI; //memory reference instruction format, opcodes 0-5
     bool m_bOperate; //instructions that operate on accumulator and link, opcode 7
     //bool m_bTestIO; //input/output instructions, opcode 6
     bool m_bIndirect;
     bool m_bZeroPage;
-    //BitReg m_rOpcode; //3 bit opcode
-    BitReg* m_rOffset; //7 bit offset
-    BitReg* m_rOffext; //9 bit offset
     OpTableHandle* m_opTable;
     int m_iMicroCode;
     
@@ -58,6 +59,10 @@ public:
     //BitReg getIOdeviceNum(); //TestIO format, 6 bit device number
     //BitReg getIOfcn(); //TestIO format, 3 bit fcn
     int getMicroCode();
+    int getOpcode();
+    BitReg* getInstruction();
+    BitReg* getAddress();
+    void setAddress(BitReg* addy);
 };
 
 
@@ -86,7 +91,8 @@ private:
 public:
     EffectiveAddress();
     ~EffectiveAddress();
-    BitReg* getAddress(BitReg* reg, Memory* memory);  //returns 12 bit address of a memory location from an instruction
+    void setMemory(Memory* memory);
+    BitReg* getAddress(BitReg* reg);  //returns 12 bit address of a memory location from an instruction
 };
 
 
@@ -98,10 +104,10 @@ private:
     InstFormat m_format;
     EffectiveAddress m_eAddy;
     Memory* m_memory;
-    BitReg* m_rCurrInst;
-    BitReg* m_rCurrAddy;
 
     void instructionDefer(); //used to add extra cycles for indirection
+    BitReg* getPC();
+    void setPC(BitReg* addy);
 
 public:
     ControlUnit();
@@ -109,7 +115,6 @@ public:
     void instructionFetch(BitReg* reg);
     void instructionDecode();
     void instructionExecute();
-    void instructionReadWrite();
     void load_from_file(char* filename);
     void printMemoryHistory(char* filename);
 };
