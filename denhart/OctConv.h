@@ -1,6 +1,20 @@
-//------------------------------------------------------------------------------
+/* ==================================================================================
+ECE 486 / Winter 2015 / PDP-8 simulator project
+Team:
+Deborah Denhart
+Jeremiah Franke
+Edward Sayers
+==================================================================================
+File:			    OctConv.cpp
+Date:			    03/02/2015
+Description:	 This file contains the class OctConv
+================================================================================== */
 
-//------------------------------------------------------------------------------
+#ifndef __OCTCONV_H_INCLUDED__
+#define __OCTCONV_H_INCLUDED__
+
+//Defines
+//================================================================================== 
 #define OCT_MAX 8
 #define OCT_0 0
 #define OCT_1 1
@@ -10,10 +24,12 @@
 #define OCT_5 5
 #define OCT_6 6
 #define OCT_7 7
-
 #define OCT_3BIT 3
 
-class stOctConv
+
+//Class OctConv
+//================================================================================== 
+class OctConv
 {
 
 private:
@@ -26,10 +42,10 @@ private:
 
 public:
 
-    stOctConv();
-    ~stOctConv();
+    OctConv();
+    ~OctConv();
     int convToString(bool* inReg, char* rOutReg);
-    char convToString(bool* inReg);
+    char convToString(bool* inReg, int num);
     int convToString(unsigned int inReg, char* rOutReg);
     char convToString(unsigned int inReg);
     int convToNumber(bool* inReg, unsigned int* rOutReg);
@@ -41,3 +57,7 @@ public:
     int convToBinary(unsigned int inReg, bool* rOutReg);
     bool* convToBinary(unsigned int inReg);
 };
+
+
+#endif //__OCTCONV_H_INCLUDED__
+

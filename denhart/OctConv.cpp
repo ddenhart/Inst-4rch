@@ -1,10 +1,32 @@
-#include "stOctConv.h"
-#include "Common.h"
+/* ==================================================================================
+ECE 486 / Winter 2015 / PDP-8 simulator project
+Team:
+Deborah Denhart
+Jeremiah Franke
+Edward Sayers
+==================================================================================
+File:			    OctConv.cpp
+Date:			    03/02/2015
+Description:	 This file contains the class OctConv
+================================================================================== */
+
 #include <cstdio>
+#include "Common.h"
+#include "OctConv.h"
+
+//External objects
+//================================================================================== 
+extern ErrorTable Error;
 
 
-//constructor
-stOctConv::stOctConv()
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+OctConv::OctConv()
 {
     m_iOctTable[0] = OCT_0;
     m_iOctTable[1] = OCT_1;
@@ -59,30 +81,53 @@ stOctConv::stOctConv()
 }
 
 
-//deconstructor
-stOctConv::~stOctConv()
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+OctConv::~OctConv()
 {
 
 }
 
 
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
 //returns the length of the boolean register
-int stOctConv::getLength(bool* rInReg)
+int OctConv::getLength(bool* rInReg)
 {
     int count = 0;
 
-    while(rInReg)
+    if(rInReg)
     {
-        ++count;
-        ++rInReg;
+        count = sizeof(rInReg)/sizeof(bool*);
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_CONV);
     }
 
     return count;
 }
 
 
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
 //must be a 3 bit value, returns a value between 0 and 8
- int stOctConv::convToString(bool* rInReg, char* rOutReg)
+ int OctConv::convToString(bool* rInReg, char* rOutReg)
  {
     int error = ERROR_NONE;
     int iLength = getLength(rInReg);
@@ -126,45 +171,72 @@ int stOctConv::getLength(bool* rInReg)
             }
             else
             {
-                DEBUG_ERROR("OctConv: output structure is NULL");
-                error = ERROR_OCTCONV_NULL;
+                error = ERROR_NULL;
             }
         }
         else
         {
-            DEBUG_ERROR("OctConv: Couldn't find integer value");
-            error = ERROR_OCTCONV_OPP_FAILED;
+            error = ERROR_UNEXPECTED_VALUE;
         }
     }
     else
     {
-        DEBUG_ERROR("OctConv: Wrong input hex length");
-        error = ERROR_OCTCONV_OPP_FAILED;
+        error = ERROR_OUT_OF_RANGE;
+    }
+
+    if(error != ERROR_NONE)
+    {
+        Error.printError(error, FILE_CONV);
     }
 
     return error;
 }
 
+
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be a 3 bit value, returns a value between 0 and 8
- char stOctConv::convToString(bool* rInReg)
+ char OctConv::convToString(bool* rInReg, int num)
  {
-     int iLength = getLength(rInReg);
-     int i = 0;
+     int index = 0;
      int col = 0;
      bool bFound = false;
      char rOutReg = '0';
 
-     if(iLength == OCT_3BIT)
+     if((num <= OCT_3BIT) && (num >= 0) && (rInReg))
      {
-         for(i = 0; i < OCT_MAX; ++i)
+         for(int i = 0; i < OCT_MAX; ++i)
          {
-             if(rInReg[0] == m_bOctTable[i][col++])
+             if(rInReg[0] == m_bOctTable[i][0])
              {
-                 if(rInReg[1] == m_bOctTable[i][col++])
+                 if(1 < num)
                  {
-                     if(rInReg[2] == m_bOctTable[i][col])
+                     if(rInReg[1] == m_bOctTable[i][1])
                      {
+                         if(2 < num)
+                         {
+                             if(rInReg[2] == m_bOctTable[i][2])
+                             {
+                                bFound = true;
+                                index = i;
+                                break;
+                             }
+                             else
+                             {
+                                 col = 0;
+                             }
+                         }
+                         else
+                         {
                              bFound = true;
+                             index = i;
+                             break;
+                         }
                      }
                      else
                      {
@@ -173,7 +245,9 @@ int stOctConv::getLength(bool* rInReg)
                  }
                  else
                  {
-                     col = 0;
+                     bFound = true;
+                     index = i;
+                     break;
                  }
              }
              else//else not this row, keep looking
@@ -184,31 +258,31 @@ int stOctConv::getLength(bool* rInReg)
 
          if(bFound)
          {
-             if(rOutReg)
-             {
-                rOutReg = m_sOctTable[i];
-             }
-             else
-             {
-                 DEBUG_ERROR("OctConv: output structure is NULL");
-             }
+             rOutReg = m_sOctTable[index];
          }
          else
          {
-             DEBUG_ERROR("OctConv: Couldn't find integer value");
+             Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONV);
          }
      }
      else
      {
-         DEBUG_ERROR("OctConv: Wrong input hex length");
+         Error.printError(ERROR_OUT_OF_RANGE, FILE_CONV);
      }
 
      return rOutReg;
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be between 0 and 8 value, returns a value between 0 and 8
- int stOctConv::convToString(unsigned int rInReg, char* rOutReg)
+ int OctConv::convToString(unsigned int rInReg, char* rOutReg)
  {
     int error = ERROR_NONE;
     int i = 0;
@@ -230,22 +304,32 @@ int stOctConv::getLength(bool* rInReg)
         }
         else
         {
-            DEBUG_ERROR("OctConv: output structure is NULL");
-            error = ERROR_OCTCONV_NULL;
+            error = ERROR_NULL;
         }
     }
     else
     {
-        DEBUG_ERROR("OctConv: Couldn't find integer value");
-        error = ERROR_OCTCONV_OPP_FAILED;
+        error = ERROR_UNEXPECTED_VALUE;
+    }
+
+    if(error != ERROR_NONE)
+    {
+        Error.printError(error, FILE_CONV);
     }
 
     return error;
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be betwee 0 and 8 value, returns a value between 0 and 8
- char stOctConv::convToString(unsigned int rInReg)
+ char OctConv::convToString(unsigned int rInReg)
  {
      int i = 0;
      bool bFound = false;
@@ -267,12 +351,12 @@ int stOctConv::getLength(bool* rInReg)
          }
          else
          {
-             DEBUG_ERROR("OctConv: output structure is NULL");
+             Error.printError(ERROR_NULL, FILE_CONV);
          }
      }
      else
      {
-         DEBUG_ERROR("OctConv: Couldn't find integer value");
+         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONV);
      }
 
      return rOutReg;
@@ -280,8 +364,15 @@ int stOctConv::getLength(bool* rInReg)
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be a 3 bit value, returns a value between 0 and 8
- int stOctConv::convToNumber(bool* rInReg, unsigned int* rOutReg)
+ int OctConv::convToNumber(bool* rInReg, unsigned int* rOutReg)
  {
     int error = ERROR_NONE;
     int iLength = getLength(rInReg);
@@ -325,28 +416,37 @@ int stOctConv::getLength(bool* rInReg)
             }
             else
             {
-                DEBUG_ERROR("OctConv: output structure is NULL");
-                error = ERROR_OCTCONV_NULL;
+                error = ERROR_NULL;
             }
         }
         else
         {
-            DEBUG_ERROR("OctConv: Couldn't find boolean value");
-            error = ERROR_OCTCONV_OPP_FAILED;
+            error = ERROR_UNEXPECTED_VALUE;
         }
     }
     else
     {
-        DEBUG_ERROR("OctConv: Wrong input hex length");
-        error = ERROR_OCTCONV_OPP_FAILED;
+        error = ERROR_OUT_OF_RANGE;
+    }
+
+    if(error != ERROR_NONE)
+    {
+        Error.printError(error, FILE_CONV);
     }
 
     return error;
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be a 3 bit value, returns a value between 0 and 8
- unsigned int stOctConv::convToNumber(bool* rInReg)
+ unsigned int OctConv::convToNumber(bool* rInReg)
  {
      int iLength = getLength(rInReg);
      int i = 0;
@@ -390,25 +490,32 @@ int stOctConv::getLength(bool* rInReg)
              }
              else
              {
-                 DEBUG_ERROR("OctConv: output structure is NULL");
+                 Error.printError(ERROR_NULL, FILE_CONV);
              }
          }
          else
          {
-             DEBUG_ERROR("OctConv: Couldn't find boolean value");
+             Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONV);
          }
      }
      else
      {
-         DEBUG_ERROR("OctConv: Wrong input hex length");
+         Error.printError(ERROR_OUT_OF_RANGE, FILE_CONV);
      }
 
      return rOutReg;
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be between 0 and 8, returns a value between 0 and 8
- int stOctConv::convToNumber(char rInReg, unsigned int* rOutReg)
+ int OctConv::convToNumber(char rInReg, unsigned int* rOutReg)
  {
     int error = ERROR_NONE;
     int i = 0;
@@ -430,21 +537,32 @@ int stOctConv::getLength(bool* rInReg)
         }
         else
         {
-            DEBUG_ERROR("OctConv: output structure is NULL");
-            error = ERROR_OCTCONV_NULL;
+            error = ERROR_NULL;
         }
     }
     else
     {
-        DEBUG_ERROR("OctConv: Couldn't find character value");
-        error = ERROR_OCTCONV_OPP_FAILED;
+        error = ERROR_UNEXPECTED_VALUE;
+    }
+
+    if(error != ERROR_NONE)
+    {
+        Error.printError(error, FILE_CONV);
     }
 
     return error;
  }
 
+
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be between 0 and 8, returns a value between 0 and 8
- unsigned int stOctConv::convToNumber(char rInReg)
+ unsigned int OctConv::convToNumber(char rInReg)
  {
      int i = 0;
      bool bFound = false;
@@ -466,20 +584,27 @@ int stOctConv::getLength(bool* rInReg)
          }
          else
          {
-             DEBUG_ERROR("OctConv: output structure is NULL");
+             Error.printError(ERROR_NULL, FILE_CONV);
          }
      }
      else
      {
-         DEBUG_ERROR("OctConv: Couldn't find character value");
+         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONV);
      }
 
      return rOutReg;
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be between 0 and 8, returns a 3 bit value
- int stOctConv::convToBinary(char rInReg, bool* rOutReg)
+ int OctConv::convToBinary(char rInReg, bool* rOutReg)
  {
     int error = ERROR_NONE;
     int i = 0;
@@ -505,34 +630,43 @@ int stOctConv::getLength(bool* rInReg)
                 }
                 else
                 {
-                    DEBUG_ERROR("OctConv: boolean array out of bounds");
-                    error = ERROR_OCTCONV_OPP_FAILED;
+                    error = ERROR_OUT_OF_RANGE;
                     break;
                 }
             }
         }
         else
         {
-            DEBUG_ERROR("OctConv: output structure is NULL");
-            error = ERROR_OCTCONV_NULL;
+            error = ERROR_NULL;
         }
     }
     else
     {
-        DEBUG_ERROR("OctConv: Couldn't find character value");
-        error = ERROR_OCTCONV_OPP_FAILED;
+        error = ERROR_UNEXPECTED_VALUE;
+    }
+
+    if(error != ERROR_NONE)
+    {
+        Error.printError(error, FILE_CONV);
     }
 
     return error;
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be between 0 and 8, returns a 3 bit value
- bool* stOctConv::convToBinary(char rInReg)
+ bool* OctConv::convToBinary(char rInReg)
  {
      int i = 0;
      bool bFound = false;
-     bool rOutReg[OCT_MAX];
+     bool* rOutReg = new bool[OCT_MAX];
 
      for(i = 0; i < OCT_MAX; ++i)
      {
@@ -554,27 +688,34 @@ int stOctConv::getLength(bool* rInReg)
                  }
                  else
                  {
-                     DEBUG_ERROR("OctConv: boolean array out of bounds");
+                     Error.printError(ERROR_OUT_OF_RANGE, FILE_CONV);
                      break;
                  }
              }
          }
          else
          {
-             DEBUG_ERROR("OctConv: output structure is NULL");
+             Error.printError(ERROR_NULL, FILE_CONV);
          }
      }
      else
      {
-         DEBUG_ERROR("OctConv: Couldn't find character value");
+         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONV);
      }
 
      return rOutReg;
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be less than 8, returns a 3 bit value
- int stOctConv::convToBinary(unsigned int rInReg, bool* rOutReg)
+ int OctConv::convToBinary(unsigned int rInReg, bool* rOutReg)
  {
     int error = ERROR_NONE;
     int i = 0;
@@ -600,34 +741,43 @@ int stOctConv::getLength(bool* rInReg)
                 }
                 else
                 {
-                    DEBUG_ERROR("OctConv: boolean array out of bounds");
-                    error = ERROR_OCTCONV_OPP_FAILED;
+                    error = ERROR_NULL;
                     break;
                 }
             }
         }
         else
         {
-            DEBUG_ERROR("OctConv: output structure is NULL");
-            error = ERROR_OCTCONV_NULL;
+            error = ERROR_NULL;
         }
     }
     else
     {
-        DEBUG_ERROR("OctConv: Couldn't find integer value");
-        error = ERROR_OCTCONV_OPP_FAILED;
+        error = ERROR_UNEXPECTED_VALUE;
+    }
+
+    if(error != ERROR_NONE)
+    {
+        Error.printError(error, FILE_CONV);
     }
 
     return error;
  }
 
 
+ //================================================================================== 
+ //Name:
+ //Description:
+ //Inputs:
+ //Outputs:
+ //Return:
+ //================================================================================== 
  //must be less than 8, returns a 3 bit value
- bool* stOctConv::convToBinary(unsigned int rInReg)
+ bool* OctConv::convToBinary(unsigned int rInReg)
  {
      int i = 0;
      bool bFound = false;
-     bool rOutReg[OCT_MAX];
+     bool* rOutReg = new bool[OCT_MAX];
 
      for(i = 0; i < OCT_MAX; ++i)
      {
@@ -649,23 +799,21 @@ int stOctConv::getLength(bool* rInReg)
                  }
                  else
                  {
-                     DEBUG_ERROR("OctConv: boolean array out of bounds");
+                     Error.printError(ERROR_OUT_OF_RANGE, FILE_CONV);
                      break;
                  }
              }
          }
          else
          {
-             DEBUG_ERROR("OctConv: output structure is NULL");
+             Error.printError(ERROR_NULL, FILE_CONV);
          }
      }
      else
      {
-         DEBUG_ERROR("OctConv: Couldn't find integer value");
+         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONV);
      }
 
      return rOutReg;
  }
-
-
 
