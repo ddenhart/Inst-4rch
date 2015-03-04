@@ -214,8 +214,9 @@ void OpRow::clearOpRow()
 char* OpRow::getName()
 {
     char* mnem = NULL;
-    m_sMnemonic = new char[strlen(mnem)+1];
-    strcpy(m_sMnemonic, mnem);
+    
+    mnem = new char[strlen(m_sMnemonic)+1];
+    strcpy(mnem, m_sMnemonic);
     return mnem;
 }
 

@@ -121,14 +121,14 @@ void ControlUnit::instructionDecode()
         
         m_format.setAddress(inst);
     }
-    /*else if(m_format.isInstOPP())
+    else if(m_format.isInstOperate())
     {
         //micro setup
     }
-    else if(m_format.isInstIO())
+    else if(m_format.isInstTestIO())
     {
         //IO setup
-    }*/
+    }
     else
     {
         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
@@ -160,6 +160,8 @@ void ControlUnit::instructionDefer()
     if(m_format.getMRIindirect())
     {
         //up cycle count
+        RegisterFile.incrementPC();
+        fprintf(stdout, "DEBUG: Defer: extra cycle");
     }
 }
 
@@ -206,62 +208,70 @@ void ControlUnit::instructionExecute()
     addy = m_format.getAddress();
     rpc = getPC();
 
-    if(0 == opcode)
+    if(addy && rpc)
     {
-        //test code
-        m_memory->load(addy);
-        m_memory->load(rpc);
-    }
-    else if(1 == opcode)
-    {
-        //test code
-        m_memory->load(addy);
-        m_memory->load(rpc);
+        if(0 == opcode)
+        {
+            //test code
+            m_memory->load(addy);
+            m_memory->load(rpc);
+        }
+        else if(1 == opcode)
+        {
+            //test code
+            m_memory->load(addy);
+            m_memory->load(rpc);
+        }
+        else if(2 == opcode)
+        {
+            //test code
+            m_memory->load(addy);
+            m_memory->load(rpc);
+        }
+        else if(3 == opcode)
+        {
+            //test code
+            //store result of accumulator
+            m_memory->store(addy, rpc);
+            m_memory->load(rpc);
 
-    }
-    else if(2 == opcode)
-    {
-        //test code
-        m_memory->load(addy);
-        m_memory->load(rpc);
+        }
+        else if(4 == opcode)
+        {
+            //test code
+            m_memory->load(addy);
+            m_memory->load(rpc);
 
-    }
-    else if(3 == opcode)
-    {
-        //test code
-        //store result of accumulator
-        m_memory->store(addy,rpc);
-        m_memory->load(rpc);
+        }
+        else if(5 == opcode)
+        {
+            //test code
+            m_memory->load(addy);
+            m_memory->load(rpc);
 
-    }
-    else if(4 == opcode)
-    {
-        //test code
-        m_memory->load(addy);
-        m_memory->load(rpc);
+        }
+        else if(6 == opcode)
+        {
+            //noop
+            fprintf(stdout, "DEBUG: Execute: NOP\n");
+        }
+        else if(7 == opcode)
+        {
+            //opcode 7 micro instructions here
+        }
+        else
+        {
+            Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+        }
 
+        RegisterFile.incrementPC();
+        fprintf(stdout, "DEBUG: Execute: %s  %s  PC: %s\n", 
+                m_format.getInstType(), addy->getString(), rpc->getString());
     }
-    else if(5 == opcode)
+    else
     {
-        //test code
-        m_memory->load(addy);
-        m_memory->load(rpc);
-
+        Error.printError(ERROR_NULL, FILE_CONTROL);
     }
-    else if(6 == opcode)
-    {
-        //noop
-    }
-    else if(7 == opcode)
-    {
-        //opcode 7 micro instructions here
-    }
-    else 
-    {
-        Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
-    }
-
-    RegisterFile.incrementPC();
 }
 
 
@@ -501,7 +511,7 @@ void InstFormat::reset()
 {
     m_bMRI = false;
     m_bOperate = false;
-    //m_bTestIO = false;
+    m_bTestIO = false;
     m_bIndirect = 0;
     m_bZeroPage = 0;
     m_iMicroCode = 0;
@@ -518,11 +528,15 @@ void InstFormat::reset()
 void InstFormat::setOpCode()
 {
     BitReg* opcode = NULL;
+    int opnum = 0;
     opcode = m_rInstruction->sliceBits(OPCODE_MIN_INDEX, OPCODE_LENGTH);
-    //m_rOpcode.setReg(opcode);
     if(opcode)
     {
+        m_rOpcode->setReg(opcode);
         RegisterFile.rIR->setReg(opcode);
+        opnum = opcode->getNumber();
+        //debug
+        fprintf(stdout, "DEBUG: opcode: %s, %s\n", opcode->getString(), m_opTable->getMnemonic(opnum));
     }
     else
     {
@@ -548,6 +562,8 @@ void InstFormat::setOffset()
         if(offset)
         { 
             m_rOffset->setReg(offset);
+            //debug
+            fprintf(stdout, "DEBUG: offset: %s  %s\n", m_rOffext->getString(), getInstType());
         }
         else
         {
@@ -560,14 +576,19 @@ void InstFormat::setOffset()
         if(offset)
         {
             m_rOffext->setReg(offset);
+            //debug
+            fprintf(stdout, "DEBUG: offset: %s  %s\n", m_rOffext->getString(), getInstType());
         }
         else
         {
             Error.printError(ERROR_NULL, FILE_CONTROL);
         }
     }
-    //else if(m_bTestIO)
-    //{ }
+    else if(m_bTestIO)
+    {
+        //debug
+        fprintf(stdout, "DEBUG: offset: %s  %s\n", m_rOffext->getString(), getInstType());
+    }
     else
     {
         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
@@ -596,14 +617,24 @@ void InstFormat::setInstType()
             if(OPCODE_MRI >= opIndex)
             {
                 m_bMRI = true;
+                m_bTestIO = false;
+                m_bOperate = false;
             }
             else if(OPCODE_IO == opIndex)
             {
-                //m_bTestIO = true;
+                m_bMRI = false;
+                m_bTestIO = true;
+                m_bOperate = false;
+            }
+            else if(OPCODE_OPP == opIndex)
+            {
+                m_bMRI = false;
+                m_bTestIO = false;
+                m_bOperate = true;
             }
             else
             {
-                m_bOperate = true;
+                Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
             }
         }
         else
@@ -652,13 +683,20 @@ void InstFormat::loadInstruction(BitReg* inst)
             {
                 m_bIndirect = bInst[INST_INDIRECT_BIT];
                 m_bZeroPage = bInst[INST_MEMPAGE_BIT];
+                //debug
+                fprintf(stdout, "DEBUG: load instruction: %s\n", getInstType());
             }
             else if(m_bOperate)
             {
                 m_iMicroCode = inst->getNumber();
+                //debug
+                fprintf(stdout, "DEBUG: load instruction: %s\n", getInstType());
             }
-            //else if(m_bTestIO)
-            //{ }
+            else if(m_bTestIO)
+            {
+                //debug
+                fprintf(stdout, "DEBUG: load instruction: %s\n", getInstType());
+            }
             else
             {
                 Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
@@ -689,8 +727,9 @@ void InstFormat::loadInstruction(BitReg* inst)
 char* InstFormat::getInstType()
 {
     char* temp = NULL;
-    char* stemp1 = "Memory Reference";
-    char* stemp2 = "Micro Instruction";
+    char* stemp1 = INST_FORM_MRI;
+    char* stemp2 = INST_FORM_OP;
+    char* stemp3 = INST_FORM_IO;
 
     if(m_bMRI)
     {
@@ -702,8 +741,9 @@ char* InstFormat::getInstType()
         temp = new char[strlen(stemp2)+1];
         strcpy(temp, stemp2);
     }
-    //else if(m_bTestIO)
-    //{    }
+    else if(m_bTestIO)
+    {   
+    }
     else
     {
         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
@@ -764,6 +804,19 @@ bool InstFormat::isInstMRI()
 bool InstFormat::isInstOperate()
 {
     return m_bOperate;
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+bool InstFormat::isInstTestIO()
+{
+    return m_bTestIO;
 }
 
 

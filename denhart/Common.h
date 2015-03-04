@@ -37,6 +37,7 @@ class BitReg;
 #define OPCODE_MIN 0
 #define OPCODE_MRI 5
 #define OPCODE_IO 6
+#define OPCODE_OPP 7
 #define OPCODE_MAX 7
 #define OPCODE_MIN_INDEX 0
 #define OPCODE_MAX_INDEX 2

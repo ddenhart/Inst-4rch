@@ -1093,10 +1093,24 @@ int BitReg::getLength()
  int BitReg::getLength(bool* rInReg)
  {
      int count = 0;
+     int conv = 0;
+     bool done = false;
      
      if(rInReg)
      {
-         count = sizeof(rInReg)/sizeof(bool*);
+         while(!done)
+         {
+            conv = rInReg[count];
+            if((conv == 0) || (conv == 1))
+            {
+                ++count;
+            }
+            else
+            {
+                done = true;
+            }
+         }
+         //count = sizeof(rInReg)/sizeof(bool*);
      }
      else
      {

@@ -33,7 +33,7 @@ private:
     BitReg* m_rOffext; //9 bit offset
     bool m_bMRI; //memory reference instruction format, opcodes 0-5
     bool m_bOperate; //instructions that operate on accumulator and link, opcode 7
-    //bool m_bTestIO; //input/output instructions, opcode 6
+    bool m_bTestIO; //input/output instructions, opcode 6
     bool m_bIndirect;
     bool m_bZeroPage;
     OpTableHandle* m_opTable;
@@ -54,7 +54,7 @@ public:
     BitReg* getMRIoffset(); //MRI format, 7 bit offset
     bool isInstMRI();
     bool isInstOperate();
-    //bool isInstTestIO();
+    bool isInstTestIO();
     BitReg* getOPextended(); //Operate format, 9 bit extended opcode
     //BitReg getIOdeviceNum(); //TestIO format, 6 bit device number
     //BitReg getIOfcn(); //TestIO format, 3 bit fcn

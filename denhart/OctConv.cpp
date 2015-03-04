@@ -51,29 +51,29 @@ OctConv::OctConv()
     m_bOctTable[0][1] = 0;
     m_bOctTable[0][2] = 0;
 
-    m_bOctTable[1][0] = 1;
+    m_bOctTable[1][0] = 0;
     m_bOctTable[1][1] = 0;
-    m_bOctTable[1][2] = 0;
+    m_bOctTable[1][2] = 1;
 
     m_bOctTable[2][0] = 0;
     m_bOctTable[2][1] = 1;
     m_bOctTable[2][2] = 0;
 
-    m_bOctTable[3][0] = 1;
+    m_bOctTable[3][0] = 0;
     m_bOctTable[3][1] = 1;
-    m_bOctTable[3][2] = 0;
+    m_bOctTable[3][2] = 1;
 
-    m_bOctTable[4][0] = 0;
+    m_bOctTable[4][0] = 1;
     m_bOctTable[4][1] = 0;
-    m_bOctTable[4][2] = 1;
+    m_bOctTable[4][2] = 0;
 
     m_bOctTable[5][0] = 1;
     m_bOctTable[5][1] = 0;
     m_bOctTable[5][2] = 1;
 
-    m_bOctTable[6][0] = 0;
+    m_bOctTable[6][0] = 1;
     m_bOctTable[6][1] = 1;
-    m_bOctTable[6][2] = 1;
+    m_bOctTable[6][2] = 0;
 
     m_bOctTable[7][0] = 1;
     m_bOctTable[7][1] = 1;
