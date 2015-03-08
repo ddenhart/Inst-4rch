@@ -21,6 +21,7 @@ class BitReg;
 
 //Defines
 //================================================================================== 
+#define DEBUT_OP true
 #define OP_TABLE_LENG 12
 #define OP7_LIST_LENG 11
 
@@ -53,6 +54,33 @@ private:
 public:
     Opcode7List();
     ~Opcode7List();
+    void nop();
+    void iac();
+    void rar();
+    void ral();
+    void rtl();
+    void rtr();
+    void bsw();
+    void cml();
+    void cma();
+    void cia();
+    void cll();
+    void stl();
+    void cla();
+    void sta();
+    void hlt(); //group 2
+    void osr();
+    void skp();
+    void snl();
+    void szl();
+    void sza();
+    void sna();
+    void sma();
+    void spa();
+    void cam(); //group 3
+    void mqa();
+    void mql();
+    void swp();
     void printList();
 };
 

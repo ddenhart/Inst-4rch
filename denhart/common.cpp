@@ -81,7 +81,7 @@ void ErrorTable::printError(int error, int fileCode)
 {
     int iErr = abs(error);
 
-    if( (iErr > 0) && (iErr < ERROR_MAX) && (fileCode > 0) && (fileCode < FILE_MAX) )
+    if( (iErr > 0) && (iErr < ERROR_MAX) && (fileCode > 0) && (fileCode < FILE_MAX) && (errorsOn))
     {
         fprintf(stderr, "%s\n", PRINT_BREAK);
         fprintf(stderr, "***Error found in %s: %s***\n", fileTable[fileCode], errorTable[iErr]);

@@ -23,6 +23,7 @@ class OctConv;
 
 //Defines
 //================================================================================== 
+#define DEBUG_REG true
 #define MASK0 0x00F
 #define MASK1 0x0F0
 #define MASK2 0xF00
@@ -59,6 +60,7 @@ private:
     void resizeRegister(int size);
     int outOfRangeChar(char num); //checks that num is an octal value
     unsigned int convertedNumb(bool* reg); //converts a boolean array to decimal
+    int convertedNumb2sComp(bool* reg); //
     char* convertedChar(bool* reg); //converts a boolean array to char array
     char* convertedChar(bool* reg, int number); //converts a boolean array to char array
     char convertedBinary(bool reg); //converts a bool to the chars 0 or 1
@@ -94,6 +96,9 @@ public:
     unsigned int getNumber(); //returns the decimal value of the register
     unsigned int getNumber(bool* rInReg); //returns the decimal value of the bool array input
     unsigned int getNumber(char* rInReg); //returns the decimal value of the char array input
+    int getNumber2sComp(); //returns the decimal value of the register
+    int getNumber2sComp(bool* rInReg); //returns the decimal value of the bool array input
+    int getNumber2sComp(char* rInReg); //returns the decimal value of the char array input
     char* getString();
     char* getString(int size);
     char* getString(BitReg* rInReg);
@@ -104,6 +109,7 @@ public:
     void printRegister();
     char* getBinary();
     char* getBinary(bool* reg);
+    void complement();
 };
 
 

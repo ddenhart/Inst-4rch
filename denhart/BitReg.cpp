@@ -714,6 +714,98 @@ unsigned int BitReg::convertedNumb(bool* reg)
 //Outputs:
 //Return:
 //================================================================================== 
+int BitReg::convertedNumb2sComp(bool* reg)
+{
+    int total = 0;
+    int length = 0;
+    int signIndex = 0;
+    bool* temp = NULL;
+    bool carry = true; //start out with carry as 1 to simulate adding 1
+
+    if(reg)
+    {
+        length = getLength(reg);
+
+        if((length-2) < 0)
+        {
+            Error.printError(ERROR_OUT_OF_RANGE, FILE_BITREG);
+        }
+        else
+        {
+            temp = new bool[length-1];
+
+            for(int i = 1; i < length; i++)
+            {
+                temp[signIndex] = reg[i];
+                ++signIndex;
+            }
+
+            total = convertedNumb(temp);
+
+            if(!reg[0]) //if the signed bit is negative, negate
+            {
+                total *= -1;
+            }
+        }
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_BITREG);
+    }
+
+    if(temp)
+    {
+        delete[] temp;
+        temp = NULL;
+    }
+
+    return total;
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void BitReg::complement()
+{
+    bool* temp = NULL;
+
+    if(m_rBitReg)
+    {
+        if(m_iLength < 0)
+        {
+            Error.printError(ERROR_OUT_OF_RANGE, FILE_BITREG);
+        }
+        else
+        {
+            temp = new bool[m_iLength];
+
+            for(int i = 0; i < m_iLength; ++i)
+            {
+                temp[i] = !m_rBitReg[i];
+            }
+        }
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_BITREG);
+    }
+
+    setReg(temp);
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
 //converts a boolean array to char array
 char* BitReg::convertedChar(bool* reg)
 {
@@ -820,7 +912,7 @@ char* BitReg::convertedChar(bool* reg, int number)
     //extend the MSB with 0's
     if(2 == modCount)
     {
-        index = 1;
+        //index = 1;
         btempex = bitChunk(index, modCount);
         btemp = new bool[OCT_3BIT];
         initArray(btemp, OCT_3BIT);
@@ -832,7 +924,7 @@ char* BitReg::convertedChar(bool* reg, int number)
     }
     else if(1 == modCount)
     {
-        index = 2;
+        //index = 2;
         btempex = bitChunk(index, modCount);
         btemp = new bool[OCT_3BIT];
         initArray(btemp, OCT_3BIT);
@@ -1404,6 +1496,80 @@ unsigned int BitReg::getNumber(char* rInReg)
 //Outputs:
 //Return:
 //================================================================================== 
+//returns an integer conversion of the boolean array
+int BitReg::getNumber2sComp()
+{
+    int temp = 0;
+    temp = convertedNumb2sComp(m_rBitReg);
+    return temp;
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+//returns an integer conversion of the boolean array
+int BitReg::getNumber2sComp(bool* rInReg)
+{
+    unsigned int temp = 0;
+    temp = convertedNumb2sComp(rInReg);
+    return temp;
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+//returns an integer conversion of the boolean array
+int BitReg::getNumber2sComp(char* rInReg)
+{
+    bool* temp = NULL;
+    int size = 0;
+    int itemp = 0;
+
+    if(rInReg)
+    {
+        size = getLength(rInReg);
+        temp = fillRegister(size, rInReg);
+        if(temp)
+        {
+            itemp = convertedNumb2sComp(temp);
+        }
+        else
+        {
+            Error.printError(ERROR_NULL, FILE_BITREG);
+        }
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_BITREG);
+    }
+
+    if(temp)
+    {
+        delete[] temp;
+        temp = NULL;
+    }
+
+    return itemp;
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
 char* BitReg::getString()
 {
     char* temp = NULL;
@@ -1712,7 +1878,7 @@ void BitReg::printRegister()
 //================================================================================== 
 char* BitReg::getBinary()
 {
-    int size = m_iLength + 1;
+    int size = m_iLength;
     char* temp = new char[size +1];
     initArray(temp, size);
 
@@ -1735,7 +1901,7 @@ char* BitReg::getBinary()
 //================================================================================== 
 char* BitReg::getBinary(bool* reg)
 {
-    int size = m_iLength + 1;
+    int size = m_iLength;
     char* temp = NULL;
 
     if(size > 0)

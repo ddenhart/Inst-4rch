@@ -17,28 +17,42 @@ Description:	 This file contains the class Accumulator
 //================================================================================== 
 class BitReg;
 
+//Defines
+//================================================================================== 
+#define DEBUG_ALU true
 
 //Class Accumulator
 //================================================================================== 
 class Accumulator
 {
 private:
+    bool m_bZero;
+    bool m_bNegative;
 
-    bool carryOrOverflow();
+    void setAC(BitReg* rac);
+    void setLB(BitReg* rac);
+    void setCarry(bool* btemp);
 
 public:
     Accumulator();
     ~Accumulator();
-    void sum(BitReg* rInReg);
-    void handleCarry();
+    BitReg* getAC();
+    BitReg* getLB();
+    void sumReg(BitReg* rInReg);
     bool isNegative();
     bool isZero();
     void complement();
-    void increment();
+    void increment(BitReg* rInReg);
     void negate();
     void clear();
     void rotateRight();
     void rotateLeft();
+    void shiftRight(int num);
+    void shiftLeft(int num);
+    void andReg(BitReg* rInReg);
+    void orReg(BitReg* rInReg);
+    void printAll();
+    void printALU();
 };
 
 

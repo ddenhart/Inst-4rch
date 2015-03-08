@@ -44,6 +44,7 @@ const char* default_tracefile = "add01.as";
 //================================================================================== 
 int main (int argc, char **argv)
 {
+    bool silent = false; //pass to error class
     bool bDebugOn = false;
     bool bHelp = false;
     bool bHex = false;

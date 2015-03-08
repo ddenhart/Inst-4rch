@@ -19,8 +19,7 @@ class BitReg;
 
 //Defines
 //================================================================================== 
-
-#define DEBUG 1
+#define DEBUG_COMMON true
 #define REG_12BIT 12
 #define REG_9BIT 9
 #define REG_7BIT 7

@@ -19,7 +19,11 @@ ControlUnit and Statistics
 class BitReg;
 class OpTableHandle;
 class Memory;
+class Accumulator;
 
+//Defines
+//================================================================================== 
+#define DEBUG_CONTROL true
 
 //Class InstFormat
 //================================================================================== 
@@ -104,10 +108,13 @@ private:
     InstFormat m_format;
     EffectiveAddress m_eAddy;
     Memory* m_memory;
+    Accumulator* m_alu;
 
     void instructionDefer(); //used to add extra cycles for indirection
     BitReg* getPC();
     void setPC(BitReg* addy);
+    BitReg* getAC();
+    void setAC(BitReg* addy);
 
 public:
     ControlUnit();

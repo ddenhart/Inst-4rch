@@ -15,6 +15,7 @@ Description:	 This file contains the class OctConv
 
 //Defines
 //================================================================================== 
+#define DEBUG_CONVERT true
 #define OCT_MAX 8
 #define OCT_0 0
 #define OCT_1 1
