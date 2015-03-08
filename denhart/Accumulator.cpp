@@ -173,7 +173,8 @@ void Accumulator::sumReg(BitReg* rInReg)
                 }
             }
 
-            for(int i = 0; i< REG_12BIT; ++i)
+            index = REG_12BIT-1;
+            for(int i = index; i>=0; --i)
             {
                 if(temp[i] && areg[i])//if 11 then carry
                 {
@@ -1044,7 +1045,7 @@ void Accumulator::orReg(BitReg* rInReg)
 //================================================================================== 
 void Accumulator::printAll()
 {
-    char* num = "3003";
+    char* num = "7007";
     BitReg temp(num);
 
     printALU();
