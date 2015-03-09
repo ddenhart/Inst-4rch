@@ -126,11 +126,11 @@ void ControlUnit::instructionDecode()
             instructionDefer();
             inst = m_eAddy.getAddress(indinst);
         }
-        
         m_format.setAddress(inst);
     }
     else if(m_format.isInstOperate())
     {
+		m_format.setAddress(m_eAddy.getAddress(currInst));
         //micro setup
     }
     else if(m_format.isInstTestIO())
@@ -239,6 +239,7 @@ void ControlUnit::instructionExecute()
         {
             //test code
             m_memory->load(addy);
+			printf("Data to Accumulator: %s\n", m_memory->readMB()->getString());
             m_memory->load(rpc);
         }
         else if(OPCODE_ISZ == opcode)
@@ -457,6 +458,23 @@ void ControlUnit::load_from_file(char* filename)
         }
         fclose(file);
     }
+	setPC(&m_StartAddress);
+	BitReg* rpc = getPC();
+	m_memory->load(rpc);
+	while (HALT_CODE != m_memory->readMB()->getNumber())
+	{
+		instructionFetch(m_memory->readMB());
+		instructionDecode();
+		instructionExecute();
+		rpc = getPC();
+		m_memory->load(rpc);
+		if (rpc)
+		{
+			delete rpc;
+			rpc = NULL;
+		}
+
+	}
     m_alu->printAll();
     data = 0;
     rInput.setReg(data);
@@ -615,7 +633,7 @@ void InstFormat::setOffset()
             //debug
             if(DEBUG_CONTROL)
             {
-                fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
+                fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffset->getString(), getInstType());
             }
         }
         else
@@ -1094,7 +1112,6 @@ BitReg* EffectiveAddress::effAdzeroPage()
     BitReg* temp = NULL;
     bool* ztemp = NULL;
     bool* otemp = NULL;
-
     ztemp = m_rZeroPage->getBool();
     otemp = m_rOffset->getBool();
     if(ztemp && otemp)
@@ -1140,12 +1157,13 @@ BitReg* EffectiveAddress::effAdcurrentPage()
     bool* ztemp = NULL;
     bool* otemp = NULL;
 
+	setPCOffset();
     ztemp = m_rCurrPage->getBool();
     otemp = m_rOffset->getBool();
     if(ztemp && otemp)
     {
         temps[0].setReg(ztemp);
-        temps[1].setReg(otemp);
+        temps[1].setReg(otemp); 
     }
     else
     {
@@ -1153,7 +1171,6 @@ BitReg* EffectiveAddress::effAdcurrentPage()
     }
 
     temp = temps->ccatRegs(temps, words);
-
     if(ztemp)
     {
         delete[] ztemp;
@@ -1404,12 +1421,10 @@ BitReg* EffectiveAddress::getAddress(BitReg* reg)
 {
     BitReg* tempReg = NULL;
     bool* temp = NULL; 
-
     if(reg)
     {
         int length = reg->getLength();
         temp = reg->getBool();
-
         if((REG_12BIT == length) && temp)
         {
             m_bIndirect = temp[INST_INDIRECT_BIT];

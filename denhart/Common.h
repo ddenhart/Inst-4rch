@@ -57,6 +57,7 @@ class BitReg;
 #define OPCODE_JMS 4
 #define OPCODE_JMP 5
 #define START_ADDRESS 200
+#define HALT_CODE 3842
 
 
 //file codes
