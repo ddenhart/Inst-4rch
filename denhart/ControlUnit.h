@@ -105,6 +105,7 @@ public:
 class ControlUnit
 {
 private:
+    BitReg m_StartAddress;
     InstFormat m_format;
     EffectiveAddress m_eAddy;
     Memory* m_memory;

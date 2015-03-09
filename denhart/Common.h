@@ -56,6 +56,7 @@ class BitReg;
 #define OPCODE_DCA 3
 #define OPCODE_JMS 4
 #define OPCODE_JMP 5
+#define START_ADDRESS 200
 
 
 //file codes

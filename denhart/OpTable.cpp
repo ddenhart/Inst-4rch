@@ -102,17 +102,17 @@ int Opcode7inst::getcode()
 //================================================================================== 
 Opcode7List::Opcode7List()
 {
-    m_op7List[0].setRow(40, "CMA"); //complement accumulator
-    m_op7List[1].setRow(1, "IAC"); //increment accumulator
-    m_op7List[2].setRow(41, "CIA"); //complement and increment accumulator
+    m_op7List[0].setRow(040, "CMA"); //complement accumulator
+    m_op7List[1].setRow(001, "IAC"); //increment accumulator
+    m_op7List[2].setRow(041, "CIA"); //complement and increment accumulator
     m_op7List[3].setRow(300, "CLA CLL"); //clear AC and link
     m_op7List[4].setRow(402, "HLT"); //halt
     m_op7List[5].setRow(500, "SMA"); //skip next instruction if AC is negative
     m_op7List[6].setRow(440, "SZA"); //skip next instruction if AC is zero
     m_op7List[7].setRow(510, "SPA"); //skip next instruction if AC is positive
     m_op7List[8].setRow(450, "SNA"); //skip next instruction if AC is not equal to zero
-    m_op7List[9].setRow(10, "RAR"); //rotate accumulator link pair right
-    m_op7List[10].setRow(4, "RAL"); //rotate accumulator link par left
+    m_op7List[9].setRow(010, "RAR"); //rotate accumulator link pair right
+    m_op7List[10].setRow(004, "RAL"); //rotate accumulator link par left
 }
 
 

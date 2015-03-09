@@ -41,6 +41,7 @@ ControlUnit::ControlUnit()
     m_alu = new Accumulator;
     m_memory = new Memory;
     m_eAddy.setMemory(m_memory);
+    m_StartAddress.setReg(START_ADDRESS);
 }
 
 
@@ -318,7 +319,8 @@ void ControlUnit::load_from_file(char* filename)
     int maxOctLeng = 4;
     bool bPairFound = false;
     bool bAddy = false;
-    std::vector<char*> buffer;
+    bool bFirstLine = true;
+    //std::vector<char*> buffer;
     BitReg rInput(REG_12BIT); // Current address 
     BitReg rData(REG_12BIT); // Current address 
     unsigned int data = 0;
@@ -412,7 +414,7 @@ void ControlUnit::load_from_file(char* filename)
             {
                 sInput[ADDRESS_LENGTH_OCT] = '\0';
                 rInput.setReg(sInput);
-                if(m_memory->checkValidAddy(&rInput))
+                if(m_memory->checkValidAddy(&rInput)) //TODO
                 {
                     //debug
                     if(DEBUG_CONTROL)
@@ -420,15 +422,30 @@ void ControlUnit::load_from_file(char* filename)
                         fprintf(stdout, "DEBUG address: %s\n", rInput.getString());
                     }
 
+                    if(bFirstLine && bAddy)
+                    {
+                        m_StartAddress.setReg(&rInput);
+                    }
+
+                    bFirstLine = false;
+
                     if(bAddy) //it's an address
                     {
                         setPC(&rInput);
                     }
                     else //it's data
                     {
-                        instructionFetch(&rInput);
-                        instructionDecode();
-                        instructionExecute();
+                        BitReg* rpc = getPC();
+                        m_memory->store(rpc, &rInput);
+                        RegisterFile.incrementPC();
+                        if(rpc)
+                        {
+                            delete rpc;
+                            rpc = NULL;
+                        }
+                        //instructionFetch(&rInput);
+                        //instructionDecode();
+                        //instructionExecute();
                     }
                 }
                 else
