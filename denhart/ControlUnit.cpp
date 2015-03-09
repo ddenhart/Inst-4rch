@@ -214,6 +214,7 @@ void ControlUnit::instructionExecute()
 {
     BitReg* addy = NULL;
     BitReg* rpc = NULL;
+    BitReg* data = NULL;
     int opcode = m_format.getOpcode();
 
     addy = m_format.getAddress();
@@ -221,26 +222,31 @@ void ControlUnit::instructionExecute()
 
     if(addy && rpc)
     {
-        if(0 == opcode)
+        if(OPCODE_AND == opcode)
         {
             //test code
             m_memory->load(addy);
             m_memory->load(rpc);
+            data = m_memory->readMB();
+            if(DEBUG_CONTROL)
+            {
+                fprintf(stdout, "DEBUG Execute: %s\n", data->getString());
+            }
             m_alu->sumReg(addy);
         }
-        else if(1 == opcode)
+        else if(OPCODE_TAD == opcode)
         {
             //test code
             m_memory->load(addy);
             m_memory->load(rpc);
         }
-        else if(2 == opcode)
+        else if(OPCODE_ISZ == opcode)
         {
             //test code
             m_memory->load(addy);
             m_memory->load(rpc);
         }
-        else if(3 == opcode)
+        else if(OPCODE_DCA == opcode)
         {
             //test code
             //store result of accumulator
@@ -248,21 +254,21 @@ void ControlUnit::instructionExecute()
             m_memory->load(rpc);
 
         }
-        else if(4 == opcode)
+        else if(OPCODE_JMS == opcode)
         {
             //test code
             m_memory->load(addy);
             m_memory->load(rpc);
 
         }
-        else if(5 == opcode)
+        else if(OPCODE_JMP == opcode)
         {
             //test code
             m_memory->load(addy);
             m_memory->load(rpc);
 
         }
-        else if(6 == opcode)
+        else if(OPCODE_IO == opcode)
         {
             //noop
             if(DEBUG_CONTROL)
@@ -270,9 +276,10 @@ void ControlUnit::instructionExecute()
                 fprintf(stdout, "DEBUG Execute: NOP\n");
             }
         }
-        else if(7 == opcode)
+        else if(OPCODE_OPP == opcode)
         {
             //opcode 7 micro instructions here
+            //m_op7.findMicroOp(opcode);
         }
         else
         {

@@ -50,6 +50,13 @@ class BitReg;
 #define OFFSET_PC_LENGTH 5
 #define OFFSET_PC_MIN_INDEX 0
 #define OFFSET_PC_MAX_INDEX 4
+#define OPCODE_AND 0
+#define OPCODE_TAD 1
+#define OPCODE_ISZ 2
+#define OPCODE_DCA 3
+#define OPCODE_JMS 4
+#define OPCODE_JMP 5
+
 
 //file codes
 #define FILE_MAIN 0

@@ -468,6 +468,22 @@ void Memory::log(BitReg* address, log_type type)
 //Outputs:
 //Return:
 //================================================================================== 
+// Log memory access
+// INPUT: address and type
+// OUTPUT: none
+BitReg* Memory::readMB()
+{
+    return RegisterFile.rMB->getReg();
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
 log_type::log_type()
 {
     type = -1;

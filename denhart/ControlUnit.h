@@ -109,6 +109,7 @@ private:
     EffectiveAddress m_eAddy;
     Memory* m_memory;
     Accumulator* m_alu;
+    //Opcode7List m_op7;
 
     void instructionDefer(); //used to add extra cycles for indirection
     BitReg* getPC();

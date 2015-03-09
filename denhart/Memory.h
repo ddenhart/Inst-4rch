@@ -84,6 +84,7 @@ public:
     bool checkValidAddy(BitReg* addy);
     void setAccess(BitReg* addy);
     int dump_memory(char* filename);
+    BitReg* readMB();
 };
 
 

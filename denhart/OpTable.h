@@ -18,6 +18,7 @@ Description:	 This file contains the classes Opcode7inst, Opcode7List, OpRow and
 //================================================================================== 
 class OctConv;
 class BitReg;
+class Accumulator;
 
 //Defines
 //================================================================================== 
@@ -38,9 +39,9 @@ private:
 
 public:
     Opcode7inst();
-    Opcode7inst(int code, char* mnem);
-    Opcode7inst(Opcode7inst& source);
     ~Opcode7inst();
+    void setRow(int code, char* mnem);
+    int getcode();
 };
 
 
@@ -54,22 +55,23 @@ private:
 public:
     Opcode7List();
     ~Opcode7List();
+    int findMicroOp(int inst);
     void nop();
-    void iac();
-    void rar();
-    void ral();
-    void rtl();
-    void rtr();
-    void bsw();
-    void cml();
-    void cma();
-    void cia();
+    //void iac();
+    //void rar();
+    //void ral();
+    //void rtl();
+    //void rtr();
+    //void bsw();
+    //void cml();
+    //void cma();
+    //void cia();
     void cll();
-    void stl();
+    //void stl();
     void cla();
-    void sta();
+    //void sta();
     void hlt(); //group 2
-    void osr();
+    /*void osr();
     void skp();
     void snl();
     void szl();
@@ -81,7 +83,7 @@ public:
     void mqa();
     void mql();
     void swp();
-    void printList();
+    void printList();*/
 };
 
 
@@ -118,17 +120,21 @@ class OpTableHandle
 {
 private:
     OpRow m_opTable[OP_TABLE_LENG];
-    Opcode7inst m_op7;
+    Opcode7List m_op7;
+    Accumulator* m_alu;
+
     int searchByName(char* name);
 
 public:
     OpTableHandle();
+    OpTableHandle(Accumulator* mem);
     ~OpTableHandle();
     char* getMnemonic(int index);
     int getIndex(char* name);
     int getTotal(int index);
     void incrementTotal(int index);
     void printTable();
+    void exMicroInst(int opcode);
 };
 
 
