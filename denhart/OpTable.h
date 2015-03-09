@@ -33,15 +33,15 @@ class Opcode7inst
 {
 
 private:
-    int m_iCode;
+    unsigned int m_iCode;
     char* m_sMnemonic;
     BitReg m_rValue;
 
 public:
     Opcode7inst();
     ~Opcode7inst();
-    void setRow(int code, char* mnem);
-    int getcode();
+    void setRow(unsigned int code, const char* mnem);
+    unsigned int getcode();
 };
 
 
@@ -55,7 +55,7 @@ private:
 public:
     Opcode7List();
     ~Opcode7List();
-    int findMicroOp(int inst);
+    int findMicroOp(unsigned int inst);
     void nop();
     //void iac();
     //void rar();
@@ -102,14 +102,14 @@ private:
 
 public:
     OpRow();
-    OpRow(char* mnem, int cycles, unsigned int index);
+    OpRow(const char* mnem, int cycles, unsigned int index);
     ~OpRow();
     char* getName();
-    int getOpcode();
+    unsigned int getOpcode();
     int getCycles();
     int getTotal();
     void incTotal();
-    void setRow(char* mnem, int cycles, unsigned int index);
+    void setRow(const char* mnem, int cycles, unsigned int index);
     void printRow();
 };
 
@@ -129,7 +129,7 @@ public:
     OpTableHandle();
     OpTableHandle(Accumulator* mem);
     ~OpTableHandle();
-    char* getMnemonic(int index);
+    char* getMnemonic(unsigned int index);
     int getIndex(char* name);
     int getTotal(int index);
     void incrementTotal(int index);

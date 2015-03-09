@@ -14,8 +14,6 @@ Description:	 This file contains the classes InstFormat, EffectiveAddress,
 #include <fstream>
 #include <cstdio>
 #include <cstring>
-#include <vector>
-#include <string>
 #include "Common.h"
 #include "BitReg.h"
 #include "OpTable.h"
@@ -169,11 +167,9 @@ void ControlUnit::instructionDefer()
     {
         //up cycle count
         RegisterFile.incrementPC();
-        if(DEBUG_CONTROL)
-        {
-            fprintf(stdout, "DEBUG: Defer: extra cycle");
-        }
-        
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG: Defer: extra cycle");
+#endif
     }
 }
 
@@ -216,7 +212,7 @@ void ControlUnit::instructionExecute()
     BitReg* addy = NULL;
     BitReg* rpc = NULL;
     BitReg* data = NULL;
-    int opcode = m_format.getOpcode();
+    unsigned int opcode = m_format.getOpcode();
 
     addy = m_format.getAddress();
     rpc = getPC();
@@ -229,10 +225,9 @@ void ControlUnit::instructionExecute()
             m_memory->load(addy);
             m_memory->load(rpc);
             data = m_memory->readMB();
-            if(DEBUG_CONTROL)
-            {
-                fprintf(stdout, "DEBUG Execute: %s\n", data->getString());
-            }
+#ifdef DEBUG_CONTROL
+            fprintf(stdout, "DEBUG Execute: %s\n", data->getString());
+#endif
             m_alu->sumReg(addy);
         }
         else if(OPCODE_TAD == opcode)
@@ -272,10 +267,9 @@ void ControlUnit::instructionExecute()
         else if(OPCODE_IO == opcode)
         {
             //noop
-            if(DEBUG_CONTROL)
-            {
-                fprintf(stdout, "DEBUG Execute: NOP\n");
-            }
+#ifdef DEBUG_CONTROL
+             fprintf(stdout, "DEBUG Execute: NOP\n");
+#endif
         }
         else if(OPCODE_OPP == opcode)
         {
@@ -288,11 +282,10 @@ void ControlUnit::instructionExecute()
         }
 
         RegisterFile.incrementPC();
-        if(DEBUG_CONTROL)
-        {
-            fprintf(stdout, "DEBUG Execute: %s  %s  PC: %s\n",
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG Execute: %s  %s  PC: %s\n",
                     m_format.getInstType(), addy->getString(), rpc->getString());
-        }
+#endif
     }
     else
     {
@@ -315,7 +308,7 @@ void ControlUnit::load_from_file(char* filename)
     FILE* file = NULL; // Open filename as file
     char line[MAX_BUFFER]; // String for getline
     char sInput[ADDRESS_LENGTH_OCT + 1];
-    int maxGroup = 2;
+    //int maxGroup = 2;
     int maxOctLeng = 4;
     bool bPairFound = false;
     bool bAddy = false;
@@ -337,10 +330,9 @@ void ControlUnit::load_from_file(char* filename)
 
             if(length <= ADDRESS_LENGTH_OCT) // expected format
             {
-                if(DEBUG_CONTROL)
-                {
-                    fprintf(stdout, "DEBUG line0: %s ", line);
-                }
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG line0: %s ", line);
+#endif
                 if('1' == line[0])
                 {
                     bAddy = true;
@@ -376,10 +368,9 @@ void ControlUnit::load_from_file(char* filename)
                 length = strlen(line);
                 if(length <= ADDRESS_LENGTH_OCT) // expected format
                 {
-                    if(DEBUG_CONTROL)
-                    { 
+#ifdef DEBUG_CONTROL
                         fprintf(stdout, "DEBUG line1: %s\n", line);
-                    }
+#endif
                     sInput[2] = line[1];
                     sInput[3] = line[2];
 
@@ -417,10 +408,9 @@ void ControlUnit::load_from_file(char* filename)
                 if(m_memory->checkValidAddy(&rInput)) //TODO
                 {
                     //debug
-                    if(DEBUG_CONTROL)
-                    {
-                        fprintf(stdout, "DEBUG address: %s\n", rInput.getString());
-                    }
+#ifdef DEBUG_CONTROL
+                    fprintf(stdout, "DEBUG address: %s\n", rInput.getString());
+#endif
 
                     if(bFirstLine && bAddy)
                     {
@@ -575,7 +565,7 @@ void InstFormat::reset()
 void InstFormat::setOpCode()
 {
     BitReg* opcode = NULL;
-    int opnum = 0;
+    unsigned int opnum = 0;
     opcode = m_rInstruction->sliceBits(OPCODE_MIN_INDEX, OPCODE_LENGTH);
     if(opcode)
     {
@@ -583,10 +573,9 @@ void InstFormat::setOpCode()
         RegisterFile.rIR->setReg(opcode);
         opnum = opcode->getNumber();
         //debug
-        if(DEBUG_CONTROL)
-        {
-            fprintf(stdout, "DEBUG opcode: %s, %s\n", opcode->getString(), m_opTable->getMnemonic(opnum));
-        }
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG opcode: %s, %s\n", opcode->getString(), m_opTable->getMnemonic(opnum));
+#endif
     }
     else
     {
@@ -613,10 +602,9 @@ void InstFormat::setOffset()
         { 
             m_rOffset->setReg(offset);
             //debug
-            if(DEBUG_CONTROL)
-            {
-                fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
-            }
+#ifdef DEBUG_CONTROL
+            fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
+#endif
         }
         else
         {
@@ -640,10 +628,9 @@ void InstFormat::setOffset()
     else if(m_bTestIO)
     {
         //debug
-        if(DEBUG_CONTROL)
-        {
-            fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
-        }
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
+#endif
     }
     else
     {
@@ -666,9 +653,9 @@ void InstFormat::setInstType()
     if(btemp)
     {
         BitReg temp(btemp);
-        int opIndex = temp.getNumber();
+        unsigned int opIndex = temp.getNumber();
 
-        if((OPCODE_MAX >= opIndex) && (OPCODE_MIN <= opIndex))
+        if(OPCODE_MAX >= opIndex)// && (OPCODE_MIN <= opIndex)) <- always true
         {
             if(OPCODE_MRI >= opIndex)
             {
@@ -740,27 +727,24 @@ void InstFormat::loadInstruction(BitReg* inst)
                 m_bIndirect = bInst[INST_INDIRECT_BIT];
                 m_bZeroPage = bInst[INST_MEMPAGE_BIT];
                 //debug
-                if(DEBUG_CONTROL)
-                {
-                    fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
-                }
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
+#endif
             }
             else if(m_bOperate)
             {
                 m_iMicroCode = inst->getNumber();
                 //debug
-                if(DEBUG_CONTROL)
-                {
-                    fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
-                }
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
+#endif
             }
             else if(m_bTestIO)
             {
                 //debug
-                if(DEBUG_CONTROL)
-                {
-                    fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
-                }
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
+#endif
             }
             else
             {
@@ -792,9 +776,9 @@ void InstFormat::loadInstruction(BitReg* inst)
 char* InstFormat::getInstType()
 {
     char* temp = NULL;
-    char* stemp1 = INST_FORM_MRI;
-    char* stemp2 = INST_FORM_OP;
-    char* stemp3 = INST_FORM_IO;
+    const char* stemp1 = "Memory Reference";
+    const char* stemp2 = "Micro Instruction";
+    //const char* stemp3 = "Test I/O";
 
     if(m_bMRI)
     {
@@ -948,7 +932,7 @@ BitReg* InstFormat::getOPextended()
 //Outputs:
 //Return:
 //================================================================================== 
-int InstFormat::getMicroCode()
+unsigned int InstFormat::getMicroCode()
 {
     return m_iMicroCode;
 }
@@ -961,7 +945,7 @@ int InstFormat::getMicroCode()
 //Outputs:
 //Return:
 //================================================================================== 
-int InstFormat::getOpcode()
+unsigned int InstFormat::getOpcode()
 {
     return m_rOpcode->getNumber();
 }
@@ -1367,7 +1351,15 @@ BitReg* EffectiveAddress::readIndirect(BitReg* reg)
     if(m_pMemory && reg)
     {
         m_pMemory->load(reg);
-        offset = RegisterFile.rMB->sliceBits(OFFSET_MIN_INDEX, OFFSET_LENGTH);
+        regMB = m_pMemory->readMB();
+        if(regMB)
+        {
+            offset = regMB->sliceBits(OFFSET_MIN_INDEX, OFFSET_LENGTH);
+        }
+        else
+        {
+            Error.printError(ERROR_NULL, FILE_CONTROL);
+        }
     }
     else
     {

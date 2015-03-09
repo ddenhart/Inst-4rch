@@ -41,7 +41,7 @@ private:
     bool m_bIndirect;
     bool m_bZeroPage;
     OpTableHandle* m_opTable;
-    int m_iMicroCode;
+    unsigned int m_iMicroCode;
     
     void setOpCode();
     void setOffset();
@@ -62,8 +62,8 @@ public:
     BitReg* getOPextended(); //Operate format, 9 bit extended opcode
     //BitReg getIOdeviceNum(); //TestIO format, 6 bit device number
     //BitReg getIOfcn(); //TestIO format, 3 bit fcn
-    int getMicroCode();
-    int getOpcode();
+    unsigned int getMicroCode();
+    unsigned int getOpcode();
     BitReg* getInstruction();
     BitReg* getAddress();
     void setAddress(BitReg* addy);
@@ -79,7 +79,7 @@ private:
     BitReg* m_rOffset; //7 bit offset
     BitReg* m_rZeroPage; //5 bit, the first memory page
     BitReg* m_rCurrPage;  //5 bit, the current page
-    BitReg* m_rResultAddress; //12 bit resulting address
+    //BitReg* m_rResultAddress; //12 bit resulting address
     bool m_bIndirect;
     bool m_bMemory;
 

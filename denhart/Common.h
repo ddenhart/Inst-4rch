@@ -28,7 +28,7 @@ class BitReg;
 #define REG_3BIT 3
 #define REG_1BIT 1
 #define INST_FORM_MRI "Memory Reference"
-#define INST_FORM_OP "Operate"
+#define INST_FORM_OP "Micro Instruction"
 #define INST_FORM_IO "Test I/O"
 #define ADDRESS_LENGTH_OCT 4
 #define INCREMENT_WORD 1
@@ -56,6 +56,14 @@ class BitReg;
 #define OPCODE_DCA 3
 #define OPCODE_JMS 4
 #define OPCODE_JMP 5
+#define OPCODE_STR_AND "AND"
+#define OPCODE_STR_TAD "TAD"
+#define OPCODE_STR_ISZ "ISZ"
+#define OPCODE_STR_DCA "DCA"
+#define OPCODE_STR_JMS "JMS"
+#define OPCODE_STR_JMP "JMP"
+#define OPCODE_STR_IO "<IO>"
+#define OPCODE_STR_OP "uInstructions"
 #define START_ADDRESS 200
 
 
@@ -67,9 +75,8 @@ class BitReg;
 #define FILE_MEMORY 4
 #define FILE_ALU 5
 #define FILE_CONTROL 6
-#define FILE_OPROW 7
 #define FILE_OPTABLE 8
-#define FILE_MAX 11
+#define FILE_MAX 9
 
 //errors
 #define ERROR_NONE 0
@@ -78,7 +85,8 @@ class BitReg;
 #define ERROR_OUT_OF_RANGE -3
 #define ERROR_UNEXPECTED_VALUE -4
 #define ERROR_FILE -5
-#define ERROR_MAX 6 //max is positve to allocate errorTable array
+#define ERROR_DECONSTRUCTOR -6
+#define ERROR_MAX 7 //max is positve to allocate errorTable array
 
 //printing headers
 #define PRINT_BREAK "-----------------------------------------------------"

@@ -16,7 +16,6 @@ Description:	 This file contains the class BitReg
 
 #include <cstdio>
 #include <cstring>
-#include <cmath>
 #include "Common.h"
 #include "OctConv.h"
 #include "BitReg.h"
@@ -217,7 +216,7 @@ void BitReg::setSize(int num)
     if(num > 0)
     {
         m_iLength = num;
-        m_rBitReg = new bool[m_iLength];
+        m_rBitReg = new bool[num];
         initArray();
     }
     else
@@ -453,43 +452,13 @@ void BitReg::copyReg(unsigned int rSource, BitReg* rdest)
 //Outputs:
 //Return:
 //================================================================================== 
-//saves to the register 3 bits starting at index and increasing
-//returns the index last saved
-int BitReg::save3bit(bool* bReg, int index)
-{
-    int size = getLength(bReg);
-
-    if(bReg && (OCT_3BIT == size) && (index >= 0) && ((index+2) < m_iLength))
-    {
-        for(int i = index; i > OCT_3BIT; ++i)
-        {
-            m_rBitReg[i] = bReg[i];
-            index = i;
-        }
-    }
-    else
-    {
-        Error.printError(ERROR_OUT_OF_RANGE, FILE_BITREG);
-    }
-
-    return index;
-}
-
-
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
 //fills a regester given a total number of bits and a value
 //with the MSB at index 0 and the LSB at index total -1
 bool* BitReg::fillRegister(int total, unsigned int value)
 {
     bool* reg = NULL;
     int revIndex = total - 1;
-    int number = 0;
+    unsigned int number = 0;
     bool conv = 0;
 
     if(total > 0)
@@ -538,7 +507,7 @@ bool* BitReg::fillRegister(int total, unsigned int value)
 //Outputs:
 //Return:
 //================================================================================== 
-//fills a regester given a total number of bits and a char array value
+//fills a register given a total number of bits and a char array value
 bool* BitReg::fillRegister(int total, char* value)
 {
     int index = 0;
@@ -567,9 +536,18 @@ bool* BitReg::fillRegister(int total, char* value)
                     tempo = OctTable.convToBinary(value[i]);
                     for(int j = 0; j < OCT_3BIT; ++j)
                     {
-                        temp[index] = tempo[j];
-                        ++index;
+                        if(index < total)
+                        {
+                            temp[index] = tempo[j];
+                            ++index;
+                        }
+                        else
+                        {
+                            Error.printError(ERROR_NULL, FILE_BITREG);
+                            break;
+                        }
                     }
+
                     if(tempo)
                     {
                         delete[] tempo;
@@ -716,11 +694,10 @@ unsigned int BitReg::convertedNumb(bool* reg)
 //================================================================================== 
 int BitReg::convertedNumb2sComp(bool* reg)
 {
-    int total = 0;
+    unsigned int total = 0;
     int length = 0;
     int signIndex = 0;
     bool* temp = NULL;
-    bool carry = true; //start out with carry as 1 to simulate adding 1
 
     if(reg)
     {
@@ -818,54 +795,62 @@ char* BitReg::convertedChar(bool* reg)
     bool* btemp = NULL;
     bool* btempex = NULL;
 
-    //get total number of chars
-    if(modCount)
+    if(reg)
     {
-        ++total;
-    }
-    stemp = new char[total +1];
-    initArray(stemp, total);
-    //make bits multiples of 3 to convert to a char
-    //extend the MSB with 0's
-    if(2 == modCount)
-    {
-        index = 1;
-        btempex = bitChunk(index, modCount);
-        btemp = new bool[OCT_3BIT];
-        initArray(btemp, OCT_3BIT);
-        btemp[0] = 0;
-        btemp[1] = btempex[0];
-        btemp[2] = btempex[1];
-        stemp[sIndex] = OctTable.convToString(btemp, OCT_3BIT);
-        ++sIndex;
-    }
-    else if(1 == modCount)
-    {
-        index = 2;
-        btempex = bitChunk(index, modCount);
-        btemp = new bool[OCT_3BIT];
-        initArray(btemp, OCT_3BIT);
-        btemp[0] = 0;
-        btemp[1] = 0;
-        btemp[2] = btempex[0];
-        stemp[sIndex] = OctTable.convToString(btemp, OCT_3BIT);
-        ++sIndex;
-    }
-    //else modcount is 0, no need to add extra bits
-    if(btemp)
-    {
-        delete[] btemp;
-        btemp = NULL;
-    }
-    index = modCount;
+        //get total number of chars
+        if(modCount)
+        {
+            ++total;
+        }
+        stemp = new char[total +1];
+        initArray(stemp, total);
+        //make bits multiples of 3 to convert to a char
+        //extend the MSB with 0's
+        if(2 == modCount)
+        {
+            index = 1;
+            btempex = bitChunk(reg, index, modCount);
+            btemp = new bool[OCT_3BIT];
+            initArray(btemp, OCT_3BIT);
+            btemp[0] = 0;
+            btemp[1] = btempex[0];
+            btemp[2] = btempex[1];
+            stemp[sIndex] = OctTable.convToString(btemp, OCT_3BIT);
+            ++sIndex;
+        }
+        else if(1 == modCount)
+        {
+            index = 2;
+            btempex = bitChunk(reg, index, modCount);
+            btemp = new bool[OCT_3BIT];
+            initArray(btemp, OCT_3BIT);
+            btemp[0] = 0;
+            btemp[1] = 0;
+            btemp[2] = btempex[0];
+            stemp[sIndex] = OctTable.convToString(btemp, OCT_3BIT);
+            ++sIndex;
+        }
+        //else modcount is 0, no need to add extra bits
 
-    for(int i = sIndex; i < total; ++i)
-    {
-        btemp = bitChunk(index, OCT_3BIT);
-        stemp[i] = OctTable.convToString(btemp, OCT_3BIT);
-        index += OCT_3BIT;
+        if(btemp)
+        {
+            delete[] btemp;
+            btemp = NULL;
+        }
+        index = modCount;
+
+        for(int i = sIndex; i < total; ++i)
+        {
+            btemp = bitChunk(reg, index, OCT_3BIT);
+            stemp[i] = OctTable.convToString(btemp, OCT_3BIT);
+            index += OCT_3BIT;
+        }
+        stemp[total] = '\0';
     }
-    stemp[total] = '\0';
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_BITREG);
+    }
 
     if(btempex)
     {
@@ -890,77 +875,85 @@ char* BitReg::convertedChar(bool* reg)
 //Return:
 //================================================================================== 
 //converts a boolean array to char array
-char* BitReg::convertedChar(bool* reg, int number)
+char* BitReg::convertedChar(bool* reg, int length)
 {
     //int length = getLength(reg);
-    int modCount = number % OCT_3BIT;
-    int total = number/OCT_3BIT;
+    int modCount = length % OCT_3BIT;
+    int total = length/OCT_3BIT;
     int index = 0;
     int sIndex = 0;
     char* stemp = NULL;
     bool* btemp = NULL;
     bool* btempex = NULL;
-
-    //get total number of chars
-    if(modCount)
+    
+    if(reg)
     {
-        ++total;
-    }
-    stemp = new char[total +1];
-    initArray(stemp, total);
-    //make bits multiples of 3 to convert to a char
-    //extend the MSB with 0's
-    if(2 == modCount)
-    {
-        //index = 1;
-        btempex = bitChunk(index, modCount);
-        btemp = new bool[OCT_3BIT];
-        initArray(btemp, OCT_3BIT);
-        btemp[0] = 0;
-        btemp[1] = btempex[0];
-        btemp[2] = btempex[1];
-        stemp[sIndex] = OctTable.convToString(btemp, OCT_3BIT);
-        ++sIndex;
-    }
-    else if(1 == modCount)
-    {
-        //index = 2;
-        btempex = bitChunk(index, modCount);
-        btemp = new bool[OCT_3BIT];
-        initArray(btemp, OCT_3BIT);
-        btemp[0] = 0;
-        btemp[1] = 0;
-        btemp[2] = btempex[0];
-        stemp[sIndex] = OctTable.convToString(btemp, OCT_3BIT);
-        ++sIndex;
-    }
-    //else modcount is 0, no need to add extra bits
-    if(btemp)
-    {
-        delete[] btemp;
-        btemp = NULL;
-    }
-
-    if(btempex)
-    {
-        delete[] btempex;
-        btempex = NULL;
-    }
-    index = modCount;
-
-    for(int i = sIndex; i < total; ++i)
-    {
-        btemp = bitChunk(index, OCT_3BIT);
-        stemp[i] = OctTable.convToString(btemp, OCT_3BIT);
-        index += OCT_3BIT;
+        //get total number of chars
+        if(modCount)
+        {
+            ++total;
+        }
+        stemp = new char[total +1];
+        initArray(stemp, total);
+        //make bits multiples of 3 to convert to a char
+        //extend the MSB with 0's
+        if(2 == modCount)
+        {
+            //index = 1;
+            btempex = bitChunk(reg, index, modCount);
+            btemp = new bool[OCT_3BIT];
+            initArray(btemp, OCT_3BIT);
+            btemp[0] = 0;
+            btemp[1] = btempex[0];
+            btemp[2] = btempex[1];
+            stemp[sIndex] = OctTable.convToString(btemp, OCT_3BIT);
+            ++sIndex;
+        }
+        else if(1 == modCount)
+        {
+            //index = 2;
+            btempex = bitChunk(reg, index, modCount);
+            btemp = new bool[OCT_3BIT];
+            initArray(btemp, OCT_3BIT);
+            btemp[0] = 0;
+            btemp[1] = 0;
+            btemp[2] = btempex[0];
+            stemp[sIndex] = OctTable.convToString(btemp, OCT_3BIT);
+            ++sIndex;
+        }
+        //else modcount is 0, no need to add extra bits
 
         if(btemp)
         {
             delete[] btemp;
             btemp = NULL;
         }
+
+        if(btempex)
+        {
+            delete[] btempex;
+            btempex = NULL;
+        }
+        index = modCount;
+
+        for(int i = sIndex; i < total; ++i)
+        {
+            btemp = bitChunk(reg, index, OCT_3BIT);
+            stemp[i] = OctTable.convToString(btemp, OCT_3BIT);
+            index += OCT_3BIT;
+
+            if(btemp)
+            {
+                delete[] btemp;
+                btemp = NULL;
+            }
+        }
+        stemp[total] = '\0';
     }
-    stemp[total] = '\0';
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_BITREG);
+    }
 
     return stemp;
 
@@ -1008,13 +1001,69 @@ bool* BitReg::bitChunk(int start, int length)
         initArray(temp, length);
         for(int i = start; i < end; ++i)
         {
-            temp[index] = m_rBitReg[i];
-            ++index;
+            if(index < length)
+            {
+                temp[index] = m_rBitReg[i];
+                ++index;
+            }
+            else
+            {
+                Error.printError(ERROR_NULL, FILE_BITREG);
+            }
         }
     }
     else
     {
         Error.printError(ERROR_OUT_OF_RANGE, FILE_BITREG);
+    }
+
+    return temp;
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+//returns a section of bits from the register
+bool* BitReg::bitChunk(bool* reg, int start, int length)
+{
+    int mlength = 0;
+    int index = 0;
+    int end = start + length;
+    bool* temp = NULL;
+
+    if(reg)
+    { 
+        mlength = getLength(reg);
+        if((start >= 0) && (length > 0) && (end <= mlength))
+        {
+            temp = new bool[length];
+            initArray(temp, length);
+            for(int i = start; i < end; ++i)
+            {
+                if(index < length)
+                {
+                    temp[index] = reg[i];
+                    ++index;
+                }
+                else
+                {
+                    Error.printError(ERROR_NULL, FILE_BITREG);
+                }
+            }
+        }
+        else
+        {
+            Error.printError(ERROR_OUT_OF_RANGE, FILE_BITREG);
+        }
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_BITREG);
     }
 
     return temp;
@@ -1148,16 +1197,7 @@ int BitReg::getLength()
 
      if(rInReg)
      {
-         rInReg->m_iLength;
-        /*btemp = rInReg->getBool();
-        if(btemp)
-        {
-            temp = getLength(btemp);
-        }
-        else
-        {
-            Error.printError(ERROR_NULL, FILE_BITREG);
-        }*/
+         temp = rInReg->m_iLength;
      }
      else
      {
@@ -1515,7 +1555,7 @@ int BitReg::getNumber2sComp()
 //returns an integer conversion of the boolean array
 int BitReg::getNumber2sComp(bool* rInReg)
 {
-    unsigned int temp = 0;
+    int temp = 0;
     temp = convertedNumb2sComp(rInReg);
     return temp;
 }
@@ -1785,8 +1825,16 @@ BitReg* BitReg::ccatRegs(BitReg* rSource, int iNumberWords)
                 {
                     for(int j = 0; j < length; ++j)
                     {
-                        bOut[index] = temp[j];
-                        ++index;
+                        if(index < iBitLength)
+                        {
+                            bOut[index] = temp[j];
+                            ++index;
+                        }
+                        else
+                        {
+                            Error.printError(ERROR_NULL, FILE_BITREG);
+                            break;
+                        }
                     }
                 }
             }

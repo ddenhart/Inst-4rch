@@ -13,7 +13,6 @@ Description:	 This file contains the classes WORD, Memory and log-type
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <string>
 #include <stdexcept>
 #include "OctConv.h"
 #include "Common.h"
@@ -72,9 +71,31 @@ Word::~Word()
 // INPUT: number of memory locations to create
 Memory::Memory()
 {
+    const char* default_memfile = "mem.dmp";
     logfile_name = new char[strlen(default_memfile) + 1];
     strcpy(logfile_name, default_memfile);
     logfile.open(logfile_name, std::ios::app);
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+Memory::Memory(const Memory &source)
+{
+    logfile_name = new char[strlen(source.logfile_name) + 1];
+    strcpy(logfile_name, source.logfile_name);
+    logfile.open(logfile_name, std::ios::app);
+
+    for(int i = 0; i < MSIZE; ++i)
+    {
+        memory[i].value->setReg(source.memory[i].value->getReg());
+        memory[i].access = source.memory[i].access;
+    }
 }
 
 
@@ -118,7 +139,7 @@ void Memory::mem_put()
         {
             BitReg address(baddy, REG_12BIT);
             BitReg data(bdata, REG_12BIT);
-            int iAddy = address.getNumber();
+            unsigned int iAddy = address.getNumber();
             // Insert value at address
             memory[iAddy].value->setReg(&data);
             setAccess(&address);
@@ -161,7 +182,7 @@ void Memory::mem_get()
 
     baddress = RegisterFile.rMA->getBool();
     BitReg address(baddress);
-    int iAddy = address.getNumber();
+    unsigned int iAddy = address.getNumber();
     bdata = memory[iAddy].value->getBool();
     BitReg data(bdata);
     RegisterFile.rMB->setReg(&data);
@@ -337,7 +358,7 @@ bool Memory::getAccess(BitReg* addy)
 
     if(addy)
     {
-        int iAddy = addy->getNumber();
+        unsigned int iAddy = addy->getNumber();
 
         if(checkValidAddy(addy))
         {
@@ -368,11 +389,11 @@ bool Memory::checkValidAddy(BitReg* addy)
 {
     bool bRes = false;
 
-    int iAddy = addy->getNumber();
+    unsigned int iAddy = addy->getNumber();
 
     if(addy)
     { 
-        if((MSIZE > iAddy) && (iAddy >= 0))
+        if(MSIZE > iAddy)// && (iAddy >= 0)) <-always true
         {
             bRes = true;
         }
@@ -399,7 +420,7 @@ bool Memory::checkValidAddy(BitReg* addy)
 //================================================================================== 
 void Memory::setAccess(BitReg* addy)
 {
-    int iAddy = 0;
+    unsigned int iAddy = 0;
     
     if(addy)
     {
@@ -525,22 +546,34 @@ log_type::~log_type()
 //================================================================================== 
 char* log_type::getName()
 {
+    const char* temp1 = "READ";
+    const char* temp2 = "WRITE";
+    const char* temp3 = "FETCH";
+    const char* temp4 = "NO VALUE";
+    char* temp = NULL;
+
     if(MREAD == type)
     {
-        return "READ";
+        temp = new char[strlen(temp1)+1];
+        strcpy(temp, temp1);
     }
     else if(MWRITE == type)
     {
-        return "WRITE";
+        temp = new char[strlen(temp2)+1];
+        strcpy(temp, temp2);
     }
     else if(MFETCH == type)
     {
-        return "FETCH";
+        temp = new char[strlen(temp3)+1];
+        strcpy(temp, temp3);
     }
     else
     {
-        return "NO VALUE";
+        temp = new char[strlen(temp4)+1];
+        strcpy(temp, temp4);
     }
+
+    return temp;
 }
 
 

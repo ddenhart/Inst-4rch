@@ -45,7 +45,6 @@ OctConv::OctConv()
     m_sOctTable[5] = '5';
     m_sOctTable[6] = '6';
     m_sOctTable[7] = '7';
-    m_sOctTable[8] = '8';
 
     m_bOctTable[0][0] = 0;
     m_bOctTable[0][1] = 0;
@@ -136,34 +135,34 @@ int OctConv::getLength(bool* rInReg)
     int error = ERROR_NONE;
     int iLength = getLength(rInReg);
     int i = 0;
-    int col = 0;
+    //int col = 0;
     bool bFound = false;
 
     if(iLength == OCT_3BIT)
     {
         for(i = 0; i < OCT_MAX; ++i)
         {
-            if(rInReg[0] == m_bOctTable[i][col++]) //check column 0
+            if(rInReg[0] == m_bOctTable[i][0]) //check column 0
             {
-                if(rInReg[1] == m_bOctTable[i][col++]) //check column 1
+                if(rInReg[1] == m_bOctTable[i][1]) //check column 1
                 {
-                    if(rInReg[2] == m_bOctTable[i][col]) //check column 2
+                    if(rInReg[2] == m_bOctTable[i][2]) //check column 2
                     {
                         bFound = true;
                     }
                     else
                     {
-                        col = 0;
+                        //col = 0;
                     }
                 }
                 else
                 {
-                    col = 0;
+                    //col = 0;
                 }
             } //else not this row, keep looking
             else
             {
-                col = 0;
+                //col = 0;
             }
         }
 
@@ -670,7 +669,7 @@ int OctConv::getLength(bool* rInReg)
  {
      int i = 0;
      bool bFound = false;
-     bool* rOutReg = new bool[OCT_MAX];
+     bool* rOutReg = NULL;
 
      for(i = 0; i < OCT_MAX; ++i)
      {
@@ -683,25 +682,11 @@ int OctConv::getLength(bool* rInReg)
 
      if(bFound)
      {
-         if(rOutReg)
-         {
-             for(int j = 0; j < OCT_3BIT; ++j)
-             {
-                 if(rOutReg[j])
-                 {
-                     rOutReg[j] = m_bOctTable[i][j];
-                 }
-                 else
-                 {
-                     Error.printError(ERROR_OUT_OF_RANGE, FILE_CONV);
-                     break;
-                 }
-             }
-         }
-         else
-         {
-             Error.printError(ERROR_NULL, FILE_CONV);
-         }
+        rOutReg = new bool[OCT_3BIT];
+        for(int j = 0; j < OCT_3BIT; ++j)
+        {
+            rOutReg[j] = m_bOctTable[i][j];
+        }
      }
      else
      {
