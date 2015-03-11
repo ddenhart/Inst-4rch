@@ -135,6 +135,7 @@ void Accumulator::setLB(BitReg* rlb)
 void Accumulator::sumReg(BitReg* rInReg)
 {
     bool overflow = false;
+    bool carry = false;
     bool* temp = NULL;
     bool sum[REG_12BIT];
     BitReg* rac = NULL;
@@ -326,6 +327,76 @@ bool Accumulator::isZero()
     return temp;
 }
 
+//================================================================================== 
+//Name:
+//Description: complement each bit in the accumulator
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void Accumulator::complementLC()
+{
+	BitReg* rlb = NULL;
+	bool* carry = NULL;
+
+	rlb = getLB();
+
+	if (rlb)
+	{
+		carry = rlb->getBool();
+		carry[0] = !carry[0];
+		setCarry(carry);
+	}
+	else
+	{
+		Error.printError(ERROR_NULL, FILE_ALU);
+	}
+	if (rlb)
+	{
+		delete rlb;
+		rlb = NULL;
+	}
+	if (carry)
+	{
+		delete carry;
+	}
+}
+
+//================================================================================== 
+//Name:
+//Description: complement each bit in the accumulator
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void Accumulator::complementAC()
+{
+	BitReg* rac = NULL;
+
+	rac = getAC();
+
+	if (rac)
+	{
+		rac->complement();
+		setAC(rac);
+
+		if (DEBUG_ALU)
+		{
+			fprintf(stdout, "DEBUG ALU: complement is %s",
+				rac->getString());
+		}
+	}
+	else
+	{
+		Error.printError(ERROR_NULL, FILE_ALU);
+	}
+
+	if (rac)
+	{
+		delete rac;
+		rac = NULL;
+	}
+}
 
 //================================================================================== 
 //Name:
@@ -473,6 +544,39 @@ void Accumulator::negate()
     }
 }
 
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void Accumulator::clearLC()
+{
+	bool carry = false;
+
+	setCarry(&carry);
+}
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void Accumulator::clearAC()
+{
+	unsigned int num = 0;
+	BitReg reg(num, REG_12BIT);
+
+	setAC(&reg);
+	if (DEBUG_ALU)
+	{
+		fprintf(stdout, "DEBUG ALU: clear is %s\n",
+			reg.getString());
+	}
+}
 
 //================================================================================== 
 //Name:

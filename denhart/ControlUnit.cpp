@@ -46,6 +46,7 @@ ControlUnit::ControlUnit()
     m_eAddy.setMemory(m_memory);
     char addy[] = "0200";
     m_StartAddress = new BitReg(addy); //had to change due to persistant warning
+	running = true;
 }
 
 
@@ -542,11 +543,12 @@ void ControlUnit::instructionDecode()
             instructionDefer();
             inst = m_eAddy.getAddress(indinst);
         }
-
         m_format.setAddress(inst);
     }
     else if(m_format.isInstOperate())
     {
+		printf("cURRENT INST: %s\n", currInst->getString());
+		printf("m_eaddy %s\n", m_eAddy.getAddress(currInst)->getString());
 		m_format.setAddress(m_eAddy.getAddress(currInst));
         //micro setup
     }
@@ -631,11 +633,15 @@ void ControlUnit::instructionExecute()
     BitReg* addy = NULL;
     BitReg* rpc = NULL;
     BitReg* data = NULL;
+	Accumulator* accum = NULL;
+	Opcode7List m_op7;
+
 	int skipIncrement = false;
 
     unsigned int opcode = m_format.getOpcode();
 
     addy = m_format.getAddress();
+	printf("OPCODE %d\n\n\n", opcode);
     rpc = getPC();
 
     if(addy && rpc)
@@ -686,7 +692,6 @@ void ControlUnit::instructionExecute()
 			data = m_memory->readMB();
 			rpc->setReg((addy->getNumber()));
 			setPC(rpc);
-			std::cin.ignore();
         }
         else if(OPCODE_JMP == opcode)
         {
@@ -695,7 +700,6 @@ void ControlUnit::instructionExecute()
 			rpc->setReg(addy->getNumber());
 			setPC(rpc);
 			skipIncrement = true;
-			std::cin.ignore();
         }
         else if(OPCODE_IO == opcode)
         {
@@ -705,8 +709,132 @@ void ControlUnit::instructionExecute()
                 fprintf(stdout, "DEBUG Execute: NOP\n");
             }
         }
-        else if(OPCODE_OPP == opcode)
-        {
+		else if (OPCODE_OPP == opcode)
+		{
+			m_memory->load(addy);
+			data = m_memory->readMB();
+			printf("Memory read: %s\n", data->getString());
+			printf("Address: %s\n", addy->getString());
+			for (int i = 0; i <= addy->getLength() - 1; ++i)
+				printf("Addy: %c\n", addy->getBinary()[i]);
+			if (addy->getBinary()[3] == '0')  //Group 1
+			{
+				BitReg rOne("0", REG_12BIT);
+				for (int i = 4; i <= addy->getLength() - 1; ++i)
+				{
+					printf("Addy: %c\n", addy->getBinary()[i]);
+					if (addy->getBinary()[i] == '1')
+					{
+						if (i == 4)
+						{
+							m_alu->clearAC();
+						}
+						else if (i == 5)
+						{
+							m_alu->clearLC();
+						}
+						else if (i == 6)
+						{
+							m_alu->complementAC();
+						}
+						else if (i == 7)
+						{
+							m_alu->complementLC();
+							if (addy->getBinary()[11] == '1')
+								m_alu->increment(&rOne);
+						}
+						else if (i == 8)
+						{
+							m_alu->rotateRight();
+							if (addy->getBinary()[10] == '1')
+								m_alu->rotateRight();
+						}
+						else if (i == 9)
+						{
+							m_alu->rotateLeft();
+							if (addy->getBinary()[10] == '1')
+								m_alu->rotateLeft();
+						}
+					}
+				}
+			}
+			else
+			{
+				if (addy->getBinary()[8] == '0')
+				{
+					if ((addy->getBinary()[5] == '1') || (addy->getBinary()[6] == '1') || (addy->getBinary()[7] == '1'))
+					{
+						if (addy->getBinary()[5] == '1')
+						{
+							bool trial = m_alu->isNegative();
+							if (trial)
+								RegisterFile.incrementPC();
+						}
+						if (addy->getBinary()[6] == '1')
+						{
+							bool trial = m_alu->isZero();
+							if (trial)
+								RegisterFile.incrementPC();
+						}
+						if (addy->getBinary()[7] == '1')
+						{
+							BitReg* rlb = NULL;
+							rlb = m_alu->getLB();
+							if (rlb->getNumber2sComp() != 0)
+								RegisterFile.incrementPC();
+						}
+
+					}
+				}
+				else
+				{
+					int skip = false;
+					/*if ((addy->getBinary()[5] == '1' && addy->getBinary()[6] == '1') || (addy->getBinary()[5] == '1' && addy->getBinary()[7] == '1') || (addy->getBinary()[6] == '1' && addy->getBinary()[7] == '1'))
+					{
+						RegisterFile.incrementPC();
+					}*/
+					if (addy->getBinary()[5] == '1')
+					{
+						bool trial = m_alu->isNegative();
+						if (!trial)
+						{
+							//RegisterFile.incrementPC();
+							skip = true;
+						}
+					}
+					if (addy->getBinary()[6] == '1')
+					{
+						skip = false;
+						bool trial = m_alu->isZero();
+						if (!trial)
+						{
+							//RegisterFile.incrementPC();
+							skip = true;
+						}
+					}
+					if (addy->getBinary()[7] == '1')
+					{
+						skip = false;
+						BitReg* rlb = NULL;
+						rlb = m_alu->getLB();
+						if (rlb->getNumber2sComp() == 0)
+						{
+							//RegisterFile.incrementPC();
+							skip = true;
+						}
+					}
+					if (skip)
+						RegisterFile.incrementPC();
+					if (addy->getBinary()[4] == '0' && addy->getBinary()[5] == '0' && addy->getBinary()[6] == '0' && addy->getBinary()[7] == '0' && addy->getBinary()[8] == '1' && addy->getBinary()[9] == '0' && addy->getBinary()[10] == '0' && addy->getBinary()[11] == '0')
+					{
+						RegisterFile.incrementPC();
+					}
+					if (addy->getBinary()[4] == '1')
+						m_alu->clearAC();
+					if (addy->getBinary()[4] == '1')
+						running = false;
+				}
+			}
             //opcode 7 micro instructions here
             //m_op7.findMicroOp(opcode);
             //TODO: if group 3, print NOP

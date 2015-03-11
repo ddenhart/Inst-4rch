@@ -115,6 +115,7 @@ private:
     Accumulator* m_alu;
     OctConv m_conv;
     //Opcode7List m_op7;
+	int running;
 
     void instructionDefer(); //used to add extra cycles for indirection
     BitReg* getPC();

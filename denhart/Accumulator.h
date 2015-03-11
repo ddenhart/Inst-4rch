@@ -42,9 +42,13 @@ public:
     bool isNegative();
     bool isZero();
     void complement();
+	void complementLC();
+	void complementAC();
     void increment(BitReg* rInReg);
     void negate();
     void clear();
+	void clearAC();
+	void clearLC();
     void rotateRight();
     void rotateLeft();
     void shiftRight(int num);

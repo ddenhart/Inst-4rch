@@ -127,6 +127,7 @@ BitReg::BitReg(unsigned int rSource)
 //constructor with bool* value and a given size
 BitReg::BitReg(bool* rSource, int size)
 {
+	printf("rSrc: %d\n", rSource);
     if(rSource)
     {
         setSize(size);
@@ -255,11 +256,14 @@ void BitReg::copyValue(bool* reg)
         initArray();
 
         //copy length starting from LSB (m_iLength - 1)
+		printf("reg: ");
         for(int i = 0; i < length; ++i)
         {
+			printf("%d", reg[i]);
             m_rBitReg[offset] = reg[i];
             ++offset;
         }
+		printf("\n");
     }
     else
     {
