@@ -47,6 +47,10 @@ ControlUnit::ControlUnit()
     char addy[] = "0200";
     m_StartAddress = new BitReg(addy); //had to change due to persistant warning
 	running = true;
+    for(int i = 0; i < OP_TABLE_LENG; ++i)
+    {
+        stats.instUsage[i] = 0;
+    }
 }
 
 
@@ -528,8 +532,12 @@ void ControlUnit::instructionDecode()
     BitReg* inst = NULL;
     BitReg* indinst = NULL;
     BitReg* currInst = NULL;
+    BitReg ops(m_format.getOpcode());
 
     currInst = m_format.getInstruction();
+
+    //up cycle count
+    m_format.incrementCycles(&ops);
 
     if(m_format.isInstMRI())
     {
@@ -543,13 +551,16 @@ void ControlUnit::instructionDecode()
             instructionDefer();
             inst = m_eAddy.getAddress(indinst);
         }
+
         m_format.setAddress(inst);
     }
     else if(m_format.isInstOperate())
     {
+#ifdef DEBUG_CONTROL
 		printf("cURRENT INST: %s\n", currInst->getString());
 		printf("m_eaddy %s\n", m_eAddy.getAddress(currInst)->getString());
 		m_format.setAddress(m_eAddy.getAddress(currInst));
+#endif
         //micro setup
     }
     else if(m_format.isInstTestIO())
@@ -586,8 +597,10 @@ void ControlUnit::instructionDefer()
     //if indirect, costs 2 cycles
     if(m_format.getMRIindirect())
     {
+        BitReg ops(m_format.getOpcode());
         //up cycle count
-        RegisterFile.incrementPC();
+        m_format.incrementCyclesDefer(&ops);
+        //RegisterFile.incrementPC();
 #ifdef DEBUG_CONTROL
         fprintf(stdout, "DEBUG: Defer: extra cycle");
 #endif
@@ -633,7 +646,7 @@ void ControlUnit::instructionExecute()
     BitReg* addy = NULL;
     BitReg* rpc = NULL;
     BitReg* data = NULL;
-	Accumulator* accum = NULL;
+	//Accumulator* accum = NULL;
 	Opcode7List m_op7;
 
 	int skipIncrement = false;
@@ -641,14 +654,15 @@ void ControlUnit::instructionExecute()
     unsigned int opcode = m_format.getOpcode();
 
     addy = m_format.getAddress();
+#ifdef DEBUG_CONTROL
 	printf("OPCODE %d\n\n\n", opcode);
+#endif
     rpc = getPC();
 
     if(addy && rpc)
     {
         if(OPCODE_AND == opcode)
         {
-            //test code
             m_memory->load(addy);
             data = m_memory->readMB();
 #ifdef DEBUG_CONTROL
@@ -658,13 +672,11 @@ void ControlUnit::instructionExecute()
         }
         else if(OPCODE_TAD == opcode)
         {
-            //test code
             m_memory->load(addy);
 			m_alu->sumReg(m_memory->readMB());
         }
         else if(OPCODE_ISZ == opcode)
         {
-            //test code
             m_memory->load(addy);
 			data = m_memory->readMB();
 			data->setReg((data->getNumber2sComp() + 1));
@@ -676,14 +688,12 @@ void ControlUnit::instructionExecute()
         }
         else if(OPCODE_DCA == opcode)
         {
-            //test code
             //store result of accumulator
 			m_memory->store(addy, m_alu->getAC());
 			m_alu->clear();
         }
         else if(OPCODE_JMS == opcode)
         {
-            //test code
             m_memory->load(addy);
 			data = m_memory->readMB();
 			data->setReg(rpc->getNumber());
@@ -695,7 +705,6 @@ void ControlUnit::instructionExecute()
         }
         else if(OPCODE_JMP == opcode)
         {
-            //test code
             m_memory->load(addy);
 			rpc->setReg(addy->getNumber());
 			setPC(rpc);
@@ -706,11 +715,21 @@ void ControlUnit::instructionExecute()
            //noop
             if(!silent)
             {
-                fprintf(stdout, "DEBUG Execute: NOP\n");
+                fprintf(stdout, "Warning: NOP\n");
             }
         }
 		else if (OPCODE_OPP == opcode)
 		{
+			BitReg* inst = NULL;
+			inst = m_format.getInstruction();
+			if(inst)
+            {
+                m_format.incrementMicros(inst); //update statistics
+            }
+            else
+            {
+                Error.printError(ERROR_NULL, FILE_CONTROL);
+            }
 			m_memory->load(addy);
 			data = m_memory->readMB();
 			printf("Memory read: %s\n", data->getString());
@@ -835,17 +854,13 @@ void ControlUnit::instructionExecute()
 						running = false;
 				}
 			}
-            //opcode 7 micro instructions here
-            //m_op7.findMicroOp(opcode);
-            //TODO: if group 3, print NOP
         }
         else
         {
             Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
         }
 		if (!skipIncrement)
-			RegisterFile.incrementPC();
-		//rpc = getPC();
+		      RegisterFile.incrementPC();
 #ifdef DEBUG_CONTROL
         fprintf(stdout, "DEBUG Execute: %s  %s  PC: %s\n",
                     m_format.getInstType(), addy->getString(), rpc->getString());
@@ -866,8 +881,6 @@ void ControlUnit::instructionExecute()
 //Outputs:
 //Return:
 //==================================================================================
-// Load  from file
-// INPUT: file name to load from
 void ControlUnit::loadFile(char* filename, int mode)
 {
     BitReg rInput(REG_12BIT); // Current address
@@ -899,24 +912,31 @@ void ControlUnit::loadFile(char* filename, int mode)
    m_memory->load(rpc);
    while(HALT_CODE != m_memory->readMB()->getNumber())
    {
-		instructionFetch(m_memory->readMB());
-		instructionDecode();
-		instructionExecute();
-		rpc = getPC();
-      bMemValid = m_memory->pcMemoryValid();
-      if(!bMemValid)
-      {
-          fprintf(stderr, "%s\n", PRINT_BREAK);
-          throw fprintf(stderr, "Error: Exceeded memory space...\n");
-          fprintf(stderr, "%s\n", PRINT_BREAK);
-          return;
-      }
-      m_memory->load(rpc);
-      if (rpc)
-      {
-         delete rpc;
-         rpc = NULL;
-      }
+		  instructionFetch(m_memory->readMB());
+		  instructionDecode();
+		  instructionExecute();
+		  rpc = getPC();
+        bMemValid = m_memory->pcMemoryValid();
+        if(!bMemValid)
+        {
+            //throw error if memory access is out of bounds
+            fprintf(stderr, "%s\n", PRINT_BREAK);
+            throw fprintf(stderr, "Error: Exceeded memory space...\n");
+            fprintf(stderr, "%s\n", PRINT_BREAK);
+            return;
+        }
+        m_memory->load(rpc);
+        if (rpc)
+        {
+            delete rpc;
+            rpc = NULL;
+        }
+   }
+
+   BitReg mem(m_memory->readMB()->getNumber());
+   if(HALT_CODE == mem.getNumber())
+   {
+       m_format.incrementMicros(&mem);
    }
 
 #ifdef DEBUG_CONTROL
@@ -926,11 +946,7 @@ void ControlUnit::loadFile(char* filename, int mode)
    m_alu->printAll();
 #endif
 
-    data = 0;
-    rInput.setReg(data);
-    data = 100;
-    rData.setReg(data);
-    m_memory->store(&rInput, &rData);
+   m_format.printStats();
 }
 
 
@@ -1096,7 +1112,9 @@ void InstFormat::setOffset()
         {
             m_rOffext->setReg(offset);
             //debug
+#ifdef DEBUG_CONTROL
             fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
+#endif
         }
         else
         {
@@ -1466,6 +1484,152 @@ void InstFormat::setAddress(BitReg* addy)
 {
     m_rCurrAddy->setReg(addy);
 }
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void InstFormat::incrementCycles(BitReg* ops)
+{
+    unsigned int index = 0;
+    
+    if(ops)
+    {
+        index = ops->getNumber();
+
+        if(index < OP_TABLE_LENG)
+        {
+            m_opTable->incrementOpsCycle(ops->getNumber());
+        }
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_CONTROL);
+    }
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void InstFormat::incrementCyclesDefer(BitReg* ops)
+{
+    unsigned int index = 0;
+
+    if(ops)
+    {
+        index = ops->getNumber();
+
+        if(index < OP_TABLE_LENG)
+        {
+            m_opTable->incrementOneCycle(index);
+        }
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_CONTROL);
+    }
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void InstFormat::incrementMicros(BitReg* ops)
+{
+
+    unsigned int index = 0;
+
+    if(ops)
+    {
+        index = ops->getNumber();
+        index = convertToOctal(index);
+
+        if(index >= 7000)
+        {
+            m_opTable->updateMicros(index);
+        }
+        else
+        {
+            Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+        }
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_CONTROL);
+    }
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void InstFormat::printStats()
+{
+    m_opTable->printUsageAndCycles();
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+unsigned int InstFormat::convertToOctal(unsigned int num)
+{
+    std::vector<unsigned int> buff;
+    std::vector<unsigned int>::iterator it;
+    int mod = 0;
+    int size = 0;
+    int factor = 1;
+    int res = 0;
+
+
+    while(num > 7)
+    {
+        mod = num%8;
+        buff.push_back(mod);
+        num = num/8;
+    }
+    mod = num%8;
+    buff.push_back(mod);
+    size = buff.size();
+    it = buff.begin();
+
+    for(int i = 0; i < size; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            factor *= 10;
+        }
+
+        res += (*it*factor);
+        ++it;
+        factor = 1;
+    }
+
+    return res;
+
+}
+
 
 
 //================================================================================== 
@@ -1853,14 +2017,12 @@ void EffectiveAddress::setMemory(Memory* mem)
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: getAddress
+//Description:inputs an MRI instruction and a pointer to the memory
+//Inputs: a bitreg pointer of an address
+//Outputs: none
+//Return: 12 bit address of a memory location
 //================================================================================== 
-//inputs an MRI instruction and a pointer to the memory
-//returns 12 bit address of a memory location
 BitReg* EffectiveAddress::getAddress(BitReg* reg)
 {
     BitReg* tempReg = NULL;

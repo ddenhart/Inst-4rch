@@ -111,9 +111,12 @@ void ErrorTable::printError(int error, int fileCode)
 
     if( (iErr > 0) && (iErr < ERROR_MAX) && (fileCode > 0) && (fileCode < FILE_MAX) && (errorsOn))
     {
-        fprintf(stderr, "%s\n", PRINT_BREAK);
-        fprintf(stderr, "***Error found in %s: %s***\n", fileTable[fileCode], errorTable[iErr]);
-        fprintf(stderr, "%s\n", PRINT_BREAK);
+        if(errorsOn) //if silent mode
+        {
+            fprintf(stderr, "%s\n", PRINT_BREAK);
+            fprintf(stderr, "***Error found in %s: %s***\n", fileTable[fileCode], errorTable[iErr]);
+            fprintf(stderr, "%s\n", PRINT_BREAK);
+        }
     }
 }
 

@@ -7,7 +7,7 @@ Jeremiah Franke
 ==================================================================================
 File:			    Memory.cpp
 Date:			    03/02/2015
-Description:	 This file contains the classes WORD, Memory and log-type
+Description:	 This file contains the classes memReg and Memory
 ================================================================================== */
 
 #ifndef __MEMORY_H_INCLUDED__
@@ -20,7 +20,7 @@ class fstream;
 
 //Defines
 //================================================================================== 
-#define DEBUG_MEMORY true
+//#define DEBUG_MEMORY 
 #define MREAD 0
 #define MWRITE 1
 #define MFETCH 2

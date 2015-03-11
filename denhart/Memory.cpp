@@ -276,7 +276,7 @@ void Memory::load(BitReg* address)
 
 //================================================================================== 
 //Name: fetch
-//Description: log a fetched address
+//Description: log a fetched address and store it in memory
 //Inputs: a BitReg pointer holding the relevant address
 //Outputs: none
 //Return: none

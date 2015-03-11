@@ -1,0 +1,23 @@
+   1            / Program : indirect.as
+   2            / Date : March 11, 2015
+   3            /
+   4            / Desc : Stores an indirect address
+   5            /
+   6            /-------------------------------------------
+   7            /
+   8            / Code Section
+   9            /
+  10            *0200			/ start at address 0200
+  11 00200 7300 Main, 	cla cll 	/ clear AC and Link
+  12 00201 5500 	jmp I 100 		/ indirect jump call
+  13 00202 3050 	dca 50 		/ store 50 at 300
+  14 00203 7402 	hlt 		/ Halt program
+  15 00204 5200 	jmp Main	/ To continue - goto Main
+  16            /
+  17            / Data Section
+  18            /
+  19            *100 			/ place data at address 100
+  20 00100 0300 A, 	300 		/ store 300
+  21            *300
+  22 00300 0000 C, 	0
+  23            $Main 			/ End of Program; Main is entry point

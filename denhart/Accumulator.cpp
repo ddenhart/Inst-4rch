@@ -379,12 +379,10 @@ void Accumulator::complementAC()
 	{
 		rac->complement();
 		setAC(rac);
-
-		if (DEBUG_ALU)
-		{
-			fprintf(stdout, "DEBUG ALU: complement is %s",
-				rac->getString());
-		}
+#ifdef DEBUG_ALU
+	    fprintf(stdout, "DEBUG ALU: complement is %s",
+		  rac->getString());
+#endif
 	}
 	else
 	{
@@ -571,11 +569,10 @@ void Accumulator::clearAC()
 	BitReg reg(num, REG_12BIT);
 
 	setAC(&reg);
-	if (DEBUG_ALU)
-	{
+#ifdef DEBUG_ALU
 		fprintf(stdout, "DEBUG ALU: clear is %s\n",
 			reg.getString());
-	}
+#endif
 }
 
 //================================================================================== 
@@ -1199,7 +1196,9 @@ void Accumulator::printALU()
         {
             conv = 1;
         }
+#ifdef DEBUG_ALU
         fprintf(stdout, "DEBUG ALU: %s %d\n", reg->getBinary(), conv);
+#endif
     }
 
     if(reg)

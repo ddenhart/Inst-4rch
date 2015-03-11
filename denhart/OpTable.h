@@ -22,16 +22,17 @@ class Accumulator;
 
 //Defines
 //================================================================================== 
-#define DEBUG_OP true
+//#define DEBUG_OP 
 
 
 //Class Opcode7inst
 //================================================================================== 
 class Opcode7inst
 {
-
 private:
     unsigned int m_iCode;
+    unsigned int m_iTotalCycles;
+    unsigned int m_iTotalUsed;
     char* m_sMnemonic;
     BitReg m_rValue;
 
@@ -39,7 +40,13 @@ public:
     Opcode7inst();
     ~Opcode7inst();
     void setRow(unsigned int code, const char* mnem);
+    char* getname();
     unsigned int getcode();
+    unsigned int getTotalCycles();
+    unsigned int getTotalUsed();
+    void incCycles();
+    void incUsed();
+    void printRowStats();
 };
 
 
@@ -49,39 +56,19 @@ class Opcode7List
 {
 private:
     Opcode7inst m_op7List[OP7_LIST_LENG];
+    unsigned int m_TotalUsed;
+    unsigned int m_iTotalCycles;
 
 public:
     Opcode7List();
     ~Opcode7List();
-    int findMicroOp(unsigned int inst);
+    unsigned int getTotalCycles();
+    unsigned int getTotalUsed();
+    unsigned int findMicroOp(unsigned int inst);
+    unsigned int findIndex(char* name);
+    void updateStats(unsigned int inst);
     void nop();
-    //void iac();
-    //void rar();
-    //void ral();
-    //void rtl();
-    //void rtr();
-    //void bsw();
-    //void cml();
-    //void cma();
-    //void cia();
-    void cll();
-    //void stl();
-    void cla();
-    //void sta();
-    void hlt(); //group 2
-    /*void osr();
-    void skp();
-    void snl();
-    void szl();
-    void sza();
-    void sna();
-    void sma();
-    void spa();
-    void cam(); //group 3
-    void mqa();
-    void mql();
-    void swp();
-    void printList();*/
+    void print7Stats();
 };
 
 
@@ -90,9 +77,10 @@ public:
 class OpRow
 {
 private:
-    int m_iTotalCount;
+    unsigned int m_iTotalCycles;
     char* m_sMnemonic;
-    int m_iCycles;
+    unsigned int m_iCycles;
+    unsigned int m_iTotalUsed;
     BitReg m_rOpcode;
 
     void fillOpRow();
@@ -100,14 +88,17 @@ private:
 
 public:
     OpRow();
-    OpRow(const char* mnem, int cycles, unsigned int index);
+    OpRow(const char* mnem, unsigned int cycles, unsigned int index);
     ~OpRow();
     char* getName();
     unsigned int getOpcode();
-    int getCycles();
-    int getTotal();
-    void incTotal();
-    void setRow(const char* mnem, int cycles, unsigned int index);
+    unsigned int getCycles();
+    unsigned int getTotal();
+    unsigned int getUsage();
+    unsigned int incOps();
+    void incOne();
+    void setRow(const char* mnem, unsigned int cycles, unsigned int index);
+    void printRowStats();
     void printRow();
 };
 
@@ -120,6 +111,8 @@ private:
     OpRow m_opTable[OP_TABLE_LENG];
     Opcode7List m_op7;
     Accumulator* m_alu;
+    unsigned int m_totalCycles;
+    unsigned int m_totalInstructions;
 
     int searchByName(char* name);
 
@@ -128,11 +121,16 @@ public:
     OpTableHandle(Accumulator* mem);
     ~OpTableHandle();
     char* getMnemonic(unsigned int index);
-    int getIndex(char* name);
-    int getTotal(int index);
-    void incrementTotal(int index);
+    unsigned int getIndex(char* name);
+    unsigned int getTotalOpsCycles(unsigned int index);
+    unsigned int getTotalCycles();
+    unsigned int getTotalUsed(char* name);
+    void incrementOpsCycle(unsigned int index);
+    void incrementOneCycle(unsigned int index);
+    void incrementInstructions();
+    void printUsageAndCycles();
     void printTable();
-    void exMicroInst(int opcode);
+    void updateMicros(unsigned int opcode);
 };
 
 

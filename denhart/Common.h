@@ -19,7 +19,7 @@ class BitReg;
 
 //Defines
 //================================================================================== 
-#define DEBUG_COMMON true
+//#define DEBUG_COMMON 
 #define REG_12BIT 12
 #define REG_9BIT 9
 #define REG_8BIT 8
@@ -28,9 +28,9 @@ class BitReg;
 #define REG_4BIT 4
 #define REG_3BIT 3
 #define REG_1BIT 1
-#define INST_FORM_MRI "Memory Reference"
-#define INST_FORM_OP "Micro Instruction"
-#define INST_FORM_IO "Test I/O"
+#define INST_FORM_MRI "Memory Reference\0"
+#define INST_FORM_OP "Micro Instruction\0"
+#define INST_FORM_IO "Test I/O\0"
 #define ADDRESS_LENGTH_OCT 4
 #define ADDRESS_LENGTH_HEX 3
 #define ADDRESS_LENGTH_BIN 12
@@ -65,8 +65,42 @@ class BitReg;
 #define INPUT_OCTAL 1
 #define INPUT_HEX 2
 #define INPUT_OCTBYTE_MAX 6
-#define OP_TABLE_LENG 12
-#define OP7_LIST_LENG 11
+#define OPSTRING_AND "AND\0"
+#define OPSTRING_TAD "TAD\0"
+#define OPSTRING_ISZ "ISZ\0"
+#define OPSTRING_DCA "DCA\0"
+#define OPSTRING_JMS "JMS\0"
+#define OPSTRING_JMP "JMP\0"
+#define OPSTRING_IO "IO \0"
+#define OPSTRING_MICRO "MIC\0"
+#define OP_TABLE_LENG 8
+#define OPSTRING7_CMA "CMA\0"
+#define OPSTRING7_IAC "IAC\0"
+#define OPSTRING7_CIA "CIA\0"
+#define OPSTRING7_CLA "CLA\0"
+#define OPSTRING7_HLT "HLT\0"
+#define OPSTRING7_SMA "SMA\0"
+#define OPSTRING7_SZA "SZA\0"
+#define OPSTRING7_SPA "SPA\0"
+#define OPSTRING7_SNA "SNA\0"
+#define OPSTRING7_RAR "RAR\0"
+#define OPSTRING7_RAL "RAL\0"
+#define OPSTRING7_RTL "RTL\0"
+#define OPSTRING7_RTR "RTR\0"
+#define OPSTRING7_BSW "BSW\0"
+#define OPSTRING7_CML "CML\0"
+#define OPSTRING7_CLL "CLL\0"
+#define OPSTRING7_STL "STL\0"
+#define OPSTRING7_STA "STA\0"
+#define OPSTRING7_OSR "OSR\0"
+#define OPSTRING7_SKP "SKP\0"
+#define OPSTRING7_SNL "SNL\0"
+#define OPSTRING7_SZL "SZL\0"
+#define OPSTRING7_NOP "NOP\0"
+#define OP7_LIST_LENG 23
+#define OP7_CMA_CML 7060 //complement the alu and link
+#define OP7_CLA_CLL 7300 //clear the alu and link
+#define OP7_CLA_IAC 7201 //set alu to 1
 
 
 //file codes

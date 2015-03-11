@@ -24,7 +24,17 @@ class OctConv;
 
 //Defines
 //================================================================================== 
-#define DEBUG_CONTROL true
+//#define DEBUG_CONTROL 
+
+//Structs
+//================================================================================== 
+struct simStats
+{
+    int totalInst = 0;
+    int totalClks = 0;
+    int instUsage[OP_TABLE_LENG];//index by opcode
+};
+
 
 //Class InstFormat
 //================================================================================== 
@@ -68,6 +78,11 @@ public:
     BitReg* getInstruction();
     BitReg* getAddress();
     void setAddress(BitReg* addy);
+    void incrementCycles(BitReg* ops);
+    void incrementCyclesDefer(BitReg* ops);
+    void incrementMicros(BitReg* ops);
+    void printStats();
+    unsigned int convertToOctal(unsigned int num);
 };
 
 
@@ -114,6 +129,7 @@ private:
     Memory* m_memory;
     Accumulator* m_alu;
     OctConv m_conv;
+    simStats stats;
     //Opcode7List m_op7;
 	int running;
 
@@ -134,11 +150,8 @@ public:
     void instructionExecute();
     void loadFile(char* filename, int mode);
     void printMemoryHistory(char* filename);
+    void incrementInstUsage(int opcode);
 };
-
-//TODO: statistics
-//Class Statistics
-//================================================================================== 
 
 
 #endif //__CONTROLUNIT_H_INCLUDED__
