@@ -16,6 +16,7 @@ Description:	 This file contains the classes InstFormat, EffectiveAddress,
 #include <cstring>
 #include <vector>
 #include <string>
+#include <iostream>
 #include "Common.h"
 #include "BitReg.h"
 #include "OpTable.h"
@@ -216,6 +217,9 @@ void ControlUnit::instructionExecute()
     BitReg* addy = NULL;
     BitReg* rpc = NULL;
     BitReg* data = NULL;
+	Accumulator* accum = NULL;
+	int skipIncrement = false;
+
     int opcode = m_format.getOpcode();
 
     addy = m_format.getAddress();
@@ -227,48 +231,59 @@ void ControlUnit::instructionExecute()
         {
             //test code
             m_memory->load(addy);
-            m_memory->load(rpc);
             data = m_memory->readMB();
             if(DEBUG_CONTROL)
             {
                 fprintf(stdout, "DEBUG Execute: %s\n", data->getString());
             }
-            m_alu->sumReg(addy);
+			m_alu->andReg(data);
         }
         else if(OPCODE_TAD == opcode)
         {
             //test code
             m_memory->load(addy);
-			printf("Data to Accumulator: %s\n", m_memory->readMB()->getString());
-            m_memory->load(rpc);
+			m_alu->sumReg(m_memory->readMB());
         }
         else if(OPCODE_ISZ == opcode)
         {
             //test code
             m_memory->load(addy);
-            m_memory->load(rpc);
+			data = m_memory->readMB();
+			data->setReg((data->getNumber2sComp() + 1));
+			m_memory->store(addy, data);
+			if (data->getNumber() == 0)
+			{
+				RegisterFile.incrementPC();
+			}
         }
         else if(OPCODE_DCA == opcode)
         {
             //test code
             //store result of accumulator
-            m_memory->store(addy, rpc);
-            m_memory->load(rpc);
-
+			m_memory->store(addy, m_alu->getAC());
+			m_alu->clear();
         }
         else if(OPCODE_JMS == opcode)
         {
             //test code
             m_memory->load(addy);
-            m_memory->load(rpc);
-
+			data = m_memory->readMB();
+			data->setReg(rpc->getNumber());
+			m_memory->store(addy, data);
+			m_memory->load(addy);
+			data = m_memory->readMB();
+			rpc->setReg((addy->getNumber()));
+			setPC(rpc);
+			std::cin.ignore();
         }
         else if(OPCODE_JMP == opcode)
         {
             //test code
             m_memory->load(addy);
-            m_memory->load(rpc);
-
+			rpc->setReg(addy->getNumber());
+			setPC(rpc);
+			skipIncrement = true;
+			std::cin.ignore();
         }
         else if(OPCODE_IO == opcode)
         {
@@ -287,8 +302,9 @@ void ControlUnit::instructionExecute()
         {
             Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
         }
-
-        RegisterFile.incrementPC();
+		if (!skipIncrement)
+			RegisterFile.incrementPC();
+		//rpc = getPC();
         if(DEBUG_CONTROL)
         {
             fprintf(stdout, "DEBUG Execute: %s  %s  PC: %s\n",
@@ -317,7 +333,7 @@ void ControlUnit::load_from_file(char* filename)
     char line[MAX_BUFFER]; // String for getline
     char sInput[ADDRESS_LENGTH_OCT + 1];
     int maxGroup = 2;
-    int maxOctLeng = 4;
+    int maxOctLeng = 3;
     bool bPairFound = false;
     bool bAddy = false;
     bool bFirstLine = true;
@@ -335,7 +351,10 @@ void ControlUnit::load_from_file(char* filename)
         {
             fgets(line, MAX_BUFFER, file);
             length = strlen(line);
-
+			int tempLen = length - 1;
+			if ((tempLen > 0) && (line[tempLen] == '\n'))
+				line[tempLen] = '\0';
+			length = strlen(line);
             if(length <= ADDRESS_LENGTH_OCT) // expected format
             {
                 if(DEBUG_CONTROL)
@@ -375,6 +394,10 @@ void ControlUnit::load_from_file(char* filename)
 
                 fgets(line, MAX_BUFFER, file);
                 length = strlen(line);
+				tempLen = length - 1;
+				if ((tempLen > 0) && (line[tempLen] == '\n'))
+					line[tempLen] = '\0';
+				length = strlen(line);
                 if(length <= ADDRESS_LENGTH_OCT) // expected format
                 {
                     if(DEBUG_CONTROL)
@@ -743,7 +766,6 @@ void InstFormat::loadInstruction(BitReg* inst)
     {
         int length = inst->getLength();  
         bInst = inst->getBool();
-
         reset();
 
         if(REG_12BIT == length)

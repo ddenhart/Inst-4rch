@@ -279,7 +279,6 @@ void Memory::load(BitReg* address)
             throw std::out_of_range ("Array out of bounds");
             return;
         }
-
         RegisterFile.rMA->setReg(address);
         mem_get();
         log(address, type);

@@ -666,7 +666,6 @@ unsigned int BitReg::convertedNumb(bool* reg)
     unsigned int pwr = 2;
     int length = 0;
     int index = 0;
-
     if(reg)
     {
         length = getLength(reg) - 1;
@@ -702,7 +701,6 @@ unsigned int BitReg::convertedNumb(bool* reg)
     {
         Error.printError(ERROR_NULL, FILE_BITREG);
     }
-
     return iTotal;
 }
 
@@ -733,16 +731,25 @@ int BitReg::convertedNumb2sComp(bool* reg)
         else
         {
             temp = new bool[length-1];
-
-            for(int i = 1; i < length; i++)
-            {
+			bool check = reg[0];
+			for (int i = 1; i < length; i++)
+			{
+				if (check)
+				{
+					if (reg[i] == true)
+						reg[i] = false;
+					else if (reg[i] == false)
+						reg[i] = true;
+				}
                 temp[signIndex] = reg[i];
                 ++signIndex;
             }
-
-            total = convertedNumb(temp);
-
-            if(!reg[0]) //if the signed bit is negative, negate
+			if (check)
+				total = convertedNumb(temp) + 1;
+			else
+				total = convertedNumb(temp);
+			
+            if(check) //if the signed bit is positive, negate
             {
                 total *= -1;
             }
