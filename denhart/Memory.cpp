@@ -135,7 +135,6 @@ void Memory::writeline()
     {
         BitReg address(iAddy, REG_12BIT);
         BitReg data(bdata, REG_12BIT);
-        //unsigned int iAddy = address.getNumber();
         memory[iAddy].value->setReg(&data); //write the memory line
         setAccess(&address); //change the access flag to true
     }
@@ -162,13 +161,9 @@ void Memory::writeline()
 void Memory::readline()
 {
     bool* bdata = NULL;
-    //bool* baddress = NULL;
     unsigned int iAddy = 0;
 
-    //baddress 
     iAddy = RegisterFile.rMA->getNumber(); //get the register address from MA
-    //BitReg address(baddress);
-    // = address.getNumber(); //convert the address to decimal
     bdata = memory[iAddy].value->getBool(); //read the memory line
     BitReg data(bdata);
     RegisterFile.rMB->setReg(&data); //set the MB with the valid data
@@ -178,12 +173,6 @@ void Memory::readline()
         delete[] bdata;
         bdata = NULL;
     }
-
-    /*if(baddress)
-    {
-        delete[] baddress;
-        baddress = NULL;
-    }*/
 }
 
 
@@ -202,10 +191,10 @@ void Memory::writeMemoryAccesses(char* filename)
 
     if(memfile)
     {
-        fprintf(memfile, "\n%s\n", PRINT_BREAK);
-        fprintf(memfile, "\nPDP-8 Memory\n"); //print a header
-        fprintf(memfile, "\n%s\n\n\n", PRINT_BREAK);
-        fprintf(memfile, "Address \tData\n"); 
+        fprintf(memfile, "%s\n", PRINT_BREAK);
+        fprintf(memfile, "PDP-8 Memory\n"); //print a header
+        fprintf(memfile, "%s\n", PRINT_BREAK);
+        fprintf(memfile, "Address  Data\n"); 
         fprintf(memfile, "%s\n", PRINT_BREAK);
 
         for(int i = 0; i < MSIZE; ++i)
@@ -213,7 +202,7 @@ void Memory::writeMemoryAccesses(char* filename)
             if(memory[i].access) //if the memory has been used
             {
                 value = memory[i].value->getString(REG_4BIT); //get the value
-                fprintf(memfile, "%o \t%s", i, value);  //print the address and value
+                fprintf(memfile, "%o      %s\n", i, value);  //print the address and value
                 
                 if(value) //delete the copy
                 {

@@ -65,6 +65,8 @@ class BitReg;
 #define INPUT_OCTAL 1
 #define INPUT_HEX 2
 #define INPUT_OCTBYTE_MAX 6
+#define OP_TABLE_LENG 12
+#define OP7_LIST_LENG 11
 
 
 //file codes

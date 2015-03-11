@@ -23,8 +23,6 @@ class Accumulator;
 //Defines
 //================================================================================== 
 #define DEBUG_OP true
-#define OP_TABLE_LENG 12
-#define OP7_LIST_LENG 11
 
 
 //Class Opcode7inst
