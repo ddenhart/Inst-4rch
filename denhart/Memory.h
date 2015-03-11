@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    Memory.cpp
 Date:			    03/02/2015
@@ -31,31 +31,14 @@ class fstream;
 const int MSIZE = 4096;
 
 
-//Class log_type
-//================================================================================== 
-class log_type
-{
-private:
-    int type;
-
-public:
-    log_type();
-    log_type(int type);
-    ~log_type();
-    char* getName();
-    void setType(int value);
-    int getType();
-};
-
-
 //Struct Word
 //================================================================================== 
-struct Word
+struct memReg
 {
     BitReg* value;
     bool access;
-    Word();
-    ~Word();
+    memReg();
+    ~memReg();
 };
 
 
@@ -64,27 +47,29 @@ struct Word
 class Memory
 {
 private:
-    const char* default_memfile = "mem.dmp";
-    Word memory[MSIZE];
-    char* logfile_name;
-    std::ofstream logfile;
-    std::ofstream memfile;
+    memReg memory[MSIZE];
+    char* traceFileName;
+    FILE* tracefile;
+    FILE* memfile;
 
-    void mem_put();
-    void mem_get();
-    void log(BitReg* address, log_type type);
+    void writeline();
+    void readline();
+    void logtrace(BitReg* address, int type);
 
 public:
     Memory();
     ~Memory();
+    Memory(const Memory &source);
     void store(BitReg* addy, BitReg* value);
     void load(BitReg* addy);
     void fetch(BitReg* addy);
     bool getAccess(BitReg* addy);
     bool checkValidAddy(BitReg* addy);
     void setAccess(BitReg* addy);
-    int dump_memory(char* filename);
+    void writeMemoryAccesses(char* filename);
     BitReg* readMB();
+    bool pcMemoryValid();
+    char* getMemoryOp(int type);
 };
 
 

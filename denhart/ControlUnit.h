@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    ControlUnit.cpp
 Date:			    03/02/2015
@@ -20,6 +20,7 @@ class BitReg;
 class OpTableHandle;
 class Memory;
 class Accumulator;
+class OctConv;
 
 //Defines
 //================================================================================== 
@@ -41,7 +42,7 @@ private:
     bool m_bIndirect;
     bool m_bZeroPage;
     OpTableHandle* m_opTable;
-    int m_iMicroCode;
+    unsigned int m_iMicroCode;
     
     void setOpCode();
     void setOffset();
@@ -62,8 +63,8 @@ public:
     BitReg* getOPextended(); //Operate format, 9 bit extended opcode
     //BitReg getIOdeviceNum(); //TestIO format, 6 bit device number
     //BitReg getIOfcn(); //TestIO format, 3 bit fcn
-    int getMicroCode();
-    int getOpcode();
+    unsigned int getMicroCode();
+    unsigned int getOpcode();
     BitReg* getInstruction();
     BitReg* getAddress();
     void setAddress(BitReg* addy);
@@ -105,11 +106,14 @@ public:
 class ControlUnit
 {
 private:
-    BitReg m_StartAddress;
+    bool silent;
+    FILE* file;
+    BitReg* m_StartAddress;
     InstFormat m_format;
     EffectiveAddress m_eAddy;
     Memory* m_memory;
     Accumulator* m_alu;
+    OctConv m_conv;
     //Opcode7List m_op7;
 
     void instructionDefer(); //used to add extra cycles for indirection
@@ -117,6 +121,9 @@ private:
     void setPC(BitReg* addy);
     BitReg* getAC();
     void setAC(BitReg* addy);
+    void modeHex(char* filename);
+    void modeBin(char* filename);
+    void modeOct(char* filename);
 
 public:
     ControlUnit();
@@ -124,7 +131,7 @@ public:
     void instructionFetch(BitReg* reg);
     void instructionDecode();
     void instructionExecute();
-    void load_from_file(char* filename);
+    void loadFile(char* filename, int mode);
     void printMemoryHistory(char* filename);
 };
 

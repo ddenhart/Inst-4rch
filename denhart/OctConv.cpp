@@ -3,7 +3,6 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
 ==================================================================================
 File:			    OctConv.cpp
 Date:			    03/02/2015
@@ -11,7 +10,10 @@ Description:	 This file contains the class OctConv
 ================================================================================== */
 
 #include <cstdio>
+#include <cstring>
+#include <cctype>
 #include "Common.h"
+#include "BitReg.h"
 #include "OctConv.h"
 
 //External objects
@@ -19,24 +21,15 @@ Description:	 This file contains the class OctConv
 extern ErrorTable Error;
 
 
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
+//==================================================================================
+//Name: OctConv
+//Description: constructor
+//Inputs: none
+//Outputs: none 
+//Return: none
+//==================================================================================
 OctConv::OctConv()
 {
-    m_iOctTable[0] = OCT_0;
-    m_iOctTable[1] = OCT_1;
-    m_iOctTable[2] = OCT_2;
-    m_iOctTable[3] = OCT_3;
-    m_iOctTable[4] = OCT_4;
-    m_iOctTable[5] = OCT_5;
-    m_iOctTable[6] = OCT_6;
-    m_iOctTable[7] = OCT_7;
-
     m_sOctTable[0] = '0';
     m_sOctTable[1] = '1';
     m_sOctTable[2] = '2';
@@ -45,7 +38,6 @@ OctConv::OctConv()
     m_sOctTable[5] = '5';
     m_sOctTable[6] = '6';
     m_sOctTable[7] = '7';
-    m_sOctTable[8] = '8';
 
     m_bOctTable[0][0] = 0;
     m_bOctTable[0][1] = 0;
@@ -78,41 +70,147 @@ OctConv::OctConv()
     m_bOctTable[7][0] = 1;
     m_bOctTable[7][1] = 1;
     m_bOctTable[7][2] = 1;
+
+
+    m_sHexTable[0] = '0';
+    m_sHexTable[1] = '1';
+    m_sHexTable[2] = '2';
+    m_sHexTable[3] = '3';
+    m_sHexTable[4] = '4';
+    m_sHexTable[5] = '5';
+    m_sHexTable[6] = '6';
+    m_sHexTable[7] = '7';
+    m_sHexTable[8] = '8';
+    m_sHexTable[9] = '9';
+    m_sHexTable[10] = 'A';
+    m_sHexTable[11] = 'B';
+    m_sHexTable[12] = 'C';
+    m_sHexTable[13] = 'D';
+    m_sHexTable[14] = 'E';
+    m_sHexTable[15] = 'F';
+
+    m_bHexTable[0][0] = 0;
+    m_bHexTable[0][1] = 0;
+    m_bHexTable[0][2] = 0;
+    m_bHexTable[0][3] = 0;
+
+    m_bHexTable[1][0] = 0;
+    m_bHexTable[1][1] = 0;
+    m_bHexTable[1][2] = 0;
+    m_bHexTable[1][3] = 1;
+
+    m_bHexTable[2][0] = 0;
+    m_bHexTable[2][1] = 0;
+    m_bHexTable[2][2] = 1;
+    m_bHexTable[2][3] = 0;
+
+    m_bHexTable[3][0] = 0;
+    m_bHexTable[3][1] = 0;
+    m_bHexTable[3][2] = 1;
+    m_bHexTable[3][3] = 1;
+
+    m_bHexTable[4][0] = 0;
+    m_bHexTable[4][1] = 1;
+    m_bHexTable[4][2] = 0;
+    m_bHexTable[4][3] = 0;
+
+    m_bHexTable[5][0] = 0;
+    m_bHexTable[5][1] = 1;
+    m_bHexTable[5][2] = 0;
+    m_bHexTable[5][3] = 1;
+
+    m_bHexTable[6][0] = 0;
+    m_bHexTable[6][1] = 1;
+    m_bHexTable[6][2] = 1;
+    m_bHexTable[6][3] = 0;
+
+    m_bHexTable[7][0] = 0;
+    m_bHexTable[7][1] = 1;
+    m_bHexTable[7][2] = 1;
+    m_bHexTable[7][3] = 1;
+
+    m_bHexTable[8][0] = 1;
+    m_bHexTable[8][1] = 0;
+    m_bHexTable[8][2] = 0;
+    m_bHexTable[8][3] = 0;
+
+    m_bHexTable[9][0] = 1;
+    m_bHexTable[9][1] = 0;
+    m_bHexTable[9][2] = 0;
+    m_bHexTable[9][3] = 1;
+
+    m_bHexTable[10][0] = 1;
+    m_bHexTable[10][1] = 0;
+    m_bHexTable[10][2] = 1;
+    m_bHexTable[10][3] = 0;
+
+    m_bHexTable[11][0] = 1;
+    m_bHexTable[11][1] = 0;
+    m_bHexTable[11][2] = 1;
+    m_bHexTable[11][3] = 1;
+
+    m_bHexTable[12][0] = 1;
+    m_bHexTable[12][1] = 1;
+    m_bHexTable[12][2] = 0;
+    m_bHexTable[12][3] = 0;
+
+    m_bHexTable[13][0] = 1;
+    m_bHexTable[13][1] = 1;
+    m_bHexTable[13][2] = 0;
+    m_bHexTable[13][3] = 1;
+
+    m_bHexTable[14][0] = 1;
+    m_bHexTable[14][1] = 1;
+    m_bHexTable[14][2] = 1;
+    m_bHexTable[14][3] = 0;
+
+    m_bHexTable[15][0] = 1;
+    m_bHexTable[15][1] = 1;
+    m_bHexTable[15][2] = 1;
+    m_bHexTable[15][3] = 1;
 }
 
 
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
+//==================================================================================
+//Name: OctConv
+//Description: deconstructor
+//Inputs: none
+//Outputs: none 
+//Return: none
+//==================================================================================
 OctConv::~OctConv()
 {
 
 }
 
 
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
-//returns the length of the boolean register
+//==================================================================================
+//Name: getLength
+//Description: gets the length of the boolean register
+//Inputs: a boolean array
+//Outputs: none
+//Return: the length of the array
+//==================================================================================
 int OctConv::getLength(bool* rInReg)
 {
     int count = 0;
+    bool done = false;
+    int conv = 0;
 
     if(rInReg)
     {
-        while(rInReg[count])
+        while(!done)
         {
-            ++count;
+            conv = rInReg[count];
+            if((conv == 0) || (conv == 1))
+            {
+                ++count;
+            }
+            else
+            {
+                done = true;
+            }
         }
-        //count = sizeof(rInReg)/sizeof(bool*);
     }
     else
     {
@@ -121,90 +219,39 @@ int OctConv::getLength(bool* rInReg)
 
     return count;
 }
-
-
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
-//must be a 3 bit value, returns a value between 0 and 8
- int OctConv::convToString(bool* rInReg, char* rOutReg)
- {
-    int error = ERROR_NONE;
-    int iLength = getLength(rInReg);
+//==================================================================================
+//Name: findsHex
+//Description: finds a hex equivalent for the input symbolic char
+//Inputs: symbolic char between 0-F
+//Outputs: none
+//Return: integer value of the hex input between 0-15
+//==================================================================================
+int OctConv::findsHex(char sIn)
+{
     int i = 0;
-    int col = 0;
-    bool bFound = false;
+    int res = -1;
+    char conv = toupper(sIn);
 
-    if(iLength == OCT_3BIT)
+    for(i = 0; i < HEX_MAX; ++i)
     {
-        for(i = 0; i < OCT_MAX; ++i)
+        if(conv == m_sHexTable[i])
         {
-            if(rInReg[0] == m_bOctTable[i][col++]) //check column 0
-            {
-                if(rInReg[1] == m_bOctTable[i][col++]) //check column 1
-                {
-                    if(rInReg[2] == m_bOctTable[i][col]) //check column 2
-                    {
-                        bFound = true;
-                    }
-                    else
-                    {
-                        col = 0;
-                    }
-                }
-                else
-                {
-                    col = 0;
-                }
-            } //else not this row, keep looking
-            else
-            {
-                col = 0;
-            }
-        }
-
-        if(bFound)
-        {
-            if(rOutReg)
-            {
-                *rOutReg = m_sOctTable[i];  //copy the character
-            }
-            else
-            {
-                error = ERROR_NULL;
-            }
-        }
-        else
-        {
-            error = ERROR_UNEXPECTED_VALUE;
+            res = i;
+            break;
         }
     }
-    else
-    {
-        error = ERROR_OUT_OF_RANGE;
-    }
 
-    if(error != ERROR_NONE)
-    {
-        Error.printError(error, FILE_CONV);
-    }
-
-    return error;
+    return res;
 }
 
 
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be a 3 bit value, returns a value between 0 and 8
+ //==================================================================================
+//Name: convToString
+//Description: converts a binary value to a symbolic char
+//Inputs:a boolean array representing binary, has a desired bit size of num
+//Outputs: none
+//Return: a char with a symbolic value between 0 and 8
+ //==================================================================================
  char OctConv::convToString(bool* rInReg, int num)
  {
      int index = 0;
@@ -257,7 +304,7 @@ int OctConv::getLength(bool* rInReg)
              else//else not this row, keep looking
              {
                  col = 0;
-             } 
+             }
          }
 
          if(bFound)
@@ -278,80 +325,22 @@ int OctConv::getLength(bool* rInReg)
  }
 
 
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be between 0 and 8 value, returns a value between 0 and 8
- int OctConv::convToString(unsigned int rInReg, char* rOutReg)
- {
-    int error = ERROR_NONE;
-    int i = 0;
-    bool bFound = false;
-
-    for(i = 0; i < OCT_MAX; ++i)
-    {
-        if(rInReg == m_iOctTable[i])
-        {
-            bFound = true;
-        } //else not this row, keep looking
-    }
-
-    if(bFound)
-    {
-        if(rOutReg)
-        {
-            *rOutReg = m_sOctTable[i];
-        }
-        else
-        {
-            error = ERROR_NULL;
-        }
-    }
-    else
-    {
-        error = ERROR_UNEXPECTED_VALUE;
-    }
-
-    if(error != ERROR_NONE)
-    {
-        Error.printError(error, FILE_CONV);
-    }
-
-    return error;
- }
-
-
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be betwee 0 and 8 value, returns a value between 0 and 8
+ //==================================================================================
+ //Name: convToString
+ //Description: converts an unsigned int to a symbolic char
+ //Inputs:an unsigned int between 0 and 8 value
+ //Outputs: none
+ //Return: a char with a symbolic value between 0 and 8
+ //==================================================================================
  char OctConv::convToString(unsigned int rInReg)
  {
-     int i = 0;
-     bool bFound = false;
      char rOutReg = '0';
 
-     for(i = 0; i < OCT_MAX; ++i)
-     {
-         if(rInReg == m_iOctTable[i])
-         {
-             bFound = true;
-         } //else not this row, keep looking
-     }
-
-     if(bFound)
+     if(rInReg < OCT_MAX)
      {
          if(rOutReg)
          {
-             rOutReg = m_sOctTable[i];
+             rOutReg = m_sOctTable[rInReg];
          }
          else
          {
@@ -368,88 +357,13 @@ int OctConv::getLength(bool* rInReg)
  }
 
 
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be a 3 bit value, returns a value between 0 and 8
- int OctConv::convToNumber(bool* rInReg, unsigned int* rOutReg)
- {
-    int error = ERROR_NONE;
-    int iLength = getLength(rInReg);
-    int i = 0;
-    int col = 0;
-    bool bFound = false;
-
-    if(iLength == OCT_3BIT)
-    {
-        for(i = 0; i < OCT_MAX; ++i)
-        {
-            if(rInReg[0] == m_bOctTable[i][0])
-            {
-                if(rInReg[1] == m_bOctTable[i][1])
-                {
-                    if(rInReg[2] == m_bOctTable[i][2])
-                    {
-                         bFound = true;
-                    }
-                    else
-                    {
-                        col = 0;
-                    }
-                }
-                else
-                {
-                    col = 0;
-                }
-            } //else not this row, keep looking
-            else
-            {
-                col = 0;
-            }
-        }
-
-        if(bFound)
-        {
-            if(rOutReg)
-            {
-                *rOutReg = m_iOctTable[i];
-            }
-            else
-            {
-                error = ERROR_NULL;
-            }
-        }
-        else
-        {
-            error = ERROR_UNEXPECTED_VALUE;
-        }
-    }
-    else
-    {
-        error = ERROR_OUT_OF_RANGE;
-    }
-
-    if(error != ERROR_NONE)
-    {
-        Error.printError(error, FILE_CONV);
-    }
-
-    return error;
- }
-
-
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be a 3 bit value, returns a value between 0 and 8
+ //==================================================================================
+ //Name:convToNumber
+ //Description: converts a bool array to its decimal equivalent
+ //Inputs: a boolean array of a binary representation
+ //Outputs: none
+ //Return: an unsigned int value between 0 and 8
+ //==================================================================================
  unsigned int OctConv::convToNumber(bool* rInReg)
  {
      int iLength = getLength(rInReg);
@@ -488,14 +402,7 @@ int OctConv::getLength(bool* rInReg)
 
          if(bFound)
          {
-             if(rOutReg)
-             {
-                 rOutReg = m_iOctTable[i];
-             }
-             else
-             {
-                 Error.printError(ERROR_NULL, FILE_CONV);
-             }
+            rOutReg = i;
          }
          else
          {
@@ -511,61 +418,13 @@ int OctConv::getLength(bool* rInReg)
  }
 
 
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be between 0 and 8, returns a value between 0 and 8
- int OctConv::convToNumber(char rInReg, unsigned int* rOutReg)
- {
-    int error = ERROR_NONE;
-    int i = 0;
-    bool bFound = false;
-
-    for(i = 0; i < OCT_MAX; ++i)
-    {
-        if(rInReg == m_sOctTable[i])
-        {
-            bFound = true;
-        } //else not this row, keep looking
-    }
-
-    if(bFound)
-    {
-        if(rOutReg)
-        {
-            *rOutReg = m_iOctTable[i];
-        }
-        else
-        {
-            error = ERROR_NULL;
-        }
-    }
-    else
-    {
-        error = ERROR_UNEXPECTED_VALUE;
-    }
-
-    if(error != ERROR_NONE)
-    {
-        Error.printError(error, FILE_CONV);
-    }
-
-    return error;
- }
-
-
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be between 0 and 8, returns a value between 0 and 8
+ //==================================================================================
+ //Name: convToNumber
+ //Description: converts a char to its decimal equivalent
+ //Inputs: a char symbol between 0 and 8
+ //Outputs: none
+ //Return: an unsigned int value between 0 and 8
+ //==================================================================================
  unsigned int OctConv::convToNumber(char rInReg)
  {
      int i = 0;
@@ -584,7 +443,7 @@ int OctConv::getLength(bool* rInReg)
      {
          if(rOutReg)
          {
-             rOutReg = m_iOctTable[i];
+             rOutReg = i;// m_iOctTable[i];
          }
          else
          {
@@ -600,77 +459,18 @@ int OctConv::getLength(bool* rInReg)
  }
 
 
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be between 0 and 8, returns a 3 bit value
- int OctConv::convToBinary(char rInReg, bool* rOutReg)
- {
-    int error = ERROR_NONE;
-    int i = 0;
-    bool bFound = false;
-
-    for(i = 0; i < OCT_MAX; ++i)
-    {
-        if(rInReg == m_sOctTable[i])
-        {
-            bFound = true;
-        } //else not this row, keep looking
-    }
-
-    if(bFound)
-    {
-        if(rOutReg)
-        {
-            for(int j = 0; j < OCT_3BIT; ++j)
-            {
-                if(rOutReg[j])
-                {
-                    rOutReg[j] = m_bOctTable[i][j];
-                }
-                else
-                {
-                    error = ERROR_OUT_OF_RANGE;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            error = ERROR_NULL;
-        }
-    }
-    else
-    {
-        error = ERROR_UNEXPECTED_VALUE;
-    }
-
-    if(error != ERROR_NONE)
-    {
-        Error.printError(error, FILE_CONV);
-    }
-
-    return error;
- }
-
-
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be between 0 and 8, returns a 3 bit value
+ //==================================================================================
+ //Name: convToBinary
+ //Description: converts a cstring to it's binary equivalent
+ //Inputs: char array to be converted
+ //Outputs: none
+ //Return: a 3 bit binary value in a boolean array
+ //==================================================================================
  bool* OctConv::convToBinary(char rInReg)
  {
      int i = 0;
      bool bFound = false;
-     bool* rOutReg = new bool[OCT_MAX];
+     bool* rOutReg = NULL;
 
      for(i = 0; i < OCT_MAX; ++i)
      {
@@ -683,13 +483,41 @@ int OctConv::getLength(bool* rInReg)
 
      if(bFound)
      {
+        rOutReg = new bool[OCT_3BIT];
+        for(int j = 0; j < OCT_3BIT; ++j)
+        {
+            rOutReg[j] = m_bOctTable[i][j];
+        }
+     }
+     else
+     {
+         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONV);
+     }
+
+     return rOutReg;
+ }
+
+
+ //==================================================================================
+ //Name: convToBinary
+ //Description: converts an unsigned int to it's binary equivalent
+ //Inputs: decimal to be converted
+ //Outputs: none
+ //Return: a 3 bit binary value in a boolean array
+ //==================================================================================
+ bool* OctConv::convToBinary(unsigned int rInReg)
+ {
+     bool* rOutReg = new bool[OCT_MAX];
+
+     if(rInReg < OCT_MAX) 
+     {
          if(rOutReg)
          {
              for(int j = 0; j < OCT_3BIT; ++j)
              {
                  if(rOutReg[j])
                  {
-                     rOutReg[j] = m_bOctTable[i][j];
+                     rOutReg[j] = m_bOctTable[rInReg][j];
                  }
                  else
                  {
@@ -712,113 +540,56 @@ int OctConv::getLength(bool* rInReg)
  }
 
 
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be less than 8, returns a 3 bit value
- int OctConv::convToBinary(unsigned int rInReg, bool* rOutReg)
+//==================================================================================
+ //Name: convertToBinaryHex
+ //Description: converts a cstring to a 4 bit binary value per character,
+ //                 characters are hexadecimal equivalents 0-F
+ //Inputs: char array of hexadecimal characters
+ //Outputs: none
+ //Return: a boolean array of the binary equivalent of the hex char string
+ //==================================================================================
+bool* OctConv::convertToBinaryHex(char* inReg)
  {
-    int error = ERROR_NONE;
-    int i = 0;
-    bool bFound = false;
+    int length = 0;
+    int index = 0;
+    int tempIndex = 0;
+    int size = 0;
+    bool* temp = NULL;
 
-    for(i = 0; i < OCT_MAX; ++i)
+    if(inReg)
     {
-        if(rInReg == m_iOctTable[i])
-        {
-            bFound = true;
-        } //else not this row, keep looking
-    }
+        length = strlen(inReg);
+        --length; //don't include the '\0'
+        size = HEX_4BIT*length; //get the binary array length
+        temp = new bool[size];
 
-    if(bFound)
-    {
-        if(rOutReg)
+        for(int i = 0; i < length; ++i)
         {
-            for(int j = 0; j < OCT_3BIT; ++j)
+            index = findsHex(inReg[i]); // get a 4 bit equivalent of the input char
+            if((index >= 0) && (index < HEX_MAX))
             {
-                if(rOutReg[j])
+                //copy hex value
+                for(int j = 0; j < HEX_4BIT; ++j)
                 {
-                    rOutReg[j] = m_bOctTable[i][j];
-                }
-                else
-                {
-                    error = ERROR_NULL;
-                    break;
+                    if(tempIndex < size)
+                    {
+                        //copy the bits to the array
+                        temp[tempIndex] = m_bHexTable[index][j]; 
+                        ++tempIndex;
+                    }
+                    else
+                    {
+                        Error.printError(ERROR_OUT_OF_RANGE, FILE_CONV);
+                    }
                 }
             }
-        }
-        else
-        {
-            error = ERROR_NULL;
         }
     }
     else
     {
-        error = ERROR_UNEXPECTED_VALUE;
+        Error.printError(ERROR_NULL, FILE_CONV);
     }
-
-    if(error != ERROR_NONE)
-    {
-        Error.printError(error, FILE_CONV);
-    }
-
-    return error;
- }
-
-
- //================================================================================== 
- //Name:
- //Description:
- //Inputs:
- //Outputs:
- //Return:
- //================================================================================== 
- //must be less than 8, returns a 3 bit value
- bool* OctConv::convToBinary(unsigned int rInReg)
- {
-     int i = 0;
-     bool bFound = false;
-     bool* rOutReg = new bool[OCT_MAX];
-
-     for(i = 0; i < OCT_MAX; ++i)
-     {
-         if(rInReg == m_iOctTable[i])
-         {
-             bFound = true;
-         } //else not this row, keep looking
-     }
-
-     if(bFound)
-     {
-         if(rOutReg)
-         {
-             for(int j = 0; j < OCT_3BIT; ++j)
-             {
-                 if(rOutReg[j])
-                 {
-                     rOutReg[j] = m_bOctTable[i][j];
-                 }
-                 else
-                 {
-                     Error.printError(ERROR_OUT_OF_RANGE, FILE_CONV);
-                     break;
-                 }
-             }
-         }
-         else
-         {
-             Error.printError(ERROR_NULL, FILE_CONV);
-         }
-     }
-     else
-     {
-         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONV);
-     }
-
-     return rOutReg;
+     
+    return temp;
  }
 

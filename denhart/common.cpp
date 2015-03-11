@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    Common.cpp
 Date:			    03/02/2015
@@ -11,7 +11,6 @@ Description:	 This file contains the classes ErrorTable and RegTable
 ================================================================================== */
 
 #include <fstream>
-#include <cmath>
 #include <cstdio>
 #include <iostream>
 #include "OctConv.h"
@@ -35,25 +34,54 @@ ErrorTable::ErrorTable()
 {
     errorsOn = true;
 
-    errorTable[0] = "No error";
-    errorTable[1] = "Conversion failed";
-    errorTable[2] = "Null Pointer";
-    errorTable[3] = "Out of Range";
-    errorTable[4] = "Unexpected Value";
-    errorTable[5] = "Can't access file";
-    errorTable[6] = "Max error";
+    const char* temp1 = "No error";
+    const char* temp2 = "Conversion failed";
+    const char* temp3 = "Null Pointer";
+    const char* temp4 = "Out of Range";
+    const char* temp5 = "Unexpected Value";
+    const char* temp6 = "Can't access file";
+    const char* temp7 = "Deconstructor error";
 
-    fileTable[0] = "main";
-    fileTable[1] = "Common";
-    fileTable[2] = "OctConv";
-    fileTable[3] = "BitReg";
-    fileTable[4] = "Memory";
-    fileTable[5] = "Accumulator";
-    fileTable[6] = "ControlUnit";
-    fileTable[7] = "OpRow";
-    fileTable[8] = "TableHandle";
-    fileTable[9] = "RegTable";
-    fileTable[10] = "file max";
+    errorTable[0] = new char[strlen(temp1)+1];
+    strcpy(errorTable[0], temp1);
+    errorTable[1] = new char[strlen(temp2)+1];
+    strcpy(errorTable[1], temp2);
+    errorTable[2] = new char[strlen(temp3)+1];
+    strcpy(errorTable[2], temp3);
+    errorTable[3] = new char[strlen(temp4)+1];
+    strcpy(errorTable[3], temp4);
+    errorTable[4] = new char[strlen(temp5)+1];
+    strcpy(errorTable[4], temp5);
+    errorTable[5] = new char[strlen(temp6)+1];
+    strcpy(errorTable[5], temp6);
+    errorTable[6] = new char[strlen(temp7)+1];
+    strcpy(errorTable[6], temp7);
+
+    const char* file1 = "main";
+    const char* file2 = "Common";
+    const char* file3 = "OctConv";
+    const char* file4 = "BitReg";
+    const char* file5 = "Memory";
+    const char* file6 = "Accumulator";
+    const char* file7 = "ControlUnit";
+    const char* file8 = "TableHandle";
+
+    fileTable[0] = new char[strlen(file1)+1];
+    strcpy(fileTable[0], file1);
+    fileTable[1] = new char[strlen(file2)+1];
+    strcpy(fileTable[1], file2);
+    fileTable[2] = new char[strlen(file3)+1];
+    strcpy(fileTable[2], file3);
+    fileTable[3] = new char[strlen(file4)+1];
+    strcpy(fileTable[3], file4);
+    fileTable[4] = new char[strlen(file5)+1];
+    strcpy(fileTable[4], file5);
+    fileTable[5] = new char[strlen(file6)+1];
+    strcpy(fileTable[5], file6);
+    fileTable[6] = new char[strlen(file7)+1];
+    strcpy(fileTable[6], file7);
+    fileTable[7] = new char[strlen(file8)+1];
+    strcpy(fileTable[7], file8);
 }
 
 

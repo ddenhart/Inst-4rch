@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    OctConv.cpp
 Date:			    03/02/2015
@@ -26,6 +26,8 @@ Description:	 This file contains the class OctConv
 #define OCT_6 6
 #define OCT_7 7
 #define OCT_3BIT 3
+#define HEX_4BIT 4
+#define HEX_MAX 16
 
 
 //Class OctConv
@@ -35,28 +37,25 @@ class OctConv
 
 private:
 
-    unsigned int m_iOctTable[OCT_MAX];
     char m_sOctTable[OCT_MAX];
     bool m_bOctTable[OCT_MAX][OCT_3BIT];
+    char m_sHexTable[HEX_MAX];
+    bool m_bHexTable[HEX_MAX][HEX_4BIT];
 
     int getLength(bool* inReg);
+    int findsHex(char sIn);
 
 public:
 
     OctConv();
     ~OctConv();
-    int convToString(bool* inReg, char* rOutReg);
     char convToString(bool* inReg, int num);
-    int convToString(unsigned int inReg, char* rOutReg);
     char convToString(unsigned int inReg);
-    int convToNumber(bool* inReg, unsigned int* rOutReg);
     unsigned int convToNumber(bool* inReg);
-    int convToNumber(char inReg, unsigned int* rOutReg);
     unsigned int convToNumber(char inReg);
-    int convToBinary(char inReg, bool* rOutReg);
     bool* convToBinary(char inReg);
-    int convToBinary(unsigned int inReg, bool* rOutReg);
     bool* convToBinary(unsigned int inReg);
+    bool* convertToBinaryHex(char* inReg);
 };
 
 

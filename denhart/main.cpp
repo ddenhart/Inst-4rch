@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    Main.cpp
 Date:			    03/02/2015
@@ -56,6 +56,7 @@ int main (int argc, char **argv)
     ControlUnit controlUnit;
     char* infile = NULL;
     char* outfile = NULL;
+    int mode = 0;
 
     /* Read command line arguments
     flags:
@@ -125,16 +126,25 @@ int main (int argc, char **argv)
         if((bHex && !bOct && !bBin) ||
            (!bHex && bOct && !bBin))
         {
-            //TODO
+            if(bHex)
+            {
+                mode = INPUT_HEX;
+            }
+            else if(bOct)
+            {
+                mode = INPUT_OCTAL;
+            }
         }
         else if(!bHex && !bOct && !bBin)
         {
             bBin = true;
+            mode = INPUT_BINARY;
         }
         else
         {
             //error output: -o and -v can't both be set
             bAbort = true;
+            fprintf(stdout, "Error: input can't have both --o and --v flags set\n");
         }
 
         if(!bInputFile)
@@ -157,7 +167,7 @@ int main (int argc, char **argv)
     }
     if(!bAbort)
     {
-        controlUnit.load_from_file(infile);
+        controlUnit.loadFile(infile, mode);
         controlUnit.printMemoryHistory(outfile);
     }
 

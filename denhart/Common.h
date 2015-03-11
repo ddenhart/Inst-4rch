@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    Common.cpp
 Date:			    03/02/2015
@@ -22,15 +22,18 @@ class BitReg;
 #define DEBUG_COMMON true
 #define REG_12BIT 12
 #define REG_9BIT 9
+#define REG_8BIT 8
 #define REG_7BIT 7
 #define REG_5BIT 5
 #define REG_4BIT 4
 #define REG_3BIT 3
 #define REG_1BIT 1
 #define INST_FORM_MRI "Memory Reference"
-#define INST_FORM_OP "Operate"
+#define INST_FORM_OP "Micro Instruction"
 #define INST_FORM_IO "Test I/O"
 #define ADDRESS_LENGTH_OCT 4
+#define ADDRESS_LENGTH_HEX 3
+#define ADDRESS_LENGTH_BIN 12
 #define INCREMENT_WORD 1
 #define OPCODE_LENGTH 3
 #define OPCODE_MIN 0
@@ -58,6 +61,10 @@ class BitReg;
 #define OPCODE_JMP 5
 #define START_ADDRESS 200
 #define HALT_CODE 3842
+#define INPUT_BINARY 0
+#define INPUT_OCTAL 1
+#define INPUT_HEX 2
+#define INPUT_OCTBYTE_MAX 6
 
 
 //file codes
@@ -68,9 +75,8 @@ class BitReg;
 #define FILE_MEMORY 4
 #define FILE_ALU 5
 #define FILE_CONTROL 6
-#define FILE_OPROW 7
-#define FILE_OPTABLE 8
-#define FILE_MAX 11
+#define FILE_OPTABLE 7
+#define FILE_MAX 8
 
 //errors
 #define ERROR_NONE 0

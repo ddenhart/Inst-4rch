@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    BitReg.cpp
 Date:			    03/02/2015
@@ -48,13 +48,11 @@ private:
     void copyReg(char* rSource, BitReg* rDest);
     //copies the register value from unsigned int rSource to BitReg
     void copyReg(unsigned int rSource, BitReg* rDest);
-    //saves to the register 3 bits starting at index and increasing
-    int save3bit(bool* bReg, int index);
         //gives number of bits needed to translate num to a binary vector 
         //int findNumBits(unsigned int num);
-    //fills a regester given a total number of bits and an unsigned int value
+    //fills a register given a total number of bits and an unsigned int value
     bool* fillRegister(int total, unsigned int value);
-    //fills a regester given a total number of bits and a char array value
+    //fills a register given a total number of bits and a char array value
     bool* fillRegister(int total, char* value);
     //deletes the current register, resizes it to size and initializes with zeros
     void resizeRegister(int size);
@@ -65,6 +63,7 @@ private:
     char* convertedChar(bool* reg, int number); //converts a boolean array to char array
     char convertedBinary(bool reg); //converts a bool to the chars 0 or 1
     bool* bitChunk(int start, int length); //returns a section of bits from the register
+    bool* bitChunk(bool* reg, int start, int length);
     int zeroPad(bool* reg, int padding);
 
 public:

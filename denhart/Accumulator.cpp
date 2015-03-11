@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    Accumulator.cpp
 Date:			    03/02/2015
@@ -135,7 +135,6 @@ void Accumulator::setLB(BitReg* rlb)
 void Accumulator::sumReg(BitReg* rInReg)
 {
     bool overflow = false;
-    bool carry = false;
     bool* temp = NULL;
     bool sum[REG_12BIT];
     BitReg* rac = NULL;
@@ -219,11 +218,9 @@ void Accumulator::sumReg(BitReg* rInReg)
             BitReg rsum(sum);
             setAC(&rsum);
 
-            if(DEBUG_ALU)
-            {
-                fprintf(stdout, "DEBUG ALU: sum is %s\n",
-                        rsum.getString());
-            }
+#ifdef DEBUG_ALU
+            fprintf(stdout, "DEBUG ALU: sum is %s\n", rsum.getString());
+#endif
         }
         else
         {
@@ -354,11 +351,10 @@ void Accumulator::complement()
         carry[0] = !carry[0];
         setCarry(carry);
 
-        if(DEBUG_ALU)
-        {
-            fprintf(stdout, "DEBUG ALU: complement is %s and link is %d\n",
+#ifdef DEBUG_ALU
+        fprintf(stdout, "DEBUG ALU: complement is %s and link is %d\n",
                     rac->getString(), (!carry));
-        }
+#endif
     }
     else
     {
@@ -397,11 +393,10 @@ void Accumulator::increment(BitReg* rInReg)
     setCarry(&carry); //clear the carry before setting the accumulator to 1
     setAC(&rOne); //set the accumulator to 1
     sumReg(rInReg); //add the input register 
-    if(DEBUG_ALU)
-    {
-        fprintf(stdout, "DEBUG ALU: increment is %s\n",
-                rInReg->getString());
-    }
+#ifdef DEBUG_ALU
+    fprintf(stdout, "DEBUG ALU: increment is %s\n",
+            rInReg->getString());
+#endif
 }
 
 
@@ -451,11 +446,10 @@ void Accumulator::negate()
             BitReg reg(temp);
             setCarry(&carry);
             setAC(&reg);
-            if(DEBUG_ALU)
-            {
-                fprintf(stdout, "DEBUG ALU: negate is %s and carry is %d\n",
-                        reg.getString(), carry);
-            }
+#ifdef DEBUG_ALU
+            fprintf(stdout, "DEBUG ALU: negate is %s and carry is %d\n",
+                    reg.getString(), carry);
+#endif
         }
         else
         {
@@ -495,11 +489,10 @@ void Accumulator::clear()
 
     setCarry(&carry);
     setAC(&reg);
-    if(DEBUG_ALU)
-    {
-        fprintf(stdout, "DEBUG ALU: clear is %s\n",
-                reg.getString());
-    }
+#ifdef DEBUG_ALU
+    fprintf(stdout, "DEBUG ALU: clear is %s\n",
+            reg.getString());
+#endif
 }
 
 
@@ -543,11 +536,10 @@ void Accumulator::rotateRight()
                 BitReg rtemp(ztemp);
                 setAC(&rtemp);
 
-                if(DEBUG_ALU)
-                {
-                    fprintf(stdout, "DEBUG ALU: rotate right is %s and carry is %d\n",
-                            rtemp.getString(), brlb[0]);
-                }
+#ifdef DEBUG_ALU
+                fprintf(stdout, "DEBUG ALU: rotate right is %s and carry is %d\n",
+                        rtemp.getString(), brlb[0]);
+#endif
             }
             else
             {
@@ -637,11 +629,10 @@ void Accumulator::rotateLeft()
                 BitReg rtemp(ztemp);
                 setAC(&rtemp);
 
-                if(DEBUG_ALU)
-                {
-                    fprintf(stdout, "DEBUG ALU: rotate left is %s and carry is %d\n",
-                            rtemp.getString(), brlb[0]);
-                }
+#ifdef DEBUG_ALU
+                fprintf(stdout, "DEBUG ALU: rotate left is %s and carry is %d\n",
+                        rtemp.getString(), brlb[0]);
+#endif
             }
             else
             {
@@ -706,6 +697,7 @@ void Accumulator::shiftRight(int num)
     bool carry = false;
     int size = 0;
     int index = 0;
+    bool bextend = 0;
 
     reg = getAC();
 
@@ -717,9 +709,18 @@ void Accumulator::shiftRight(int num)
         if(temp)
         {
             ztemp = new bool[size];
+            bextend = temp[0];
             for(int i = 0; i < num; ++i)
             {
-                ztemp[i] = temp[0]; //sign extension
+                if(i < size)
+                {
+                    ztemp[i] = bextend; //sign extension
+                }
+                else
+                {
+                    Error.printError(ERROR_OUT_OF_RANGE, FILE_ALU);
+                    break;
+                }
             }
             for(int j = num; j < size; ++j)
             {
@@ -731,11 +732,10 @@ void Accumulator::shiftRight(int num)
             BitReg rtemp(ztemp);
             setAC(&rtemp);
 
-            if(DEBUG_ALU)
-            {
-                fprintf(stdout, "DEBUG ALU: shift right is %s\n",
+#ifdef DEBUG_ALU
+            fprintf(stdout, "DEBUG ALU: shift right is %s\n",
                         rtemp.getString());
-            }
+#endif      
         }
         else
         {
@@ -809,11 +809,10 @@ void Accumulator::shiftLeft(int num)
             BitReg rtemp(ztemp);
             setAC(&rtemp);
 
-            if(DEBUG_ALU)
-            {
-                fprintf(stdout, "DEBUG ALU: shift left is %s\n",
-                        rtemp.getString());
-            }
+#ifdef DEBUG_ALU
+            fprintf(stdout, "DEBUG ALU: shift left is %s\n",
+                    rtemp.getString());
+#endif
         }
         else
         {
@@ -899,11 +898,10 @@ void Accumulator::andReg(BitReg* rInReg)
             BitReg rtemp(resulttemp);
             setAC(&rtemp);
 
-            if(DEBUG_ALU)
-            {
-                fprintf(stdout, "DEBUG ALU: and is %s\n",
-                        rtemp.getString());
-            }
+#ifdef DEBUG_ALU
+            fprintf(stdout, "DEBUG ALU: and is %s\n",
+                    rtemp.getString());
+#endif
         }
         else
         {
@@ -996,11 +994,10 @@ void Accumulator::orReg(BitReg* rInReg)
             BitReg rtemp(resulttemp);
             setAC(&rtemp);
 
-            if(DEBUG_ALU)
-            {
-                fprintf(stdout, "DEBUG ALU: or is %s\n",
-                        rtemp.getString());
-            }
+#ifdef DEBUG_ALU
+            fprintf(stdout, "DEBUG ALU: or is %s\n",
+                    rtemp.getString());
+#endif
         }
         else
         {

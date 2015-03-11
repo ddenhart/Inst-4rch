@@ -3,7 +3,7 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    ControlUnit.cpp
 Date:			    03/02/2015
@@ -18,6 +18,7 @@ Description:	 This file contains the classes InstFormat, EffectiveAddress,
 #include <string>
 #include <iostream>
 #include "Common.h"
+#include "OctConv.h"
 #include "BitReg.h"
 #include "OpTable.h"
 #include "Memory.h"
@@ -39,10 +40,12 @@ extern RegTable RegisterFile;
 //================================================================================== 
 ControlUnit::ControlUnit()
 {
+    silent = false;
     m_alu = new Accumulator;
     m_memory = new Memory;
     m_eAddy.setMemory(m_memory);
-    m_StartAddress.setReg(START_ADDRESS);
+    char addy[] = "0200";
+    m_StartAddress = new BitReg(addy); //had to change due to persistant warning
 }
 
 
@@ -55,6 +58,12 @@ ControlUnit::ControlUnit()
 //================================================================================== 
 ControlUnit::~ControlUnit()
 {
+    silent = false;
+    if(m_StartAddress)
+    {
+        delete m_StartAddress;
+        m_StartAddress = NULL;
+    }
     if(m_memory)
     {
         delete m_memory; 
@@ -75,6 +84,412 @@ ControlUnit::~ControlUnit()
         delete m_rCurrAddy;
         m_rCurrAddy = NULL;
     }*/
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+void ControlUnit::modeHex(char* filename)
+{
+    char line[MAX_BUFFER]; // String for getline
+    int length = 0;
+    bool bFirstLine = true;
+    bool* bReg = NULL;
+    char sInput[ADDRESS_LENGTH_HEX + 1];
+    BitReg rInput(REG_12BIT); // Current address
+
+    file = fopen(filename, "r");
+
+    if(file)
+    {
+        while((!feof(file)) && (fgets(line, MAX_BUFFER, file)))//otherwise prints an extra line
+        {
+            length = strlen(line);
+
+            if(length == (ADDRESS_LENGTH_HEX+1))
+            {
+                //it's data
+                bReg = m_conv.convertToBinaryHex(line);
+
+                if(bReg)
+                {
+                    rInput.setReg(bReg);
+#ifdef DEBUG_CONTROL
+                    fprintf(stdout, "DEBUG address: %s\n", rInput.getString());
+#endif
+                    BitReg* rpc = getPC();
+                    m_memory->store(rpc, &rInput);
+                    RegisterFile.incrementPC();
+                    if(rpc)
+                    {
+                        delete rpc;
+                        rpc = NULL;
+                    }
+                }
+                else
+                {
+                    Error.printError(ERROR_NULL, FILE_CONTROL);
+                }
+            }
+            else if(length == (ADDRESS_LENGTH_OCT+1))
+            {
+                if('@' == line[0]) //address
+                {
+                    memmove(line, line+1, strlen(line)); //remove @
+                    bReg = m_conv.convertToBinaryHex(line);
+
+                    if(bReg)
+                    {
+                        rInput.setReg(bReg);
+#ifdef DEBUG_CONTROL
+                        fprintf(stdout, "DEBUG address: %s\n", rInput.getString());
+#endif
+                        if(m_memory->checkValidAddy(&rInput))  //check for valid address
+                        {
+                            if(bFirstLine)
+                            {
+                                m_StartAddress->setReg(&rInput);
+                            }
+
+                            bFirstLine = false;
+                            setPC(&rInput);
+                        }
+                        else
+                        {
+                            Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                        }
+                    }
+                }
+                else
+                {
+                    Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                }
+            }
+            else
+            {
+                Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+            }
+        }
+
+        fclose(file);
+    }
+}
+
+
+//==================================================================================
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//==================================================================================
+void ControlUnit::modeBin(char* filename)
+{
+    bool bFirstLine = true;
+    bool* bBuf0 = NULL;
+    bool* bBuf1 = NULL;
+    bool bReg[REG_12BIT];
+    unsigned char* buffer = NULL;
+    int size0 = 0;
+    int size1 = 0;
+    int conv = 0;
+    std::vector<char> sBuf;
+    std::vector<char>::iterator it;
+    BitReg rparse0(REG_8BIT);
+    BitReg rparse1(REG_8BIT);
+    BitReg rInput; // Current address
+
+    file = fopen(filename, "r+b");
+
+    if(file)
+    {
+        //get the size of the file
+        fseek(file, 0, SEEK_END);
+        unsigned long fsize = ftell(file);
+        buffer = new unsigned char[fsize+1];
+        rewind(file);
+
+        //read the file
+        fread(buffer, 1, fsize, file);
+        fclose(file);
+        buffer[fsize] = '\0';
+
+        //get rid of headers
+        for(int i = 0; i < fsize; ++i)
+        {
+            if(buffer[i] == 128)
+            {
+                //skip this character.. it's a buffer
+            }
+            else if(buffer[i] == '\a')
+            {
+                break; //stop at the bell
+            }
+            else
+            {
+                sBuf.push_back(buffer[i]);
+            }
+        }
+        
+        //parse the binary
+        for(it = sBuf.begin(); it != sBuf.end(); ++it)
+        {
+            conv = *it;
+            rparse0.setReg(conv); //set a byte
+            bBuf0 = rparse0.getBool();
+            size0 = rparse0.getLength();
+
+            ++it;
+            if(sBuf.end() == it)
+            {
+                fprintf(stderr, "%s\n", PRINT_BREAK);
+                throw fprintf(stderr, "Error: Invalid binary file format...\n");
+                fprintf(stderr, "%s\n", PRINT_BREAK);
+                return;
+            }
+            else
+            {
+                conv = *it;
+            }
+
+            rparse1.setReg(conv); //set a byte
+            bBuf1 = rparse1.getBool();
+            size1 = rparse1.getLength();
+            
+            if(bBuf0 && bBuf1 && (REG_8BIT == size0) && (REG_8BIT == size1))
+            {
+                for(int i = 0; i < INPUT_OCTBYTE_MAX; ++i)
+                {
+                    bReg[i] = bBuf0[(i+2)];
+                    bReg[(i+6)] = bBuf1[(i+2)];
+                }
+
+                rInput.setReg(bReg);
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG address: %s\n", rInput.getString());
+#endif
+
+                if(bBuf0[1]) //its an address
+                {
+                    if(m_memory->checkValidAddy(&rInput))  //check for valid address
+                    {
+                        if(bFirstLine)
+                        {
+                            m_StartAddress->setReg(&rInput);
+                        }
+
+                        bFirstLine = false;
+                        setPC(&rInput);
+                    }
+                    else
+                    {
+                        Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                    }
+                }
+                else //its data
+                {
+                    BitReg* rpc = getPC();
+                    m_memory->store(rpc, &rInput);
+                    RegisterFile.incrementPC();
+                    if(rpc)
+                    {
+                        delete rpc;
+                        rpc = NULL;
+                    }
+                }
+
+            }
+            else
+            {
+                Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+            }
+
+            if(bBuf0)
+            {
+                delete[] bBuf0;
+                bBuf0 = NULL;
+            }
+            if(bBuf1)
+            {
+                delete[] bBuf1;
+                bBuf1 = NULL;
+            }
+        }
+    }
+    else
+    {
+        Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+    }
+
+    if(buffer)
+    {
+        delete[] buffer;
+        buffer = NULL;
+    }
+
+    if(bBuf0)
+    {
+        delete[] bBuf0;
+        bBuf0 = NULL;
+    }
+    if(bBuf1)
+    {
+        delete[] bBuf1;
+        bBuf1 = NULL;
+    }
+}
+
+
+//================================================================================== 
+//Name:
+//Description:
+//Inputs:
+//Outputs:
+//Return:
+//================================================================================== 
+    void ControlUnit::modeOct(char* filename)
+{
+    char line[MAX_BUFFER]; // String for getline
+    char sInput[ADDRESS_LENGTH_OCT + 1];
+    int maxOctLeng = 4;
+    bool bPairFound = false;
+    bool bAddy = false;
+    bool bFirstLine = true;
+    BitReg rInput(REG_12BIT); // Current address 
+    BitReg rData(REG_12BIT); // Current address 
+    unsigned int data = 0;
+    int length = 0;
+
+    file = fopen(filename, "r");
+
+    if(file)
+    {
+        while((!feof(file)) && (fgets(line, MAX_BUFFER, file)))//otherwise prints an extra line
+        {
+            length = strlen(line);
+			//somehow our code conflict here... just commenting out till we can fix
+			 /*int tempLen = length - 1;
+			   if ((tempLen > 0) && (line[tempLen] == '\n'))
+				    line[tempLen] = '\0';
+			   length = strlen(line);*/
+            if(length <= ADDRESS_LENGTH_OCT) // expected format
+            {
+                if('1' == line[0])
+                {
+                    bAddy = true;
+                    bPairFound = false;
+                }
+                else if('0' == line[0])
+                {
+                    bAddy = false;
+                    bPairFound = false;
+                }
+                else
+                {
+                    Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+                    bPairFound = false;
+                }
+
+                if(length == maxOctLeng)
+                {
+                    sInput[0] = line[1];
+                    sInput[1] = line[2];
+                }
+                else if(length == 3)
+                {
+                    sInput[0] = '0';
+                    sInput[1] = line[2];
+                }
+                else if(length == 2)
+                {
+                    Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                }
+
+                fgets(line, MAX_BUFFER, file);
+                length = strlen(line);
+			//somehow our code conflict here... just commenting out till we can fix
+				    /*tempLen = length - 1;
+				    if ((tempLen > 0) && (line[tempLen] == '\n'))
+					    line[tempLen] = '\0';
+				    length = strlen(line);*/
+                if(length <= ADDRESS_LENGTH_OCT) // expected format
+                {
+                    sInput[2] = line[1];
+                    sInput[3] = line[2];
+
+                    if(length == maxOctLeng)
+                    {
+                        sInput[2] = line[1];
+                        sInput[3] = line[2];
+                    }
+                    else if(length == 3)
+                    {
+                        sInput[2] = '0';
+                        sInput[3] = line[2];
+                    }
+                    else if(length == 2)
+                    {
+                        Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                    }
+                    
+                    bPairFound = true;
+                }
+                else
+                {
+                    Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+                }
+            }
+            else
+            {
+                Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+            }
+
+            if(bPairFound) // Ignore blank lines
+            {
+                sInput[ADDRESS_LENGTH_OCT] = '\0';
+                rInput.setReg(sInput);
+                //debug
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG address: %s\n", rInput.getString());
+#endif
+                if(bAddy) //it's an address
+                {
+                    if(m_memory->checkValidAddy(&rInput))  //check for valid address
+                    {
+                        if(bFirstLine)
+                        {
+                            m_StartAddress->setReg(&rInput);
+                        }
+
+                        bFirstLine = false;
+                        setPC(&rInput);
+                    }
+                }
+                else //it's data
+                {
+                    BitReg* rpc = getPC();
+                    m_memory->store(rpc, &rInput);
+                    RegisterFile.incrementPC();
+                    if(rpc)
+                    {
+                        delete rpc;
+                        rpc = NULL;
+                    }
+                }
+            }
+            else
+            {
+                Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+            }
+        }
+
+        fclose(file);
+    }
 }
 
 
@@ -127,6 +542,7 @@ void ControlUnit::instructionDecode()
             instructionDefer();
             inst = m_eAddy.getAddress(indinst);
         }
+
         m_format.setAddress(inst);
     }
     else if(m_format.isInstOperate())
@@ -137,7 +553,7 @@ void ControlUnit::instructionDecode()
     else if(m_format.isInstTestIO())
     {
         //IO setup
-    }
+    } 
     else
     {
         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
@@ -156,7 +572,7 @@ void ControlUnit::instructionDecode()
 }
 
 
-//================================================================================== 
+//==================================================================================
 //Name:
 //Description:
 //Inputs:
@@ -170,11 +586,9 @@ void ControlUnit::instructionDefer()
     {
         //up cycle count
         RegisterFile.incrementPC();
-        if(DEBUG_CONTROL)
-        {
-            fprintf(stdout, "DEBUG: Defer: extra cycle");
-        }
-        
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG: Defer: extra cycle");
+#endif
     }
 }
 
@@ -217,10 +631,9 @@ void ControlUnit::instructionExecute()
     BitReg* addy = NULL;
     BitReg* rpc = NULL;
     BitReg* data = NULL;
-	Accumulator* accum = NULL;
 	int skipIncrement = false;
 
-    int opcode = m_format.getOpcode();
+    unsigned int opcode = m_format.getOpcode();
 
     addy = m_format.getAddress();
     rpc = getPC();
@@ -232,10 +645,9 @@ void ControlUnit::instructionExecute()
             //test code
             m_memory->load(addy);
             data = m_memory->readMB();
-            if(DEBUG_CONTROL)
-            {
-                fprintf(stdout, "DEBUG Execute: %s\n", data->getString());
-            }
+#ifdef DEBUG_CONTROL
+            fprintf(stdout, "DEBUG Execute: %s\n", data->getString());
+#endif
 			m_alu->andReg(data);
         }
         else if(OPCODE_TAD == opcode)
@@ -287,8 +699,8 @@ void ControlUnit::instructionExecute()
         }
         else if(OPCODE_IO == opcode)
         {
-            //noop
-            if(DEBUG_CONTROL)
+           //noop
+            if(!silent)
             {
                 fprintf(stdout, "DEBUG Execute: NOP\n");
             }
@@ -297,6 +709,7 @@ void ControlUnit::instructionExecute()
         {
             //opcode 7 micro instructions here
             //m_op7.findMicroOp(opcode);
+            //TODO: if group 3, print NOP
         }
         else
         {
@@ -305,200 +718,86 @@ void ControlUnit::instructionExecute()
 		if (!skipIncrement)
 			RegisterFile.incrementPC();
 		//rpc = getPC();
-        if(DEBUG_CONTROL)
-        {
-            fprintf(stdout, "DEBUG Execute: %s  %s  PC: %s\n",
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG Execute: %s  %s  PC: %s\n",
                     m_format.getInstType(), addy->getString(), rpc->getString());
-        }
+#endif
     }
     else
     {
         Error.printError(ERROR_NULL, FILE_CONTROL);
     }
 }
+ 
 
 
-//================================================================================== 
+//==================================================================================
 //Name:
 //Description:
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
+//==================================================================================
 // Load  from file
 // INPUT: file name to load from
-void ControlUnit::load_from_file(char* filename)
+void ControlUnit::loadFile(char* filename, int mode)
 {
-    FILE* file = NULL; // Open filename as file
-    char line[MAX_BUFFER]; // String for getline
-    char sInput[ADDRESS_LENGTH_OCT + 1];
-    int maxGroup = 2;
-    int maxOctLeng = 3;
-    bool bPairFound = false;
-    bool bAddy = false;
-    bool bFirstLine = true;
-    //std::vector<char*> buffer;
-    BitReg rInput(REG_12BIT); // Current address 
-    BitReg rData(REG_12BIT); // Current address 
+    BitReg rInput(REG_12BIT); // Current address
+    BitReg rData(REG_12BIT); // Current address
     unsigned int data = 0;
     int length = 0;
+    bool bMemValid = true;
 
-    file = fopen(filename, "r");
 
-    if(file)
+    if(INPUT_BINARY == mode)
     {
-        while(!feof(file))
-        {
-            fgets(line, MAX_BUFFER, file);
-            length = strlen(line);
-			int tempLen = length - 1;
-			if ((tempLen > 0) && (line[tempLen] == '\n'))
-				line[tempLen] = '\0';
-			length = strlen(line);
-            if(length <= ADDRESS_LENGTH_OCT) // expected format
-            {
-                if(DEBUG_CONTROL)
-                {
-                    fprintf(stdout, "DEBUG line0: %s ", line);
-                }
-                if('1' == line[0])
-                {
-                    bAddy = true;
-                    bPairFound = false;
-                }
-                else if('0' == line[0])
-                {
-                    bAddy = false;
-                    bPairFound = false;
-                }
-                else
-                {
-                    Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
-                    bPairFound = false;
-                }
-
-                if(length == maxOctLeng)
-                {
-                    sInput[0] = line[1];
-                    sInput[1] = line[2];
-                }
-                else if(length == 3)
-                {
-                    sInput[0] = '0';
-                    sInput[1] = line[2];
-                }
-                else if(length == 2)
-                {
-                    Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
-                }
-
-                fgets(line, MAX_BUFFER, file);
-                length = strlen(line);
-				tempLen = length - 1;
-				if ((tempLen > 0) && (line[tempLen] == '\n'))
-					line[tempLen] = '\0';
-				length = strlen(line);
-                if(length <= ADDRESS_LENGTH_OCT) // expected format
-                {
-                    if(DEBUG_CONTROL)
-                    { 
-                        fprintf(stdout, "DEBUG line1: %s\n", line);
-                    }
-                    sInput[2] = line[1];
-                    sInput[3] = line[2];
-
-                    if(length == maxOctLeng)
-                    {
-                        sInput[2] = line[1];
-                        sInput[3] = line[2];
-                    }
-                    else if(length == 3)
-                    {
-                        sInput[2] = '0';
-                        sInput[3] = line[2];
-                    }
-                    else if(length == 2)
-                    {
-                        Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
-                    }
-                    
-                    bPairFound = true;
-                }
-                else
-                {
-                    Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
-                }
-            }
-            else
-            {
-                Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
-            }
-
-            if(bPairFound) // Ignore blank lines
-            {
-                sInput[ADDRESS_LENGTH_OCT] = '\0';
-                rInput.setReg(sInput);
-                if(m_memory->checkValidAddy(&rInput)) //TODO
-                {
-                    //debug
-                    if(DEBUG_CONTROL)
-                    {
-                        fprintf(stdout, "DEBUG address: %s\n", rInput.getString());
-                    }
-
-                    if(bFirstLine && bAddy)
-                    {
-                        m_StartAddress.setReg(&rInput);
-                    }
-
-                    bFirstLine = false;
-
-                    if(bAddy) //it's an address
-                    {
-                        setPC(&rInput);
-                    }
-                    else //it's data
-                    {
-                        BitReg* rpc = getPC();
-                        m_memory->store(rpc, &rInput);
-                        RegisterFile.incrementPC();
-                        if(rpc)
-                        {
-                            delete rpc;
-                            rpc = NULL;
-                        }
-                        //instructionFetch(&rInput);
-                        //instructionDecode();
-                        //instructionExecute();
-                    }
-                }
-                else
-                {
-                    Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
-                }
-                
-            }
-        }
-        fclose(file);
+        modeBin(filename);
     }
-	setPC(&m_StartAddress);
-	BitReg* rpc = getPC();
-	m_memory->load(rpc);
-	while (HALT_CODE != m_memory->readMB()->getNumber())
-	{
+    else if(INPUT_HEX == mode)
+    {
+        modeHex(filename);
+    }
+    else if(INPUT_OCTAL == mode)
+    {
+        modeOct(filename);
+    }
+    else
+    {
+        Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+    }
+
+   setPC(m_StartAddress);
+   BitReg* rpc = getPC();
+   m_memory->load(rpc);
+   while(HALT_CODE != m_memory->readMB()->getNumber())
+   {
 		instructionFetch(m_memory->readMB());
 		instructionDecode();
 		instructionExecute();
 		rpc = getPC();
-		m_memory->load(rpc);
-		if (rpc)
-		{
-			delete rpc;
-			rpc = NULL;
-		}
+      bMemValid = m_memory->pcMemoryValid();
+      if(!bMemValid)
+      {
+          fprintf(stderr, "%s\n", PRINT_BREAK);
+          throw fprintf(stderr, "Error: Exceeded memory space...\n");
+          fprintf(stderr, "%s\n", PRINT_BREAK);
+          return;
+      }
+      m_memory->load(rpc);
+      if (rpc)
+      {
+         delete rpc;
+         rpc = NULL;
+      }
+   }
 
-	}
-    m_alu->printAll();
+#ifdef DEBUG_CONTROL
+   char stemp[5] = {'3', '7', '7', '7', '\0'};
+   BitReg rbtemp(stemp);
+   fprintf(stdout, "DEBUG control: %s, %d \n", rbtemp.getString(), rbtemp.getNumber2sComp());
+   m_alu->printAll();
+#endif
+
     data = 0;
     rInput.setReg(data);
     data = 100;
@@ -518,7 +817,7 @@ void ControlUnit::printMemoryHistory(char* filename)
 {
     if(m_memory && filename)
     {
-        m_memory->dump_memory(filename);
+        m_memory->writeMemoryAccesses(filename);
     }
     else
     {
@@ -616,7 +915,7 @@ void InstFormat::reset()
 void InstFormat::setOpCode()
 {
     BitReg* opcode = NULL;
-    int opnum = 0;
+    unsigned int opnum = 0;
     opcode = m_rInstruction->sliceBits(OPCODE_MIN_INDEX, OPCODE_LENGTH);
     if(opcode)
     {
@@ -624,10 +923,9 @@ void InstFormat::setOpCode()
         RegisterFile.rIR->setReg(opcode);
         opnum = opcode->getNumber();
         //debug
-        if(DEBUG_CONTROL)
-        {
-            fprintf(stdout, "DEBUG opcode: %s, %s\n", opcode->getString(), m_opTable->getMnemonic(opnum));
-        }
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG opcode: %s, %s\n", opcode->getString(), m_opTable->getMnemonic(opnum));
+#endif
     }
     else
     {
@@ -654,10 +952,9 @@ void InstFormat::setOffset()
         { 
             m_rOffset->setReg(offset);
             //debug
-            if(DEBUG_CONTROL)
-            {
-                fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffset->getString(), getInstType());
-            }
+#ifdef DEBUG_CONTROL
+            fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
+#endif
         }
         else
         {
@@ -681,10 +978,9 @@ void InstFormat::setOffset()
     else if(m_bTestIO)
     {
         //debug
-        if(DEBUG_CONTROL)
-        {
-            fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
-        }
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG offset: %s  %s\n", m_rOffext->getString(), getInstType());
+#endif
     }
     else
     {
@@ -707,9 +1003,9 @@ void InstFormat::setInstType()
     if(btemp)
     {
         BitReg temp(btemp);
-        int opIndex = temp.getNumber();
+        unsigned int opIndex = temp.getNumber();
 
-        if((OPCODE_MAX >= opIndex) && (OPCODE_MIN <= opIndex))
+        if(OPCODE_MAX >= opIndex)// && (OPCODE_MIN <= opIndex)) <- always true
         {
             if(OPCODE_MRI >= opIndex)
             {
@@ -766,6 +1062,7 @@ void InstFormat::loadInstruction(BitReg* inst)
     {
         int length = inst->getLength();  
         bInst = inst->getBool();
+
         reset();
 
         if(REG_12BIT == length)
@@ -780,27 +1077,24 @@ void InstFormat::loadInstruction(BitReg* inst)
                 m_bIndirect = bInst[INST_INDIRECT_BIT];
                 m_bZeroPage = bInst[INST_MEMPAGE_BIT];
                 //debug
-                if(DEBUG_CONTROL)
-                {
-                    fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
-                }
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
+#endif
             }
             else if(m_bOperate)
             {
                 m_iMicroCode = inst->getNumber();
                 //debug
-                if(DEBUG_CONTROL)
-                {
-                    fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
-                }
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
+#endif
             }
             else if(m_bTestIO)
             {
                 //debug
-                if(DEBUG_CONTROL)
-                {
-                    fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
-                }
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG load instruction: %s\n", getInstType());
+#endif
             }
             else
             {
@@ -987,8 +1281,8 @@ BitReg* InstFormat::getOPextended()
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-int InstFormat::getMicroCode()
+//==================================================================================
+unsigned int InstFormat::getMicroCode()
 {
     return m_iMicroCode;
 }
@@ -1000,8 +1294,8 @@ int InstFormat::getMicroCode()
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-int InstFormat::getOpcode()
+//==================================================================================
+unsigned int InstFormat::getOpcode()
 {
     return m_rOpcode->getNumber();
 }
@@ -1134,6 +1428,7 @@ BitReg* EffectiveAddress::effAdzeroPage()
     BitReg* temp = NULL;
     bool* ztemp = NULL;
     bool* otemp = NULL;
+
     ztemp = m_rZeroPage->getBool();
     otemp = m_rOffset->getBool();
     if(ztemp && otemp)
@@ -1400,7 +1695,6 @@ void EffectiveAddress::loadOffset(BitReg* reg)
 //================================================================================== 
 BitReg* EffectiveAddress::readIndirect(BitReg* reg)
 {
-    BitReg* regMB = NULL;
     BitReg* offset = NULL;
 
     if(m_pMemory && reg)
@@ -1442,11 +1736,13 @@ void EffectiveAddress::setMemory(Memory* mem)
 BitReg* EffectiveAddress::getAddress(BitReg* reg)
 {
     BitReg* tempReg = NULL;
-    bool* temp = NULL; 
+    bool* temp = NULL;
+
     if(reg)
     {
         int length = reg->getLength();
         temp = reg->getBool();
+
         if((REG_12BIT == length) && temp)
         {
             m_bIndirect = temp[INST_INDIRECT_BIT];

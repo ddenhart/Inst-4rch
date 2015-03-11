@@ -3,11 +3,11 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    OpTable.cpp
 Date:			    03/02/2015
-Description:	 This file contains the classes Opcode7inst, OpRow and 
+Description:	 This file contains the classes Opcode7inst, OpRow and
                 OpTableHandle
 ================================================================================== */
 
@@ -35,6 +35,7 @@ Opcode7inst::Opcode7inst()
 {
     m_iCode = 0;
     m_sMnemonic = NULL;
+    m_rValue.setReg(REG_12BIT);
 }
 
 
@@ -61,8 +62,8 @@ Opcode7inst::~Opcode7inst()
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-void Opcode7inst::setRow(int code, char* mnem)
+//==================================================================================
+void Opcode7inst::setRow(unsigned int code, const char* mnem)
 {
     m_iCode = code;
     if(mnem)
@@ -86,8 +87,8 @@ void Opcode7inst::setRow(int code, char* mnem)
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-int Opcode7inst::getcode()
+//==================================================================================
+unsigned int Opcode7inst::getcode()
 {
     return m_iCode;
 }
@@ -102,17 +103,29 @@ int Opcode7inst::getcode()
 //================================================================================== 
 Opcode7List::Opcode7List()
 {
-    m_op7List[0].setRow(040, "CMA"); //complement accumulator
-    m_op7List[1].setRow(001, "IAC"); //increment accumulator
-    m_op7List[2].setRow(041, "CIA"); //complement and increment accumulator
-    m_op7List[3].setRow(300, "CLA CLL"); //clear AC and link
-    m_op7List[4].setRow(402, "HLT"); //halt
-    m_op7List[5].setRow(500, "SMA"); //skip next instruction if AC is negative
-    m_op7List[6].setRow(440, "SZA"); //skip next instruction if AC is zero
-    m_op7List[7].setRow(510, "SPA"); //skip next instruction if AC is positive
-    m_op7List[8].setRow(450, "SNA"); //skip next instruction if AC is not equal to zero
-    m_op7List[9].setRow(010, "RAR"); //rotate accumulator link pair right
-    m_op7List[10].setRow(004, "RAL"); //rotate accumulator link par left
+    const char* temp1 = "CMA";
+    const char* temp2 = "IAC";
+    const char* temp3 = "CIA";
+    const char* temp4 = "CLA CLL";
+    const char* temp5 = "HLT";
+    const char* temp6 = "SMA";
+    const char* temp7 = "SZA";
+    const char* temp8 = "SPA";
+    const char* temp9 = "SNA";
+    const char* temp10 = "RAR";
+    const char* temp11 = "RAL";
+
+    m_op7List[0].setRow(040, temp1); //complement accumulator
+    m_op7List[1].setRow(001, temp2); //increment accumulator
+    m_op7List[2].setRow(041, temp3); //complement and increment accumulator
+    m_op7List[3].setRow(300, temp4); //clear AC and link
+    m_op7List[4].setRow(402, temp5); //halt
+    m_op7List[5].setRow(500, temp6); //skip next instruction if AC is negative
+    m_op7List[6].setRow(440, temp7); //skip next instruction if AC is zero
+    m_op7List[7].setRow(510, temp8); //skip next instruction if AC is positive
+    m_op7List[8].setRow(450, temp9); //skip next instruction if AC is not equal to zero
+    m_op7List[9].setRow(010, temp10); //rotate accumulator link pair right
+    m_op7List[10].setRow(004, temp11); //rotate accumulator link par left
 }
 
 
@@ -135,8 +148,8 @@ Opcode7List::~Opcode7List()
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-int Opcode7List::findMicroOp(int inst)
+//==================================================================================
+int Opcode7List::findMicroOp(unsigned int inst)
 {
     bool found = false;
     int index = -1;
@@ -176,8 +189,8 @@ OpRow::OpRow()
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-OpRow::OpRow(char* mnem, int cycles, unsigned int index)
+//==================================================================================
+OpRow::OpRow(const char* mnem, int cycles, unsigned int index)
 {
     m_iTotalCount = 0;
     m_sMnemonic = new char[strlen(mnem)+1];
@@ -244,8 +257,8 @@ char* OpRow::getName()
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-int OpRow::getOpcode()
+//==================================================================================
+unsigned int OpRow::getOpcode()
 {
     return m_rOpcode.getNumber();
 }
@@ -296,8 +309,8 @@ void OpRow::incTotal()
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-void OpRow::setRow(char* mnem, int cycles, unsigned int index)
+//==================================================================================
+void OpRow::setRow(const char* mnem, int cycles, unsigned int index)
 {
     m_iTotalCount = 0;
     if(m_sMnemonic)
@@ -337,14 +350,23 @@ void OpRow::printRow()
 //================================================================================== 
 OpTableHandle::OpTableHandle()
 {
-    m_opTable[0].setRow("AND", 2, 0);
-    m_opTable[1].setRow("TAD", 2, 1);
-    m_opTable[2].setRow("ISZ", 2, 2);
-    m_opTable[3].setRow("DCA", 2, 3);
-    m_opTable[4].setRow("JMS", 2, 4);
-    m_opTable[5].setRow("JMP", 1, 5);
-    m_opTable[6].setRow("<IO>", 0, 6);
-    m_opTable[7].setRow("uInstructions", 1, 7);
+    const char* temp1 = "AND";
+    const char* temp2 = "TAD";
+    const char* temp3 = "ISZ";
+    const char* temp4 = "DCA";
+    const char* temp5 = "JMS";
+    const char* temp6 = "JMP";
+    const char* temp7 = "<IO>";
+    const char* temp8 = "uInstructions";
+
+    m_opTable[0].setRow(temp1, 2, 0);
+    m_opTable[1].setRow(temp2, 2, 1);
+    m_opTable[2].setRow(temp3, 2, 2);
+    m_opTable[3].setRow(temp4, 2, 3);
+    m_opTable[4].setRow(temp5, 2, 4);
+    m_opTable[5].setRow(temp6, 1, 5);
+    m_opTable[6].setRow(temp7, 0, 6);
+    m_opTable[7].setRow(temp8, 1, 7);
 
     m_alu = NULL;
 }
@@ -359,14 +381,23 @@ OpTableHandle::OpTableHandle()
 //================================================================================== 
 OpTableHandle::OpTableHandle(Accumulator* mem)
 {
-    m_opTable[0].setRow("AND", 2, 0);
-    m_opTable[1].setRow("TAD", 2, 1);
-    m_opTable[2].setRow("ISZ", 2, 2);
-    m_opTable[3].setRow("DCA", 2, 3);
-    m_opTable[4].setRow("JMS", 2, 4);
-    m_opTable[5].setRow("JMP", 1, 5);
-    m_opTable[6].setRow("<IO>", 0, 6);
-    m_opTable[7].setRow("uInstructions", 1, 7);
+    const char* temp1 = "AND";
+    const char* temp2 = "TAD";
+    const char* temp3 = "ISZ";
+    const char* temp4 = "DCA";
+    const char* temp5 = "JMS";
+    const char* temp6 = "JMP";
+    const char* temp7 = "<IO>";
+    const char* temp8 = "uInstructions";
+
+    m_opTable[0].setRow(temp1, 2, 0);
+    m_opTable[1].setRow(temp2, 2, 1);
+    m_opTable[2].setRow(temp3, 2, 2);
+    m_opTable[3].setRow(temp4, 2, 3);
+    m_opTable[4].setRow(temp5, 2, 4);
+    m_opTable[5].setRow(temp6, 1, 5);
+    m_opTable[6].setRow(temp7, 0, 6);
+    m_opTable[7].setRow(temp8, 1, 7);
 
     if(mem)
     {
@@ -427,8 +458,8 @@ int OpTableHandle::searchByName(char* name)
 //Inputs:
 //Outputs:
 //Return:
-//================================================================================== 
-char* OpTableHandle::getMnemonic(int index)
+//==================================================================================
+char* OpTableHandle::getMnemonic(unsigned int index)
 {
     char* temp = NULL;
 
@@ -523,7 +554,7 @@ void OpTableHandle::printTable()
 //================================================================================== 
 void OpTableHandle::exMicroInst(int opcode)
 {
-    int index = m_op7.findMicroOp(opcode);
+    //int index = m_op7.findMicroOp(opcode);
 
     if(opcode == 300)
     {

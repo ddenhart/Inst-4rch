@@ -3,18 +3,14 @@ ECE 486 / Winter 2015 / PDP-8 simulator project
 Team:
 Deborah Denhart
 Jeremiah Franke
-Edward Sayers
+ 
 ==================================================================================
 File:			    Memory.cpp
 Date:			    03/02/2015
-Description:	 This file contains the classes WORD, Memory and log-type
+Description:	 This file contains the classes memReg and Memory
 ================================================================================== */
 
-#include <iostream>
 #include <fstream>
-#include <iomanip>
-#include <string>
-#include <stdexcept>
 #include "OctConv.h"
 #include "Common.h"
 #include "BitReg.h"
@@ -28,14 +24,13 @@ extern OctConv OctTable;
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name:memReg
+//Description: constructor
+//Inputs: none
+//Outputs: none
+//Return: none
 //================================================================================== 
-// Constructor for struct Word
-Word::Word()
+memReg::memReg()
 {
     value = new BitReg(REG_12BIT);
     value->initArray();
@@ -44,13 +39,13 @@ Word::Word()
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: ~memReg
+//Description: deconstructor
+//Inputs: none
+//Outputs: none
+//Return: none
 //================================================================================== 
-Word::~Word() 
+memReg::~memReg()
 {
     if(value)
     {
@@ -62,71 +57,87 @@ Word::~Word()
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: Memory
+//Description: constructor
+//Inputs: none
+//Outputs: none
+//Return: none
 //================================================================================== 
-// Constructor for class Memory
-// INPUT: number of memory locations to create
 Memory::Memory()
 {
-    logfile_name = new char[strlen(default_memfile) + 1];
-    strcpy(logfile_name, default_memfile);
-    logfile.open(logfile_name, std::ios::app);
+    const char* defaultfile = "memoryTrace.dmp";
+    traceFileName = new char[strlen(defaultfile) + 1];
+    strcpy(traceFileName, defaultfile);
+    tracefile = fopen(traceFileName, "a");
 }
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: Memory
+//Description: copy constructor
+//Inputs: constant memory class
+//Outputs: none
+//Return: none
 //================================================================================== 
-// Destructor for class Memory
-Memory::~Memory()
+Memory::Memory(const Memory &source)
 {
-    logfile.close();
+    traceFileName = new char[strlen(source.traceFileName) + 1];
+    strcpy(traceFileName, source.traceFileName);
+    tracefile = fopen(traceFileName, "a");
 
-    if(logfile_name)
+    for(int i = 0; i < MSIZE; ++i)
     {
-        delete[] logfile_name;
-        logfile_name = NULL;
+        memory[i].value->setReg(source.memory[i].value->getReg());
+        memory[i].access = source.memory[i].access;
     }
 }
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: Memory
+//Description: deconstructor
+//Inputs: none
+//Outputs: none
+//Return: none
 //================================================================================== 
-// Put value into memory
-void Memory::mem_put()
+Memory::~Memory()
 {
-    bool* baddy = NULL;
-    bool* bdata = NULL;
-    baddy = RegisterFile.rMA->getBool();
-    bdata = RegisterFile.rMB->getBool();
-    if(baddy)
+    if(tracefile)
     {
-        if(bdata)
-        {
-            BitReg address(baddy, REG_12BIT);
-            BitReg data(bdata, REG_12BIT);
-            int iAddy = address.getNumber();
-            // Insert value at address
-            memory[iAddy].value->setReg(&data);
-            setAccess(&address);
-        }
-        else
-        {
-            Error.printError(ERROR_NULL, FILE_MEMORY);
-        }
+        fclose(tracefile);
+        tracefile = NULL;
+    }
+    
+
+    if(traceFileName)
+    {
+        delete[] traceFileName;
+        traceFileName = NULL;
+    }
+}
+
+
+//================================================================================== 
+//Name: writeline
+//Description: writes the value in MB to the address in MA in the memory array
+//Inputs: none
+//Outputs: none
+//Return: none
+//================================================================================== 
+void Memory::writeline()
+{
+    unsigned int iAddy = 0;
+    bool* bdata = NULL;
+    iAddy = RegisterFile.rMA->getNumber();
+    bdata = RegisterFile.rMB->getBool();
+   
+    if(bdata)
+    {
+        BitReg address(iAddy, REG_12BIT);
+        BitReg data(bdata, REG_12BIT);
+        //unsigned int iAddy = address.getNumber();
+        memory[iAddy].value->setReg(&data); //write the memory line
+        setAccess(&address); //change the access flag to true
     }
     else
     {
@@ -138,33 +149,29 @@ void Memory::mem_put()
         delete[] bdata;
         bdata = NULL;
     }
-    if(baddy)
-    {
-        delete[] baddy;
-        baddy = NULL;
-    }
 }
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: readline
+//Description: saves data from MB to the memory array at the address from MA
+//Inputs: none
+//Outputs: none
+//Return: none
 //================================================================================== 
-// Get value from memory
-void Memory::mem_get()
+void Memory::readline()
 {
     bool* bdata = NULL;
-    bool* baddress = NULL;
+    //bool* baddress = NULL;
+    unsigned int iAddy = 0;
 
-    baddress = RegisterFile.rMA->getBool();
-    BitReg address(baddress);
-    int iAddy = address.getNumber();
-    bdata = memory[iAddy].value->getBool();
+    //baddress 
+    iAddy = RegisterFile.rMA->getNumber(); //get the register address from MA
+    //BitReg address(baddress);
+    // = address.getNumber(); //convert the address to decimal
+    bdata = memory[iAddy].value->getBool(); //read the memory line
     BitReg data(bdata);
-    RegisterFile.rMB->setReg(&data);
+    RegisterFile.rMB->setReg(&data); //set the MB with the valid data
 
     if(bdata)
     {
@@ -172,84 +179,51 @@ void Memory::mem_get()
         bdata = NULL;
     }
 
-    if(baddress)
+    /*if(baddress)
     {
         delete[] baddress;
         baddress = NULL;
-    }
+    }*/
 }
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: writeMemoryAccesses
+//Description: writes all memory lines that have been accessed to an external file
+//Inputs: the file name
+//Outputs: none
+//Return: none
 //================================================================================== 
-// Display all memory locations that have been previously accessed
-// INPUT: ostream to display on
-// OUTPUT: number of memory locations displayed
-int Memory::dump_memory(char* filename)
+void Memory::writeMemoryAccesses(char* filename)
 {
-    int count = 0;  // To count lines displayed
     char* value = NULL;
 
-    memfile.open(filename, std::ios::app);
+    memfile = fopen(filename, "w");
 
-    // Setup stream format
-    memfile << std::oct << std::setfill('0') << std::right;
-
-    for (int i = 0; i < MSIZE; ++i)
+    if(memfile)
     {
-        if(memory[i].access)
+        fprintf(memfile, "\n%s\n", PRINT_BREAK);
+        fprintf(memfile, "\nPDP-8 Memory\n"); //print a header
+        fprintf(memfile, "\n%s\n\n\n", PRINT_BREAK);
+        fprintf(memfile, "Address \tData\n"); 
+        fprintf(memfile, "%s\n", PRINT_BREAK);
+
+        for(int i = 0; i < MSIZE; ++i)
         {
-            value = memory[i].value->getString(REG_4BIT);
-            memfile << std::setw(5) << i << ": ";
-            memfile << std::setw(5) << value << std::endl;
-            ++count;
+            if(memory[i].access) //if the memory has been used
+            {
+                value = memory[i].value->getString(REG_4BIT); //get the value
+                fprintf(memfile, "%o \t%s", i, value);  //print the address and value
+                
+                if(value) //delete the copy
+                {
+                    delete[] value;
+                    value = NULL;
+                }
+            }
         }
 
-        if(value)
-        {
-            delete[] value;
-            value = NULL;
-        }
-    }
-    
-    memfile.close();
-    return count;
-}
-
-
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
-// Store value in memory and log
-// INPUT: address and value
-// OUTPUT: logged as a write
-void Memory::store(BitReg* address, BitReg* value)
-{
-    log_type type(MWRITE);
-
-    if(address && value)
-    {
-        // Check that address is valid
-        if(!checkValidAddy(address))
-        {
-            throw std::out_of_range("Array out of bounds");
-            return;
-        }
-
-        RegisterFile.rMA->setReg(address);
-        RegisterFile.rMB->setReg(value);
-        mem_put();
-        setAccess(address);
-        log(address, type);
+        fclose(memfile);
     }
     else
     {
@@ -259,29 +233,49 @@ void Memory::store(BitReg* address, BitReg* value)
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: store
+//Description: writes an address to the MA and value to the MB and log it
+//Inputs: two BitReg pointers holding the relevant address and data
+//Outputs: none
+//Return: none
 //================================================================================== 
-// Load value from memory and log
-// INPUT: address
-// read the rMB to get the value
+void Memory::store(BitReg* address, BitReg* value)
+{
+    int type = MWRITE;
+
+    if(address && value)
+    {
+        checkValidAddy(address); //check for valid address
+        RegisterFile.rMA->setReg(address); //set the address in the MA
+        RegisterFile.rMB->setReg(value); //set the data in the MB
+        writeline(); //initiate the write
+        setAccess(address); //set the access flag
+        logtrace(address, type); //log the memory access
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_MEMORY);
+    }
+}
+
+
+//================================================================================== 
+//Name: load
+//Description:loads an address to the MA, initiates a read and logs it
+//Inputs: BitReg pointer holding the relevant address
+//Outputs: none
+//Return: none
+//================================================================================== 
 void Memory::load(BitReg* address)
 {
     if(address)
     {
-        log_type type(MREAD);
+        int type = MREAD;
    
-        if (!checkValidAddy(address))
-        {
-            throw std::out_of_range ("Array out of bounds");
-            return;
-        }
-        RegisterFile.rMA->setReg(address);
-        mem_get();
-        log(address, type);
+        checkValidAddy(address);  //check for valid address
+        RegisterFile.rMA->setReg(address); //write the address to the MA
+        readline(); //initiate the memory read
+        logtrace(address, type); //log the memory access
     }
     else
     {
@@ -292,28 +286,20 @@ void Memory::load(BitReg* address)
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: fetch
+//Description: log a fetched address
+//Inputs: a BitReg pointer holding the relevant address
+//Outputs: none
+//Return: none
 //================================================================================== 
-// log an address that was fetched
-// INPUT: address
-// read the rMB to get the value
 void Memory::fetch(BitReg* address)
 {
     if(address)
     {
-        log_type type(MFETCH);
+        int type = MFETCH;
 
-        if(!checkValidAddy(address))
-        {
-            throw std::out_of_range("Array out of bounds");
-            return;
-        }
-
-        log(address, type);
+        checkValidAddy(address); //check for valid address
+        logtrace(address, type); //log the memory access
     }
     else
     {
@@ -324,11 +310,11 @@ void Memory::fetch(BitReg* address)
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: getAccess
+//Description: retrieves the access flag
+//Inputs: BitReg pointer holding the relevant address
+//Outputs: none
+//Return: true if the memory address has been accessed before, false if unused
 //================================================================================== 
 bool Memory::getAccess(BitReg* addy)
 {
@@ -336,11 +322,11 @@ bool Memory::getAccess(BitReg* addy)
 
     if(addy)
     {
-        int iAddy = addy->getNumber();
+        unsigned int iAddy = addy->getNumber(); //get the address in decimal 
 
-        if(checkValidAddy(addy))
+        if(checkValidAddy(addy))  //check for valid address
         {
-            bRes = memory[iAddy].access;
+            bRes = memory[iAddy].access; //copy the flag
         }
         else
         {
@@ -357,27 +343,30 @@ bool Memory::getAccess(BitReg* addy)
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
+//Name: checkValidAddy
+//Description: checks if an address is within bounds of the memory array
+//Inputs: BitReg pointer holding the relevant address
 //Outputs:
-//Return:
+//Return: true if the address is valid, false if the address is out of range
 //================================================================================== 
 bool Memory::checkValidAddy(BitReg* addy)
 {
     bool bRes = false;
 
-    int iAddy = addy->getNumber();
+    unsigned int iAddy = addy->getNumber();
 
     if(addy)
     { 
-        if((MSIZE > iAddy) && (iAddy >= 0))
+        if(MSIZE > iAddy)
         {
             bRes = true;
         }
         else
         {
-            Error.printError(ERROR_OUT_OF_RANGE, FILE_MEMORY);
+            fprintf(stderr, "%s\n", PRINT_BREAK);
+            throw fprintf(stderr, "Error: Array out of bounds..");
+            fprintf(stderr, "%s\n", PRINT_BREAK);
+            return 0;
         }
     }
     else
@@ -392,13 +381,13 @@ bool Memory::checkValidAddy(BitReg* addy)
 //================================================================================== 
 //Name:
 //Description:
-//Inputs:
+//Inputs: BitReg pointer holding the relevant address
 //Outputs:
 //Return:
 //================================================================================== 
 void Memory::setAccess(BitReg* addy)
 {
-    int iAddy = 0;
+    unsigned int iAddy = 0;
     
     if(addy)
     {
@@ -421,26 +410,24 @@ void Memory::setAccess(BitReg* addy)
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: log
+//Description: prints reads, writes or fetches to an external file
+//Inputs: BitReg pointer holding the relevant address, type of memory op, use 
+//          macros: MREAD, MWRITE, MFETCH
+//Outputs: none
+//Return: none
 //================================================================================== 
-// Log memory access
-// INPUT: address and type
-// OUTPUT: none
-void Memory::log(BitReg* address, log_type type)
+void Memory::logtrace(BitReg* address, int type)
 {
-    char* name = NULL;
+    char* addy = NULL;
         
-    name = address->getString(REG_4BIT);
 
     if(address)
     {
-        if(logfile.is_open())
+        addy = address->getString(REG_4BIT); //get a cstring of the address
+        if(tracefile)
         {
-            logfile << type.getName() << " " << name << std::endl;
+            fprintf(tracefile,"%d   %s\n", type, addy); //write the type and address to the file
         }
         else
         {
@@ -452,135 +439,92 @@ void Memory::log(BitReg* address, log_type type)
         Error.printError(ERROR_NULL, FILE_MEMORY);
     }
 
-    if(name)
+    if(addy)
     {
-        delete[] name;
-        name = NULL;
+        delete[] addy;
+        addy = NULL;
     }
 }
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: readMB
+//Description: reads the Memory buffer register 
+//Inputs: none
+//Outputs: none
+//Return: a BitReg pointer holding the register's value
 //================================================================================== 
-// Log memory access
-// INPUT: address and type
-// OUTPUT: none
 BitReg* Memory::readMB()
 {
     return RegisterFile.rMB->getReg();
 }
 
 
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
-log_type::log_type()
+//==================================================================================
+//Name: pcMemoryValid
+//Description: checks if the pc has gone past the last memory address
+//Inputs: none
+//Outputs: none
+//Return: true if pc is inside the memory space, false if outside the array
+//==================================================================================
+bool Memory::pcMemoryValid()
 {
-    type = -1;
+    bool* bpc = NULL;
+    bool blimitvalid = false;
+    BitReg rpc;
+
+    bpc = RegisterFile.rPC->getBool();
+    
+    if(bpc)
+    {
+        rpc.setReg(bpc);
+        blimitvalid = checkValidAddy(&rpc);
+    }
+    else
+    {
+        Error.printError(ERROR_NULL, FILE_MEMORY);
+    }
+
+    return blimitvalid;
 }
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: getMemoryOp
+//Description: gets the string name for the memory operation type
+//Inputs: type of memory op, use macros: MREAD, MWRITE, MFETCH
+//Outputs: none
+//Return: cstring of the associated memory op type
 //================================================================================== 
-log_type::log_type(int itype)
+char* Memory::getMemoryOp(int type)
 {
-    type = itype;
-}
+    const char* temp1 = "READ";
+    const char* temp2 = "WRITE";
+    const char* temp3 = "FETCH";
+    const char* temp4 = "NO VALUE";
+    char* temp = NULL;
 
-
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
-log_type::~log_type()
-{
-   
-}
-
-
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
-char* log_type::getName()
-{
     if(MREAD == type)
     {
-        return "READ";
+        temp = new char[strlen(temp1)+1];
+        strcpy(temp, temp1);
     }
     else if(MWRITE == type)
     {
-        return "WRITE";
+        temp = new char[strlen(temp2)+1];
+        strcpy(temp, temp2);
     }
     else if(MFETCH == type)
     {
-        return "FETCH";
+        temp = new char[strlen(temp3)+1];
+        strcpy(temp, temp3);
     }
     else
     {
-        return "NO VALUE";
+        temp = new char[strlen(temp4)+1];
+        strcpy(temp, temp4);
     }
-}
 
-
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
-void log_type::setType(int value)
-{
-    if(MREAD == value)
-    {
-        type = MREAD;
-    }
-    else if(MWRITE == value)
-    {
-        type = MWRITE;
-    }
-    else if(MFETCH == value)
-    {
-        type = MFETCH;
-    }
-    else
-    {
-        type = NONVAL;
-        Error.printError(ERROR_UNEXPECTED_VALUE, FILE_MEMORY);
-    }
-}
-
-
-//================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
-//================================================================================== 
-int log_type::getType()
-{
-    return type;
+    return temp;
 }
 
