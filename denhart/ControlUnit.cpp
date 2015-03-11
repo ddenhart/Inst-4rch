@@ -668,47 +668,47 @@ void ControlUnit::instructionExecute()
 #ifdef DEBUG_CONTROL
             fprintf(stdout, "DEBUG Execute: %s\n", data->getString());
 #endif
-			m_alu->andReg(data);
+			   m_alu->andReg(data);
         }
         else if(OPCODE_TAD == opcode)
         {
             m_memory->load(addy);
-			m_alu->sumReg(m_memory->readMB());
+		      m_alu->sumReg(m_memory->readMB());
         }
         else if(OPCODE_ISZ == opcode)
         {
             m_memory->load(addy);
-			data = m_memory->readMB();
-			data->setReg((data->getNumber2sComp() + 1));
-			m_memory->store(addy, data);
-			if (data->getNumber() == 0)
-			{
-				RegisterFile.incrementPC();
-			}
+			    data = m_memory->readMB();
+			    data->setReg((data->getNumber2sComp() + 1));
+			    m_memory->store(addy, data);
+			    if (data->getNumber() == 0)
+			    {
+				    RegisterFile.incrementPC();
+			    }
         }
         else if(OPCODE_DCA == opcode)
         {
             //store result of accumulator
-			m_memory->store(addy, m_alu->getAC());
-			m_alu->clear();
+			   m_memory->store(addy, m_alu->getAC());
+			   m_alu->clear();
         }
         else if(OPCODE_JMS == opcode)
         {
             m_memory->load(addy);
-			data = m_memory->readMB();
-			data->setReg(rpc->getNumber());
-			m_memory->store(addy, data);
-			m_memory->load(addy);
-			data = m_memory->readMB();
-			rpc->setReg((addy->getNumber()));
-			setPC(rpc);
+			   data = m_memory->readMB();
+			   data->setReg(rpc->getNumber());
+			   m_memory->store(addy, data);
+			   m_memory->load(addy);
+			   data = m_memory->readMB();
+			   rpc->setReg((addy->getNumber()));
+			   setPC(rpc);
         }
         else if(OPCODE_JMP == opcode)
         {
             m_memory->load(addy);
-			rpc->setReg(addy->getNumber());
-			setPC(rpc);
-			skipIncrement = true;
+			   rpc->setReg(addy->getNumber());
+			   setPC(rpc);
+			   skipIncrement = true;
         }
         else if(OPCODE_IO == opcode)
         {
@@ -718,152 +718,159 @@ void ControlUnit::instructionExecute()
                 fprintf(stdout, "Warning: NOP\n");
             }
         }
-		else if (OPCODE_OPP == opcode)
-		{
-			BitReg* inst = NULL;
-			inst = m_format.getInstruction();
-			if(inst)
+		  else if (OPCODE_OPP == opcode)
+	     {
+	         BitReg* inst = NULL;
+	         inst = m_format.getInstruction();
+	         if(inst)
             {
                 m_format.incrementMicros(inst); //update statistics
-            }
-            else
-            {
-                Error.printError(ERROR_NULL, FILE_CONTROL);
-            }
-			m_memory->load(addy);
-			data = m_memory->readMB();
-			printf("Memory read: %s\n", data->getString());
-			printf("Address: %s\n", addy->getString());
-			for (int i = 0; i <= addy->getLength() - 1; ++i)
-				printf("Addy: %c\n", addy->getBinary()[i]);
-			if (addy->getBinary()[3] == '0')  //Group 1
-			{
-				BitReg rOne("0", REG_12BIT);
-				for (int i = 4; i <= addy->getLength() - 1; ++i)
-				{
-					printf("Addy: %c\n", addy->getBinary()[i]);
-					if (addy->getBinary()[i] == '1')
-					{
-						if (i == 4)
-						{
-							m_alu->clearAC();
-						}
-						else if (i == 5)
-						{
-							m_alu->clearLC();
-						}
-						else if (i == 6)
-						{
-							m_alu->complementAC();
-						}
-						else if (i == 7)
-						{
-							m_alu->complementLC();
-							if (addy->getBinary()[11] == '1')
-								m_alu->increment(&rOne);
-						}
-						else if (i == 8)
-						{
-							m_alu->rotateRight();
-							if (addy->getBinary()[10] == '1')
-								m_alu->rotateRight();
-						}
-						else if (i == 9)
-						{
-							m_alu->rotateLeft();
-							if (addy->getBinary()[10] == '1')
-								m_alu->rotateLeft();
-						}
-					}
-				}
-			}
-			else
-			{
-				if (addy->getBinary()[8] == '0')
-				{
-					if ((addy->getBinary()[5] == '1') || (addy->getBinary()[6] == '1') || (addy->getBinary()[7] == '1'))
-					{
-						if (addy->getBinary()[5] == '1')
-						{
-							bool trial = m_alu->isNegative();
-							if (trial)
-								RegisterFile.incrementPC();
-						}
-						if (addy->getBinary()[6] == '1')
-						{
-							bool trial = m_alu->isZero();
-							if (trial)
-								RegisterFile.incrementPC();
-						}
-						if (addy->getBinary()[7] == '1')
-						{
-							BitReg* rlb = NULL;
-							rlb = m_alu->getLB();
-							if (rlb->getNumber2sComp() != 0)
-								RegisterFile.incrementPC();
-						}
+		          //m_memory->load(addy);
+		          //data = m_memory->readMB();
+		          //printf("Memory read: %s\n", data->getString());
+		          //printf("Address: %s\n", addy->getString());
+		          //for (int i = 0; i <= addy->getLength() - 1; ++i)
+		          //	printf("Addy: %c\n", addy->getBinary()[i]);
+	             if (inst->getBinary()[3] == '0')  //Group 1
+	             {
+	                 BitReg rOne("0", REG_12BIT);
+                    for(int i = 4; i <= inst->getLength() - 1; ++i)
+                    {
+                        //printf("Addy: %c\n", inst->getBinary()[i]);
+                        if(inst->getBinary()[i] == '1')
+                        {
+                            if(i == 4)
+                            {
+                                m_alu->clearAC();
+                            }
+                            else if(i == 5)
+                            {
+                                m_alu->clearLC();
+                            }
+                            else if(i == 6)
+                            {
+                                m_alu->complementAC();
+                            }
+                            else if(i == 7)
+                            {
+                                m_alu->complementLC();
+                                if(addy->getBinary()[11] == '1')
+                                    m_alu->increment(&rOne);
+                            }
+                            else if(i == 8)
+                            {
+                                m_alu->rotateRight();
+                                if(addy->getBinary()[10] == '1')
+                                    m_alu->rotateRight();
+                            }
+                            else if(i == 9)
+                            {
+                                m_alu->rotateLeft();
+                                if(addy->getBinary()[10] == '1')
+                                    m_alu->rotateLeft();
+                            }
+                        }
+                    }
+	             }
+                else
+                {
+                    if(addy->getBinary()[8] == '0')
+                    {
+                        if((addy->getBinary()[5] == '1') || (addy->getBinary()[6] == '1') || (addy->getBinary()[7] == '1'))
+                        {
+                            if(addy->getBinary()[5] == '1')
+                            {
+                                bool trial = m_alu->isNegative();
+                                if(trial)
+                                    RegisterFile.incrementPC();
+                            }
+                            if(addy->getBinary()[6] == '1')
+                            {
+                                bool trial = m_alu->isZero();
+                                if(trial)
+                                    RegisterFile.incrementPC();
+                            }
+                            if(addy->getBinary()[7] == '1')
+                            {
+                                BitReg* rlb = NULL;
+                                rlb = m_alu->getLB();
+                                if(rlb->getNumber2sComp() != 0)
+                                    RegisterFile.incrementPC();
+                            }
 
-					}
-				}
-				else
-				{
-					int skip = false;
-					/*if ((addy->getBinary()[5] == '1' && addy->getBinary()[6] == '1') || (addy->getBinary()[5] == '1' && addy->getBinary()[7] == '1') || (addy->getBinary()[6] == '1' && addy->getBinary()[7] == '1'))
-					{
-						RegisterFile.incrementPC();
-					}*/
-					if (addy->getBinary()[5] == '1')
-					{
-						bool trial = m_alu->isNegative();
-						if (!trial)
-						{
-							//RegisterFile.incrementPC();
-							skip = true;
-						}
-					}
-					if (addy->getBinary()[6] == '1')
-					{
-						skip = false;
-						bool trial = m_alu->isZero();
-						if (!trial)
-						{
-							//RegisterFile.incrementPC();
-							skip = true;
-						}
-					}
-					if (addy->getBinary()[7] == '1')
-					{
-						skip = false;
-						BitReg* rlb = NULL;
-						rlb = m_alu->getLB();
-						if (rlb->getNumber2sComp() == 0)
-						{
-							//RegisterFile.incrementPC();
-							skip = true;
-						}
-					}
-					if (skip)
-						RegisterFile.incrementPC();
-					if (addy->getBinary()[4] == '0' && addy->getBinary()[5] == '0' && addy->getBinary()[6] == '0' && addy->getBinary()[7] == '0' && addy->getBinary()[8] == '1' && addy->getBinary()[9] == '0' && addy->getBinary()[10] == '0' && addy->getBinary()[11] == '0')
-					{
-						RegisterFile.incrementPC();
-					}
-					if (addy->getBinary()[4] == '1')
-						m_alu->clearAC();
-					if (addy->getBinary()[4] == '1')
-						running = false;
-				}
-			}
+                        }
+                    }
+                    else
+                    {
+                        int skip = false;
+                        /*if ((addy->getBinary()[5] == '1' && addy->getBinary()[6] == '1') || (addy->getBinary()[5] == '1' && addy->getBinary()[7] == '1') || (addy->getBinary()[6] == '1' && addy->getBinary()[7] == '1'))
+                        {
+                        RegisterFile.incrementPC();
+                        }*/
+                        if(addy->getBinary()[5] == '1')
+                        {
+                            bool trial = m_alu->isNegative();
+                            if(!trial)
+                            {
+                                //RegisterFile.incrementPC();
+                                skip = true;
+                            }
+                        }
+                        if(addy->getBinary()[6] == '1')
+                        {
+                            skip = false;
+                            bool trial = m_alu->isZero();
+                            if(!trial)
+                            {
+                                //RegisterFile.incrementPC();
+                                skip = true;
+                            }
+                        }
+                        if(addy->getBinary()[7] == '1')
+                        {
+                            skip = false;
+                            BitReg* rlb = NULL;
+                            rlb = m_alu->getLB();
+                            if(rlb->getNumber2sComp() == 0)
+                            {
+                                //RegisterFile.incrementPC();
+                                skip = true;
+                            }
+                        }
+                        if(skip)
+                        {
+                            RegisterFile.incrementPC();
+                        }
+                        if((addy->getBinary()[4] == '0') && (addy->getBinary()[5] == '0')
+                           && (addy->getBinary()[6] == '0') && (addy->getBinary()[7] == '0')
+                           && (addy->getBinary()[8] == '1') && (addy->getBinary()[9] == '0')
+                           && (addy->getBinary()[10] == '0') && (addy->getBinary()[11] == '0'))
+                        {
+                            RegisterFile.incrementPC();
+                        }
+                        if(addy->getBinary()[4] == '1')
+                        {
+                            m_alu->clearAC();
+                        }
+                        if(addy->getBinary()[4] == '1')
+                        {
+                            running = false;
+                        }
+                    }
+                }
+	         }
         }
         else
         {
             Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
         }
-		if (!skipIncrement)
-		      RegisterFile.incrementPC();
+        if(!skipIncrement)
+        {
+            RegisterFile.incrementPC();
+        }
 #ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG Execute: %s  %s  PC: %s\n",
-                    m_format.getInstType(), addy->getString(), rpc->getString());
+                fprintf(stdout, "DEBUG Execute: %s  %s  PC: %s\n",
+                            m_format.getInstType(), addy->getString(), rpc->getString());
 #endif
     }
     else
@@ -875,8 +882,8 @@ void ControlUnit::instructionExecute()
 
 
 //==================================================================================
-//Name:
-//Description:
+//Name:loadFile
+//Description: loads the input file and parses flags
 //Inputs:
 //Outputs:
 //Return:
@@ -885,6 +892,7 @@ void ControlUnit::loadFile(char* filename, int mode)
 {
     BitReg rInput(REG_12BIT); // Current address
     BitReg rData(REG_12BIT); // Current address
+    BitReg* rpc = NULL;
     unsigned int data = 0;
     int length = 0;
     bool bMemValid = true;
@@ -908,14 +916,13 @@ void ControlUnit::loadFile(char* filename, int mode)
     }
 
    setPC(m_StartAddress);
-   BitReg* rpc = getPC();
-   m_memory->load(rpc);
    while(HALT_CODE != m_memory->readMB()->getNumber())
    {
+        rpc = getPC();
+        m_memory->load(rpc);
 		  instructionFetch(m_memory->readMB());
 		  instructionDecode();
 		  instructionExecute();
-		  rpc = getPC();
         bMemValid = m_memory->pcMemoryValid();
         if(!bMemValid)
         {
@@ -925,7 +932,6 @@ void ControlUnit::loadFile(char* filename, int mode)
             fprintf(stderr, "%s\n", PRINT_BREAK);
             return;
         }
-        m_memory->load(rpc);
         if (rpc)
         {
             delete rpc;
@@ -933,11 +939,11 @@ void ControlUnit::loadFile(char* filename, int mode)
         }
    }
 
-   BitReg mem(m_memory->readMB()->getNumber());
-   if(HALT_CODE == mem.getNumber())
-   {
-       m_format.incrementMicros(&mem);
-   }
+   //BitReg mem(m_memory->readMB()->getNumber());
+   //if(HALT_CODE == mem.getNumber())
+   //{
+   //    m_format.incrementMicros(&mem);
+   //}
 
 #ifdef DEBUG_CONTROL
    char stemp[5] = {'3', '7', '7', '7', '\0'};
@@ -951,8 +957,8 @@ void ControlUnit::loadFile(char* filename, int mode)
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:printMemoryHistory
+//Description: writes all memory accesses to file
 //Inputs:
 //Outputs:
 //Return:
@@ -971,8 +977,8 @@ void ControlUnit::printMemoryHistory(char* filename)
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:InstFormat
+//Description: constructor
 //Inputs:
 //Outputs:
 //Return:
@@ -990,8 +996,8 @@ InstFormat::InstFormat()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:~InstFormat
+//Description:deconstructor
 //Inputs:
 //Outputs:
 //Return:
@@ -1032,8 +1038,8 @@ InstFormat::~InstFormat()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:reset
+//Description: resets all saved addresses and data
 //Inputs:
 //Outputs:
 //Return:
@@ -1050,8 +1056,8 @@ void InstFormat::reset()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:setOpCode
+//Description:extracts the opcode from the instruction
 //Inputs:
 //Outputs:
 //Return:
@@ -1079,8 +1085,8 @@ void InstFormat::setOpCode()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:setOffset
+//Description:depending on format, the offset is extracted
 //Inputs:
 //Outputs:
 //Return:
@@ -1136,8 +1142,8 @@ void InstFormat::setOffset()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:setInstType
+//Description: sets the type of instruction format
 //Inputs:
 //Outputs:
 //Return:
@@ -1151,7 +1157,7 @@ void InstFormat::setInstType()
         BitReg temp(btemp);
         unsigned int opIndex = temp.getNumber();
 
-        if(OPCODE_MAX >= opIndex)// && (OPCODE_MIN <= opIndex)) <- always true
+        if(OPCODE_MAX >= opIndex)
         {
             if(OPCODE_MRI >= opIndex)
             {
@@ -1195,8 +1201,8 @@ void InstFormat::setInstType()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:loadInstruction
+//Description:loads the current instruction
 //Inputs:
 //Outputs:
 //Return:
@@ -1262,13 +1268,12 @@ void InstFormat::loadInstruction(BitReg* inst)
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getInstType
+//Description:returns the type of format in a string 
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//returns the type of format in a string 
 char* InstFormat::getInstType()
 {
     char* temp = NULL;
@@ -1299,13 +1304,12 @@ char* InstFormat::getInstType()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getMRIindirect
+//Description:MRI format, 1 bit Indirect bit, 0 = none, 1 = indirection
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//MRI format, 1 bit Indirect bit, 0 = none, 1 = indirection
 bool InstFormat::getMRIindirect()
 {
     return m_bIndirect;
@@ -1313,13 +1317,12 @@ bool InstFormat::getMRIindirect()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getMRIMempage
+//Description:MRI format, 1 bit Memory page bit, 0 = zero page, 1 = current page
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//MRI format, 1 bit Memory page bit, 0 = zero page, 1 = current page
 bool InstFormat::getMRIMempage()
 {
     return m_bZeroPage;
@@ -1327,8 +1330,8 @@ bool InstFormat::getMRIMempage()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:isInstMRI
+//Description:checks if instruction is a MRI format
 //Inputs:
 //Outputs:
 //Return:
@@ -1340,8 +1343,8 @@ bool InstFormat::isInstMRI()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:isInstOperate
+//Description:checks if instruction is a OPP format
 //Inputs:
 //Outputs:
 //Return:
@@ -1353,8 +1356,8 @@ bool InstFormat::isInstOperate()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:isInstTestIO
+//Description:checks if instruction is an IO format
 //Inputs:
 //Outputs:
 //Return:
@@ -1366,13 +1369,12 @@ bool InstFormat::isInstTestIO()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getMRIoffset
+//Description:MRI format, gets 7 bit offset
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//MRI format, 7 bit offset
 BitReg* InstFormat::getMRIoffset()
 {
     bool* btemp = NULL;
@@ -1394,13 +1396,12 @@ BitReg* InstFormat::getMRIoffset()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getOPextended
+//Description:Operate format, gets the 9 bit extended opcode
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//Operate format, 9 bit extended opcode
 BitReg* InstFormat::getOPextended()
 {
     bool* btemp = NULL;
@@ -1422,8 +1423,8 @@ BitReg* InstFormat::getOPextended()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getMicroCode
+//Description:gets the last known micro code
 //Inputs:
 //Outputs:
 //Return:
@@ -1435,8 +1436,8 @@ unsigned int InstFormat::getMicroCode()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getOpcode
+//Description: gets the current opcode
 //Inputs:
 //Outputs:
 //Return:
@@ -1448,8 +1449,8 @@ unsigned int InstFormat::getOpcode()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getInstruction
+//Description:gets the current instruction
 //Inputs:
 //Outputs:
 //Return:
@@ -1461,8 +1462,8 @@ BitReg* InstFormat::getInstruction()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:getAddress
+//Description:gets the current address
 //Inputs:
 //Outputs:
 //Return:
@@ -1474,8 +1475,8 @@ BitReg* InstFormat::getAddress()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:setAddress
+//Description: sets the current address
 //Inputs:
 //Outputs:
 //Return:
@@ -1487,8 +1488,8 @@ void InstFormat::setAddress(BitReg* addy)
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:incrementCycles
+//Description: increments cycles for MRI
 //Inputs:
 //Outputs:
 //Return:
@@ -1514,8 +1515,8 @@ void InstFormat::incrementCycles(BitReg* ops)
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:incrementCyclesDefer
+//Description: increments a cycle if the instruction is defered
 //Inputs:
 //Outputs:
 //Return:
@@ -1541,8 +1542,8 @@ void InstFormat::incrementCyclesDefer(BitReg* ops)
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:incrementMicros
+//Description: updates cycles and usage of micro instructions
 //Inputs:
 //Outputs:
 //Return:
@@ -1574,8 +1575,8 @@ void InstFormat::incrementMicros(BitReg* ops)
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:printStats
+//Description:prints the stat summary for all instructions
 //Inputs:
 //Outputs:
 //Return:
@@ -1587,11 +1588,11 @@ void InstFormat::printStats()
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name:convertToOctal
+//Description: converts a decimal based int to an octal based int
+//Inputs: decimal based unsigned int
+//Outputs: none
+//Return: octal based unsigned int
 //================================================================================== 
 unsigned int InstFormat::convertToOctal(unsigned int num)
 {
@@ -1633,8 +1634,8 @@ unsigned int InstFormat::convertToOctal(unsigned int num)
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:EffectiveAddress
+//Description:constructor
 //Inputs:
 //Outputs:
 //Return:
@@ -1651,8 +1652,8 @@ EffectiveAddress::EffectiveAddress()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:~EffectiveAddress
+//Description: deconstructor
 //Inputs:
 //Outputs:
 //Return:
@@ -1664,8 +1665,8 @@ EffectiveAddress::~EffectiveAddress()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name: setPCOffset
+//Description: set the lower six bytes of the pc to the offset of the current page
 //Inputs:
 //Outputs:
 //Return:
@@ -1706,13 +1707,13 @@ void EffectiveAddress::setPCOffset()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name: effAdzeroPage
+//Description:if the memory page bit is 0, calculate 00000 + offset, 
+//              range is 0000o-0177o
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//if the memory page bit is 0, calculate 00000 + offset, range is 0000o-0177o
 BitReg* EffectiveAddress::effAdzeroPage()
 {
     const int words = 2;
@@ -1751,13 +1752,13 @@ BitReg* EffectiveAddress::effAdzeroPage()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:effAdcurrentPage
+//Description: if the memory page bit is 1, calculate instruction page + offset, 
+//                  range instruction page
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//if the memory page bit is 1, calculate instruction page + offset, range instruction page
 BitReg* EffectiveAddress::effAdcurrentPage()
 {
     const int words = 2;
@@ -1796,13 +1797,13 @@ BitReg* EffectiveAddress::effAdcurrentPage()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:effAdindirectAddressZero
+//Description:if the indirect bit is 1, calculate  c(address), 
+//                  range is any address but costs 2 mem reads
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//if the indirect bit is 1, calculate  c(address), range is any address but costs 2 mem reads
 BitReg* EffectiveAddress::effAdindirectAddressZero()
 {
     bool* ztemp = NULL;
@@ -1864,13 +1865,13 @@ BitReg* EffectiveAddress::effAdindirectAddressZero()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:effAdindirectAddressCurr
+//Description:if the indirect bit is 1, calculate  c(address), 
+//              range is any address but costs 2 mem reads
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//if the indirect bit is 1, calculate  c(address), range is any address but costs 2 mem reads
 BitReg* EffectiveAddress::effAdindirectAddressCurr()
 {
     bool* ztemp = NULL;
@@ -1932,13 +1933,12 @@ BitReg* EffectiveAddress::effAdindirectAddressCurr()
 
 
 //================================================================================== 
-//Name:
-//Description:
+//Name:effAdautoIndexing
+//Description:calculate c(0010o - 0017o) + 1 effective address
 //Inputs:
 //Outputs:
 //Return:
 //================================================================================== 
-//calculate c(0010o - 0017o) + 1 effective address
 BitReg* EffectiveAddress::effAdautoIndexing()
 {
     //TODO
@@ -1948,11 +1948,11 @@ BitReg* EffectiveAddress::effAdautoIndexing()
 
 
 //================================================================================== 
-//Name:
+//Name:loadOffset
 //Description:
 //Inputs:
-//Outputs:
-//Return:
+//Outputs: none
+//Return: none
 //================================================================================== 
 void EffectiveAddress::loadOffset(BitReg* reg)
 {
@@ -1979,11 +1979,11 @@ void EffectiveAddress::loadOffset(BitReg* reg)
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: readIndirect
+//Description: reads an address and extracts it's offset (for MRI)
+//Inputs: a Bitreg pointer containing the address to be indirected
+//Outputs: none
+//Return: a Bitreg pointer containing the offset
 //================================================================================== 
 BitReg* EffectiveAddress::readIndirect(BitReg* reg)
 {
@@ -2004,11 +2004,11 @@ BitReg* EffectiveAddress::readIndirect(BitReg* reg)
 
 
 //================================================================================== 
-//Name:
-//Description:
-//Inputs:
-//Outputs:
-//Return:
+//Name: setMemory
+//Description: passes access to the memory from the control unit
+//Inputs: Memory pointer
+//Outputs: none
+//Return: none
 //================================================================================== 
 void EffectiveAddress::setMemory(Memory* mem)
 {
