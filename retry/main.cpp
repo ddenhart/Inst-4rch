@@ -10,11 +10,13 @@ Date:			    03/02/2015
 Description:	 This file contains the main
 ================================================================================== */
 #include <fstream>
+#include <iostream>
 #include <cstdio>
 #include "common.h"
 #include "controlunit.h"
 
 class ErrorTable Error;
+void pauseandexit();
 
 
 int main(int argc, char **argv)
@@ -126,8 +128,18 @@ int main(int argc, char **argv)
         outfile = NULL;
     }
 
-    std::system( "read -n 1 -s -p \"Press any key to continue...\"" );
+    //std::system( "read -n 1 -s -p \"Press any key to continue...\"" );
+    pauseandexit();
 
     return 0;
 }
 
+
+void pauseandexit()
+{
+    fprintf(stderr, "Shutting down...\n ");
+    //std::system("read -n 1 -s -p \"Press any key to continue...\"");
+    std::cin.sync(); // Flush The Input Buffer Just In Case
+    std::cin.ignore(); // There's No Need To Actually Store The Users Input
+    exit(EXIT_FAILURE);
+}

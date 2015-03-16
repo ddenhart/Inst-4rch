@@ -24,6 +24,7 @@ ControlUnit
 //External objects
 //================================================================================== 
 extern ErrorTable Error;
+extern void pauseandexit();
 
 
 //================================================================================== 
@@ -97,6 +98,11 @@ void ControlUnit::modeHex(char* filename)
     {
         readfile = fopen(filename, "r");
     }
+    else
+    {
+        fprintf(stderr, "Error: can't open %s\n", filename);
+        pauseandexit();
+    }
     
     if(readfile)
     {
@@ -166,6 +172,11 @@ void ControlUnit::modeHex(char* filename)
 
         fclose(readfile);
     }
+    else
+    {
+        fprintf(stderr, "Error: can't open %s\n", filename);
+        pauseandexit();
+    }
 }
 
 
@@ -186,6 +197,11 @@ void ControlUnit::modeBin(char* filename)
     if(NULL != filename)
     {
        readfile = fopen(filename, "r+b");
+    }
+    else
+    {
+        fprintf(stderr, "Error: can't open %s\n", filename);
+        pauseandexit();
     }
 
     if(readfile)
@@ -275,7 +291,8 @@ void ControlUnit::modeBin(char* filename)
     }
     else
     {
-        Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
+        fprintf(stderr, "Error: can't open %s\n", filename);
+        pauseandexit();
     }
 }
 
@@ -382,6 +399,11 @@ void ControlUnit::modeOct(char* filename)
         }
 
         fclose(readfile);
+    }
+    else
+    {
+        fprintf(stderr, "Error: can't open %s\n", filename);
+        pauseandexit();
     }
 }
 
@@ -730,6 +752,7 @@ void ControlUnit::loadFile(char* filename, short mode)
     else
     {
         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+        pauseandexit();
     }
 
     m_mem->writeMemoryAccesses();

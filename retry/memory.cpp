@@ -9,7 +9,6 @@ File:			    memarray.cpp
 Date:			    03/02/2015
 Description:	 This file contains the classes memReg and memarray
 ================================================================================== */
-
 #include <fstream>
 #include "Common.h"
 #include "memory.h"
@@ -17,7 +16,7 @@ Description:	 This file contains the classes memReg and memarray
 //External objects
 //================================================================================== 
 extern ErrorTable Error;
-
+extern void pauseandexit();
 
 //================================================================================== 
 //Description: constructor
@@ -101,10 +100,7 @@ void memarray::readline()
     }
     else
     {
-        fprintf(stderr, "ERROR: invalid memory access: %o\n", rMA);
-        fprintf(stderr, "Shutting down...\n ");
-        std::system( "read -n 1 -s -p \"Press any key to continue...\"" );
-        exit(EXIT_FAILURE);
+        pauseandexit();
     }
     
 }
@@ -218,9 +214,7 @@ unsigned short memarray::checkValidAddy(unsigned short addy)
         fprintf(stdout, "DEBUG: checking memory address from %o to %o\n", addy, temp);
 #endif
         fprintf(stderr, "ERROR: invalid address: %o\n", addy);
-        fprintf(stderr, "Shutting down...\n ");
-        std::system( "read -n 1 -s -p \"Press any key to continue...\"" );
-        exit(EXIT_FAILURE);
+        pauseandexit();
     }
 
     return temp;
