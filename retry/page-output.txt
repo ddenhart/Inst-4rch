@@ -1,0 +1,72 @@
+DEBUG: convert hex input string to octal: 200
+DEBUG: read hex in address: 200
+DEBUG: convert hex input string to octal: 7200
+DEBUG: read hex in data: addy: 200  data: 7200
+DEBUG: convert hex input string to octal: 7100
+DEBUG: read hex in data: addy: 201  data: 7100
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 202  data: 7001
+DEBUG: convert hex input string to octal: 5377
+DEBUG: read hex in data: addy: 203  data: 5377
+DEBUG: convert hex input string to octal: 7402
+DEBUG: read hex in data: addy: 204  data: 7402
+DEBUG: convert hex input string to octal: 250
+DEBUG: read hex in address: 250
+DEBUG: convert hex input string to octal: 7402
+DEBUG: read hex in data: addy: 250  data: 7402
+DEBUG: convert hex input string to octal: 377
+DEBUG: read hex in address: 377
+DEBUG: convert hex input string to octal: 5250
+DEBUG: read hex in data: addy: 377  data: 5250
+DEBUG: convert hex input string to octal: 360
+DEBUG: read hex in data: addy: 400  data: 360
+DEBUG: set IR: 7
+DEBUG: format loading instruction: 7200
+DEBUG: fetched: data: 7200
+DEBUG: executing micro: instruction: 7200
+DEBUG: micro decode: opcode: 7200
+DEBUG: set IR: 7
+DEBUG: format loading instruction: 7100
+DEBUG: fetched: data: 7100
+DEBUG: executing micro: instruction: 7100
+DEBUG: micro decode: opcode: 7100
+DEBUG: set IR: 7
+DEBUG: format loading instruction: 7001
+DEBUG: fetched: data: 7001
+DEBUG: executing micro: instruction: 7001
+DEBUG: micro decode: opcode: 7001
+DEBUG: set IR: 5
+DEBUG: format loading instruction: 5377
+DEBUG: fetched: data: 5377
+DEBUG: effAddy: offset: 177
+DEBUG: effAddy: pc offset: 200
+DEBUG: effAddy: indirect: 0
+DEBUG: effAddy: current page: 377
+DEBUG: reading instruction from memory: address: 377 data: 5250
+DEBUG: executing mri: opcode 5
+DEBUG: mri decode: address: 377, data: 5250
+DEBUG: set IR: 5
+DEBUG: format loading instruction: 5250
+DEBUG: fetched: data: 5250
+DEBUG: effAddy: offset: 50
+DEBUG: effAddy: pc offset: 200
+DEBUG: effAddy: indirect: 0
+DEBUG: effAddy: current page: 250
+DEBUG: reading instruction from memory: address: 250 data: 7402
+DEBUG: executing mri: opcode 5
+DEBUG: mri decode: address: 250, data: 7402
+
+-----------------------------------------------
+Statistic Summary
+-----------------------------------------------
+Total instructions: 5   Total clock cycles: 5
+-----------------------------------------------
+AND:  executed: 0 times  consumed: 0 cycles
+TAD:  executed: 0 times  consumed: 0 cycles
+ISZ:  executed: 0 times  consumed: 0 cycles
+DCA:  executed: 0 times  consumed: 0 cycles
+JMS:  executed: 0 times  consumed: 0 cycles
+JMP:  executed: 2 times  consumed: 2 cycles
+IO :  executed: 0 times  consumed: 0 cycles
+MIC:  executed: 3 times  consumed: 3 cycles
+Press any key to continue . . .

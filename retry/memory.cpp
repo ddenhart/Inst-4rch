@@ -88,8 +88,18 @@ void memarray::writeline()
 void memarray::readline()
 {
     rMA = checkValidAddy(rMA);
-    rMB = checkValidAddy(rMB);
-    rMB = mem[rMA].value; //read the memarray line
+    if(mem[rMA].access)
+    {
+        rMB = mem[rMA].value; //read the memarray line
+    }
+    else
+    {
+        fprintf(stderr, "ERROR: invalid memory access: %o\n", rMA);
+        fprintf(stderr, "Shutting down...\n ");
+        std::system("pause");
+        exit(EXIT_FAILURE);
+    }
+    
 }
 
 
@@ -195,12 +205,15 @@ unsigned short memarray::checkValidAddy(unsigned short addy)
     }
     else
     {
-        Error.printError(ERROR_OUT_OF_RANGE, FILE_MEM);
         temp = MAX_OCT_ADDRESS - addy;
         //temp = REG_12BIT_MASK & addy;
 #ifdef DEBUG_MEM
         fprintf(stdout, "DEBUG: checking memory address from %o to %o\n", addy, temp);
 #endif
+        fprintf(stderr, "ERROR: invalid address: %o\n", addy);
+        fprintf(stderr, "Shutting down...\n ");
+        std::system("pause");
+        exit(EXIT_FAILURE);
     }
 
     return temp;

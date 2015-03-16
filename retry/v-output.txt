@@ -1,0 +1,136 @@
+DEBUG: convert hex input string to octal: 200
+DEBUG: read hex in address: 200
+DEBUG: convert hex input string to octal: 1100
+DEBUG: read hex in data: addy: 200  data: 1100
+DEBUG: convert hex input string to octal: 101
+DEBUG: read hex in data: addy: 201  data: 101
+DEBUG: convert hex input string to octal: 2102
+DEBUG: read hex in data: addy: 202  data: 2102
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 203  data: 7001
+DEBUG: convert hex input string to octal: 2102
+DEBUG: read hex in data: addy: 204  data: 2102
+DEBUG: convert hex input string to octal: 3102
+DEBUG: read hex in data: addy: 205  data: 3102
+DEBUG: convert hex input string to octal: 5210
+DEBUG: read hex in data: addy: 206  data: 5210
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 207  data: 7001
+DEBUG: convert hex input string to octal: 1104
+DEBUG: read hex in data: addy: 210  data: 1104
+DEBUG: convert hex input string to octal: 6044
+DEBUG: read hex in data: addy: 211  data: 6044
+DEBUG: convert hex input string to octal: 7000
+DEBUG: read hex in data: addy: 212  data: 7000
+DEBUG: convert hex input string to octal: 7200
+DEBUG: read hex in data: addy: 213  data: 7200
+DEBUG: convert hex input string to octal: 7100
+DEBUG: read hex in data: addy: 214  data: 7100
+DEBUG: convert hex input string to octal: 7020
+DEBUG: read hex in data: addy: 215  data: 7020
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 216  data: 7001
+DEBUG: convert hex input string to octal: 7004
+DEBUG: read hex in data: addy: 217  data: 7004
+DEBUG: convert hex input string to octal: 7004
+DEBUG: read hex in data: addy: 220  data: 7004
+DEBUG: convert hex input string to octal: 7006
+DEBUG: read hex in data: addy: 221  data: 7006
+DEBUG: convert hex input string to octal: 7012
+DEBUG: read hex in data: addy: 222  data: 7012
+DEBUG: convert hex input string to octal: 7010
+DEBUG: read hex in data: addy: 223  data: 7010
+DEBUG: convert hex input string to octal: 7040
+DEBUG: read hex in data: addy: 224  data: 7040
+DEBUG: convert hex input string to octal: 101
+DEBUG: read hex in data: addy: 225  data: 101
+DEBUG: convert hex input string to octal: 7041
+DEBUG: read hex in data: addy: 226  data: 7041
+DEBUG: convert hex input string to octal: 7500
+DEBUG: read hex in data: addy: 227  data: 7500
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 230  data: 7001
+DEBUG: convert hex input string to octal: 7041
+DEBUG: read hex in data: addy: 231  data: 7041
+DEBUG: convert hex input string to octal: 7120
+DEBUG: read hex in data: addy: 232  data: 7120
+DEBUG: convert hex input string to octal: 7500
+DEBUG: read hex in data: addy: 233  data: 7500
+DEBUG: convert hex input string to octal: 7004
+DEBUG: read hex in data: addy: 234  data: 7004
+DEBUG: convert hex input string to octal: 7440
+DEBUG: read hex in data: addy: 235  data: 7440
+DEBUG: convert hex input string to octal: 1102
+DEBUG: read hex in data: addy: 236  data: 1102
+DEBUG: convert hex input string to octal: 3102
+DEBUG: read hex in data: addy: 237  data: 3102
+DEBUG: convert hex input string to octal: 7440
+DEBUG: read hex in data: addy: 240  data: 7440
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 241  data: 7001
+DEBUG: convert hex input string to octal: 7100
+DEBUG: read hex in data: addy: 242  data: 7100
+DEBUG: convert hex input string to octal: 7020
+DEBUG: read hex in data: addy: 243  data: 7020
+DEBUG: convert hex input string to octal: 7420
+DEBUG: read hex in data: addy: 244  data: 7420
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 245  data: 7001
+DEBUG: convert hex input string to octal: 7100
+DEBUG: read hex in data: addy: 246  data: 7100
+DEBUG: convert hex input string to octal: 7040
+DEBUG: read hex in data: addy: 247  data: 7040
+DEBUG: convert hex input string to octal: 7420
+DEBUG: read hex in data: addy: 250  data: 7420
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 251  data: 7001
+DEBUG: convert hex input string to octal: 7510
+DEBUG: read hex in data: addy: 252  data: 7510
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 253  data: 7001
+DEBUG: convert hex input string to octal: 7430
+DEBUG: read hex in data: addy: 254  data: 7430
+DEBUG: convert hex input string to octal: 1410
+DEBUG: read hex in data: addy: 255  data: 1410
+DEBUG: convert hex input string to octal: 7450
+DEBUG: read hex in data: addy: 256  data: 7450
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 257  data: 7001
+DEBUG: convert hex input string to octal: 7430
+DEBUG: read hex in data: addy: 260  data: 7430
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 261  data: 7001
+DEBUG: convert hex input string to octal: 4505
+DEBUG: read hex in data: addy: 262  data: 4505
+DEBUG: convert hex input string to octal: 7100
+DEBUG: read hex in data: addy: 263  data: 7100
+DEBUG: convert hex input string to octal: 7430
+DEBUG: read hex in data: addy: 264  data: 7430
+DEBUG: convert hex input string to octal: 7001
+DEBUG: read hex in data: addy: 265  data: 7001
+DEBUG: convert hex input string to octal: 3410
+DEBUG: read hex in data: addy: 266  data: 3410
+DEBUG: convert hex input string to octal: 7402
+DEBUG: read hex in data: addy: 267  data: 7402
+DEBUG: convert hex input string to octal: 0
+DEBUG: read hex in data: addy: 270  data: 0
+DEBUG: convert hex input string to octal: 1101
+DEBUG: read hex in data: addy: 271  data: 1101
+DEBUG: convert hex input string to octal: 5670
+DEBUG: read hex in data: addy: 272  data: 5670
+DEBUG: convert hex input string to octal: 10
+DEBUG: read hex in address: 10
+DEBUG: convert hex input string to octal: 101
+DEBUG: read hex in data: addy: 10  data: 101
+DEBUG: convert hex input string to octal: 100
+DEBUG: read hex in address: 100
+DEBUG: convert hex input string to octal: 3
+DEBUG: read hex in data: addy: 100  data: 3
+DEBUG: convert hex input string to octal: 6
+DEBUG: read hex in data: addy: 101  data: 6
+DEBUG: convert hex input string to octal: 7777
+DEBUG: read hex in data: addy: 102  data: 7777
+DEBUG: checking memory address from 7777 to 0
+ERROR: invalid address: 7777
+Shutting down...
+ Press any key to continue . . .

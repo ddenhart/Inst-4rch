@@ -139,6 +139,23 @@ void ControlUnit::modeHex(char* filename)
                     Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
                 }
             }
+            else if(length == ADDRESS_LENGTH_HEX)
+            {
+                //it's data
+                char tempstr[(ADDRESS_LENGTH_HEX+1)];
+                tempstr[0] = '0';
+                tempstr[1] = line[0];
+                tempstr[2] = line[1];
+                tempstr[3] = line[2];
+                reg = hexAddressHandle(tempstr);
+                rpc = getPC();
+
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG: read hex in data: addy: %o  data: %o\n", rpc, reg);
+#endif
+                m_mem->store(rpc, reg);
+                incrementPC();
+            }
             else
             {
                 Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
@@ -446,6 +463,7 @@ void ControlUnit::instructionDecode()
 #ifdef DEBUG_CONTROL
         fprintf(stdout, "DEBUG: IO decode: nops\n");
 #endif
+        incrementPC();
     }
     else
     {
@@ -698,11 +716,7 @@ void ControlUnit::executeMicro(unsigned short inst)
 //==================================================================================
 void ControlUnit::loadFile(char* filename, short mode)
 {
-    unsigned short rpc = 0;
     unsigned short data = 0;
-    short length = 0;
-    bool bMemValid = true;
-
 
     if(INPUT_BINARY == mode)
     {
@@ -727,16 +741,6 @@ void ControlUnit::loadFile(char* filename, short mode)
     {
         instructionFetch();
         instructionDecode();
-        rpc = m_mem->checkValidAddy(rpc);
-        if(!bMemValid)
-        {
-            Error.printError(ERROR_OUT_OF_RANGE, FILE_CONTROL);
-            //throw error if memarray access is out of bounds
-            //fprintf(stderr, "%s\n", PRINT_BREAK);
-            //throw fprintf(stderr, "Error: Exceeded memarray space...\n");
-            //fprintf(stderr, "%s\n", PRINT_BREAK);
-            //return;
-        }
     }
     m_format.printStats();
     m_mem->writeMemoryAccesses();
