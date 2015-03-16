@@ -70,12 +70,12 @@ unsigned short ControlUnit::hexAddressHandle(char* addy)
 
     for(int i = 0; i < ADDRESS_LENGTH_HEX; ++i)
     {
-        reg += convToNumber(addy[i]);
         reg = reg << 4;
+        reg += convToNumber(addy[i]);
     }
 
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG convert hex input string to octal: %o\n", reg);
+    fprintf(stdout, "DEBUG: convert hex input string to octal: %o\n", reg);
 #endif
 
     return reg;
@@ -206,10 +206,11 @@ void ControlUnit::modeBin(char* filename)
         {
             for(int i = 0; i < 2; ++i)
             {
-                conv = convToNumber(*it);
+                conv = *it;
                 if(0 == i)
                 {
-                    addyfound = conv & BIT1_MASK;
+                    addyfound = conv & BIT5_MASK;
+                    addyfound = addyfound >> 6;
                     buff = conv & REG_6BIT_MASK;
                     buff = buff << REG_UPPER;
                     ++it;
@@ -738,6 +739,7 @@ void ControlUnit::loadFile(char* filename, short mode)
         }
     }
     m_format.printStats();
+    m_mem->writeMemoryAccesses();
 }
 
 

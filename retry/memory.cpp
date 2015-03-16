@@ -100,7 +100,7 @@ void memarray::writeMemoryAccesses()
 {
     char filename[] = "pdp8_Memory_Accesses.txt";
 
-    fopen_s(&memfile, filename, "w");
+    fopen_s(&memfile, filename, "a");
 
     if(memfile)
     {

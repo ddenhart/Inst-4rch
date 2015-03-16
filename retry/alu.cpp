@@ -100,7 +100,7 @@ void alu::sumALU(unsigned short reg)
     }
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG: sum alu: rAC %o = %o + %o, rLB = %o\n", temp, reg, rAC, rLB);
+    fprintf(stdout, "DEBUG: sum alu rAC %o = %o + %o, rLB = %o\n", temp, reg, rAC, rLB);
 #endif
 
     rAC = temp;
@@ -167,7 +167,7 @@ void alu::complementALU()
     rAC = MAX_OCT_ADDRESS - rAC;
 
 #ifdef DEBUG_ALU
-        fprintf(stdout, "DEBUG ALU: complemented rAC from %o to %o\n", temp, rAC);
+        fprintf(stdout, "DEBUG: complemented rAC from %o to %o\n", temp, rAC);
 #endif
 }
 
@@ -181,7 +181,7 @@ void alu::incrementALU()
     sumALU(1);
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: incrementing from %o to %o\n", temp, rAC);
+    fprintf(stdout, "DEBUG: incrementing from %o to %o\n", temp, rAC);
 #endif
 }
 
@@ -197,7 +197,7 @@ void alu::negateALU()
     incrementALU();
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: negated rAC from %o to %o\n", temp, rAC);
+    fprintf(stdout, "DEBUG: negated rAC from %o to %o\n", temp, rAC);
 #endif
 }
 
@@ -226,7 +226,7 @@ void alu::clear()
     clearLC();
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: cleared rAC: %o and rLB: %o\n", rAC, rLB);
+    fprintf(stdout, "DEBUG: cleared rAC: %o and rLB: %o\n", rAC, rLB);
 #endif
 }
 
@@ -247,7 +247,7 @@ void alu::rotateRight()
     rAC += carry;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: rotate right from %o to %o with a carry %o\n",
+    fprintf(stdout, "DEBUG: rotate right from %o to %o with a carry %o\n",
             temp, rAC, carry);
 #endif
 }
@@ -268,7 +268,7 @@ void alu::rotateLeft()
     rAC += carry;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: rotate left from %o to %o with a carry %o\n", 
+    fprintf(stdout, "DEBUG: rotate left from %o to %o with a carry %o\n", 
             temp, rAC, carry);
 #endif
 }
@@ -285,7 +285,7 @@ void alu::shiftRight(unsigned short num)
     rAC &= REG_12BIT_MASK;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: shift right from %o to %o\n", temp, rAC);
+    fprintf(stdout, "DEBUG: shift right from %o to %o\n", temp, rAC);
 #endif
 }
 
@@ -301,7 +301,7 @@ void alu::shiftLeft(unsigned short  num)
     rAC &= REG_12BIT_MASK;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: shift left from %o to %o\n", temp, rAC);
+    fprintf(stdout, "DEBUG: shift left from %o to %o\n", temp, rAC);
 #endif
 }
 
@@ -315,7 +315,7 @@ void alu::andALU(unsigned short reg)
     rAC &= reg;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: and AC from %o to %o\n", temp, rAC);
+    fprintf(stdout, "DEBUG: and AC from %o to %o\n", temp, rAC);
 #endif
 }
 
@@ -329,7 +329,7 @@ void alu::orALU(unsigned short reg)
     rAC |= reg;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG ALU: or AC from %o to %o\n", temp, rAC);
+    fprintf(stdout, "DEBUG: or AC from %o to %o\n", temp, rAC);
 #endif
 }
 
@@ -372,6 +372,5 @@ void alu::printALU()
 {
         fprintf(stdout, "ALU: dec: %d  oct: %o  hex: %x\n", rAC, rAC, rAC);
 }
-
 
 
