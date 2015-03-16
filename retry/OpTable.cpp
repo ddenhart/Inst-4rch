@@ -46,7 +46,7 @@ OpRow::OpRow(const char* mnem, unsigned short cycles, unsigned short index)
     {
         int strsize = strlen(mnem)+1;
         m_sMnemonic = new char[strsize];
-        strcpy_s(m_sMnemonic, strsize, mnem);
+        strcpy(m_sMnemonic, mnem);
     }
     else
     {
@@ -93,7 +93,7 @@ char* OpRow::getName()
     char* mnem = NULL;
     int strsize = strlen(m_sMnemonic)+1;
     mnem = new char[strsize];
-    strcpy_s(mnem, strsize, m_sMnemonic);
+    strcpy(mnem, m_sMnemonic);
     return mnem;
 }
 
@@ -171,7 +171,7 @@ void OpRow::setRow(const char* mnem, unsigned short cycles, unsigned short index
     {
         int strsize = strlen(mnem)+1;
         m_sMnemonic = new char[strsize];
-        strcpy_s(m_sMnemonic, strsize, mnem);
+        strcpy(m_sMnemonic, mnem);
     }
     else
     {

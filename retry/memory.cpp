@@ -27,8 +27,15 @@ memarray::memarray()
     const char* defaultfile = "memarrayTrace.dmp";
     int strsize = strlen(defaultfile) + 1;
     traceFileName = new char[strsize];
-    strcpy_s(traceFileName, strsize, defaultfile);
-    fopen_s(&tracefile, traceFileName, "a");
+    strcpy(traceFileName, defaultfile);
+    tracefile = fopen(traceFileName, "a");
+
+    for(short i = 0; i < MSIZE; ++i)
+    {
+        mem[i].value = 0;
+        mem[i].access = 0;
+    }
+
 }
 
 
@@ -39,8 +46,8 @@ memarray::memarray(const memarray &source)
 {
     int strsize = strlen(source.traceFileName) + 1;
     traceFileName = new char[strsize];
-    strcpy_s(traceFileName, strsize, source.traceFileName);
-    fopen_s(&tracefile, traceFileName, "a");
+    strcpy(traceFileName, source.traceFileName);
+    tracefile = fopen(traceFileName, "a");
 
     for(short i = 0; i < MSIZE; ++i)
     {
@@ -96,7 +103,7 @@ void memarray::readline()
     {
         fprintf(stderr, "ERROR: invalid memory access: %o\n", rMA);
         fprintf(stderr, "Shutting down...\n ");
-        std::system("pause");
+        std::system( "read -n 1 -s -p \"Press any key to continue...\"" );
         exit(EXIT_FAILURE);
     }
     
@@ -110,7 +117,7 @@ void memarray::writeMemoryAccesses()
 {
     char filename[] = "pdp8_Memory_Accesses.txt";
 
-    fopen_s(&memfile, filename, "a");
+    memfile = fopen(filename, "a");
 
     if(memfile)
     {
@@ -212,7 +219,7 @@ unsigned short memarray::checkValidAddy(unsigned short addy)
 #endif
         fprintf(stderr, "ERROR: invalid address: %o\n", addy);
         fprintf(stderr, "Shutting down...\n ");
-        std::system("pause");
+        std::system( "read -n 1 -s -p \"Press any key to continue...\"" );
         exit(EXIT_FAILURE);
     }
 
@@ -273,25 +280,25 @@ char* memarray::getMemoryOp(short type)
     {
         strsize = strlen(temp1)+1;
         temp = new char[strsize];
-        strcpy_s(temp, strsize, temp1);
+        strcpy(temp, temp1);
     }
     else if(MWRITE == type)
     {
         strsize = strlen(temp2)+1;
         temp = new char[strsize];
-        strcpy_s(temp, strsize, temp2);
+        strcpy(temp, temp2);
     }
     else if(MFETCH == type)
     {
         strsize = strlen(temp3)+1;
         temp = new char[strsize];
-        strcpy_s(temp, strsize, temp3);
+        strcpy(temp, temp3);
     }
     else
     {
         strsize = strlen(temp4)+1;
         temp = new char[strsize];
-        strcpy_s(temp, strsize, temp4);
+        strcpy(temp, temp4);
     }
 
     return temp;

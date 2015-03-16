@@ -95,7 +95,7 @@ void ControlUnit::modeHex(char* filename)
 
     if(NULL != filename)
     {
-        fopen_s(&readfile, filename, "r");
+        readfile = fopen(filename, "r");
     }
     
     if(readfile)
@@ -185,7 +185,7 @@ void ControlUnit::modeBin(char* filename)
 
     if(NULL != filename)
     {
-       fopen_s(&readfile, filename, "r+b");
+       readfile = fopen(filename, "r+b");
     }
 
     if(readfile)
@@ -286,7 +286,6 @@ void ControlUnit::modeBin(char* filename)
 void ControlUnit::modeOct(char* filename)
 {
     char line[MAX_BUFFER]; // String for getline
-    unsigned char sInput[ADDRESS_LENGTH_OCT + 1] = {'\0', '\0', '\0', '\0', '\0'};
     bool bAddy = false;
     bool bFirstLine = true;
     int pair = 0;
@@ -297,7 +296,7 @@ void ControlUnit::modeOct(char* filename)
     std::vector<char> sBuff;
     std::vector<char>::iterator it;
 
-    fopen_s(&readfile,filename, "r");
+    readfile = fopen(filename, "r");
 
     if(readfile)
     {
@@ -716,8 +715,6 @@ void ControlUnit::executeMicro(unsigned short inst)
 //==================================================================================
 void ControlUnit::loadFile(char* filename, short mode)
 {
-    unsigned short data = 0;
-
     if(INPUT_BINARY == mode)
     {
         modeBin(filename);
@@ -930,28 +927,28 @@ void InstFormat::loadInstruction(unsigned short inst)
 char* InstFormat::getInstType()
 {
     char* temp = NULL;
-    char* stemp1 = INST_FORM_MRI;
-    char* stemp2 = INST_FORM_OP;
-    char* stemp3 = INST_FORM_IO;
+    char stemp1[] = "Memory Reference\0";
+    char stemp2[] = "Micro Instruction\0";
+    char stemp3[] = "Test I/O\0";
     int strsize = 0;
 
     if(m_bMRI)
     {
         strsize = strlen(stemp1)+1;
         temp = new char[strsize];
-        strcpy_s(temp, strsize, stemp1);
+        strcpy(temp, stemp1);
     }
     else if(m_bOperate)
     {
         strsize = strlen(stemp2)+1;
         temp = new char[strsize];
-        strcpy_s(temp, strsize, stemp2);
+        strcpy(temp, stemp2);
     }
     else if(m_bTestIO)
     {
         strsize = strlen(stemp3)+1;
         temp = new char[strsize];
-        strcpy_s(temp, strsize, stemp3);
+        strcpy(temp, stemp3);
     }
     else
     {

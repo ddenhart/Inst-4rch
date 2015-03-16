@@ -34,22 +34,22 @@ ErrorTable::ErrorTable()
 
     strsize = strlen(temp1)+1;
     errorTable[0] = new char[strsize];
-    strcpy_s(errorTable[0], strsize, temp1);
+    strcpy(errorTable[0], temp1);
     strsize = strlen(temp2)+1;
     errorTable[1] = new char[strsize];
-    strcpy_s(errorTable[1], strsize, temp2);
+    strcpy(errorTable[1], temp2);
     strsize = strlen(temp3)+1;
     errorTable[2] = new char[strsize];
-    strcpy_s(errorTable[2], strsize, temp3);
+    strcpy(errorTable[2], temp3);
     strsize = strlen(temp4)+1;
     errorTable[3] = new char[strsize];
-    strcpy_s(errorTable[3], strsize, temp4);
+    strcpy(errorTable[3], temp4);
     strsize = strlen(temp5)+1;
     errorTable[4] = new char[strsize];
-    strcpy_s(errorTable[4], strsize, temp5);
+    strcpy(errorTable[4], temp5);
     strsize = strlen(temp6)+1;
     errorTable[5] = new char[strsize];
-    strcpy_s(errorTable[5], strsize, temp6);
+    strcpy(errorTable[5], temp6);
 
     const char* file0 = "main";
     const char* file1 = "common";
@@ -60,22 +60,22 @@ ErrorTable::ErrorTable()
 
     strsize = strlen(file0)+1;
     fileTable[0] = new char[strsize];
-    strcpy_s(fileTable[0], strsize, file0);
+    strcpy(fileTable[0], file0);
     strsize = strlen(file1)+1;
     fileTable[1] = new char[strsize];
-    strcpy_s(fileTable[1], strsize, file1);
+    strcpy(fileTable[1], file1);
     strsize = strlen(file2)+1;
     fileTable[2] = new char[strsize];
-    strcpy_s(fileTable[2], strsize, file2);
+    strcpy(fileTable[2], file2);
     strsize = strlen(file3)+1;
     fileTable[3] = new char[strsize];
-    strcpy_s(fileTable[3], strsize, file3);
+    strcpy(fileTable[3], file3);
     strsize = strlen(file4)+1;
     fileTable[4] = new char[strsize];
-    strcpy_s(fileTable[4], strsize, file4);
+    strcpy(fileTable[4], file4);
     strsize = strlen(file5)+1;
     fileTable[5] = new char[strsize];
-    strcpy_s(fileTable[5], strsize, file5);
+    strcpy(fileTable[5], file5);
 }
 
 

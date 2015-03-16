@@ -39,8 +39,8 @@ class memarray
 private:
     struct memReg
     {
-        unsigned short value = 0;
-        bool access = 0;
+        unsigned short value;
+        bool access;
     };
 
     memReg mem[MSIZE];

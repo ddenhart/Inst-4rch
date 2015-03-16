@@ -17,7 +17,7 @@ Description:	 This file contains the main
 class ErrorTable Error;
 
 
-short main(short argc, char **argv)
+int main(int argc, char **argv)
 {
     const char* memdump = "pdp8log.txt\0";
     //bool silent = false; //pass to error class
@@ -63,7 +63,7 @@ short main(short argc, char **argv)
             {
                 strsize = strlen(argv[i])+1;
                 infile = new char[strsize];
-                strcpy_s(infile, strsize, argv[i]);
+                strcpy(infile, argv[i]);
             }
         }
         else if(!strcmp(argv[i], "-v"))
@@ -103,7 +103,7 @@ short main(short argc, char **argv)
         }
         strsize = strlen(memdump)+1;
         outfile = new char[strsize];
-        strcpy_s(outfile, strsize, memdump);
+        strcpy(outfile, memdump);
     }
     else
     {
@@ -126,7 +126,7 @@ short main(short argc, char **argv)
         outfile = NULL;
     }
 
-    std::system("pause");
+    std::system( "read -n 1 -s -p \"Press any key to continue...\"" );
 
     return 0;
 }
