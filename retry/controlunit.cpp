@@ -76,7 +76,7 @@ unsigned short ControlUnit::hexAddressHandle(char* addy)
     }
 
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: convert hex input string to octal: %o\n", reg);
+    //fprintf(stdout, "DEBUG: convert hex input %s string to octal: %o\n", addy, reg);
 #endif
 
     return reg;
@@ -101,6 +101,7 @@ void ControlUnit::modeHex(char* filename)
     else
     {
         fprintf(stderr, "Error: can't open %s\n", filename);
+        fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
     }
     
@@ -117,7 +118,7 @@ void ControlUnit::modeHex(char* filename)
                 rpc = getPC();
 
 #ifdef DEBUG_CONTROL
-                    fprintf(stdout, "DEBUG: read hex in data: addy: %o  data: %o\n", rpc, reg);
+                    fprintf(stdout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
 #endif
                 m_mem->store(rpc, reg);
                 incrementPC();
@@ -130,7 +131,7 @@ void ControlUnit::modeHex(char* filename)
                     memmove(line, line+1, strlen(line)); //remove @
                     reg = hexAddressHandle(line);
 #ifdef DEBUG_CONTROL
-                    fprintf(stdout, "DEBUG: read hex in address: %o\n", reg);
+                    fprintf(stdout, "DEBUG: read hex address: %o\n", reg);
 #endif
                     if(bFirstLine)
                     {
@@ -157,7 +158,7 @@ void ControlUnit::modeHex(char* filename)
                 rpc = getPC();
 
 #ifdef DEBUG_CONTROL
-                fprintf(stdout, "DEBUG: read hex in data: addy: %o  data: %o\n", rpc, reg);
+                fprintf(stdout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
 #endif
                 m_mem->store(rpc, reg);
                 incrementPC();
@@ -175,6 +176,7 @@ void ControlUnit::modeHex(char* filename)
     else
     {
         fprintf(stderr, "Error: can't open %s\n", filename);
+        fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
     }
 }
@@ -201,6 +203,7 @@ void ControlUnit::modeBin(char* filename)
     else
     {
         fprintf(stderr, "Error: can't open %s\n", filename);
+        fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
     }
 
@@ -264,7 +267,7 @@ void ControlUnit::modeBin(char* filename)
 
             if(addyfound) //its an address
             {
-                buff = m_mem->checkValidAddy(buff);
+                m_mem->checkValidAddy(buff);
                 if(bFirstLine)
                 {
                     m_StartAddress = buff;
@@ -273,7 +276,7 @@ void ControlUnit::modeBin(char* filename)
                 bFirstLine = false;
                 setPC(buff);
 #ifdef DEBUG_CONTROL
-                fprintf(stdout, "DEBUG: read binary in data: addy: %o  data: %o\n", rpc, buff);
+                fprintf(stdout, "DEBUG: read binary addy: %o  data: %o\n", rpc, buff);
 #endif
             }
             else //its data
@@ -282,7 +285,7 @@ void ControlUnit::modeBin(char* filename)
                 m_mem->store(rpc, buff);
                 incrementPC();
 #ifdef DEBUG_CONTROL
-                fprintf(stdout, "DEBUG: read in binary address: %o\n", buff);
+                fprintf(stdout, "DEBUG: read binary address: %o\n", buff);
 #endif
             }
 
@@ -292,6 +295,7 @@ void ControlUnit::modeBin(char* filename)
     else
     {
         fprintf(stderr, "Error: can't open %s\n", filename);
+        fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
     }
 }
@@ -371,7 +375,7 @@ void ControlUnit::modeOct(char* filename)
 
                 if(bAddy) //it's an address
                 {
-                    buff = m_mem->checkValidAddy(buff);  //check for valid address
+                    m_mem->checkValidAddy(buff);  //check for valid address
                     if(bFirstLine)
                     {
                         m_StartAddress = buff;
@@ -380,7 +384,7 @@ void ControlUnit::modeOct(char* filename)
                     bFirstLine = false;
                     setPC(buff);
 #ifdef DEBUG_CONTROL
-                    fprintf(stdout, "DEBUG: read in octal address: %o\n", buff);
+                    fprintf(stdout, "DEBUG: read octal address: %o\n", buff);
 #endif
                 }
                 else //it's data
@@ -389,7 +393,7 @@ void ControlUnit::modeOct(char* filename)
                     m_mem->store(rpc, buff);
                     incrementPC();
 #ifdef DEBUG_CONTROL
-                    fprintf(stdout, "DEBUG: read octal in data: addy: %o  data: %o\n", rpc, buff);
+                    fprintf(stdout, "DEBUG: read octal addy: %o  data: %o\n", rpc, buff);
 #endif
                 }
                     pair = 0;
@@ -403,6 +407,7 @@ void ControlUnit::modeOct(char* filename)
     else
     {
         fprintf(stderr, "Error: can't open %s\n", filename);
+        fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
     }
 }
@@ -417,7 +422,7 @@ unsigned short ControlUnit::readData(unsigned short address)
     unsigned short temp = m_mem->readMB();
 
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: reading instruction from memory: address: %o data: %o\n", address, temp);
+    fprintf(stdout, "DEBUG: loading address: %o data: %o\n", address, temp);
 #endif
 
     return temp;
@@ -436,7 +441,7 @@ void ControlUnit::instructionFetch()
     m_mem->fetch(rPC);
     m_format.loadInstruction(reg);
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: fetched: data: %o\n", reg);
+    fprintf(stdout, "DEBUG: fetched data: %o\n", reg);
 #endif
 }
 
@@ -460,23 +465,21 @@ void ControlUnit::instructionDecode()
 
     if(m_format.isInstMRI())
     {
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG: MRI decode address: %o, data: %o\n", addy, data);
+#endif
         addy = m_eAddy.geteffAddress(currInst, rPC); //get the address
         instructionDefer();
         data = readData(addy);
         executeMRI(addy, data);
-
-#ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG: mri decode: address: %o, data: %o\n", addy, data);
-#endif
     }
     else if(m_format.isInstOperate())
     {
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG: micro decode opcode: %o\n", currInst);
+#endif
         //micro setup
         executeMicro(currInst);
-
-#ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG: micro decode: opcode: %o\n", currInst);
-#endif
     }
     else if(m_format.isInstTestIO())
     {
@@ -505,10 +508,10 @@ void ControlUnit::instructionDefer()
     {
         ops = m_format.getOpcode();
         //up cycle count
-        m_format.incrementCyclesDefer(ops);
 #ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG: defer: opcode %o\n", ops);
+        fprintf(stdout, "DEBUG: defer: opcode %s\n", m_format.getInstructionName(ops));
 #endif
+        m_format.incrementCyclesDefer(ops);
     }
 }
 
@@ -527,7 +530,7 @@ unsigned short ControlUnit::getPC()
 //================================================================================== 
 void ControlUnit::setPC(unsigned short addy)
 {
-    addy = m_mem->checkValidAddy(addy);
+    m_mem->checkValidAddy(addy);
     rPC = addy;
 }
 
@@ -540,9 +543,9 @@ void ControlUnit::executeMRI(unsigned short addy, unsigned short data)
     unsigned short temp = 0;
     unsigned short opcode = m_format.getOpcode();
     bool skipIncrement = false;
-
+    
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: executing mri: opcode %o\n", opcode);
+    fprintf(stdout, "DEBUG: executing %s\n",  m_format.getInstructionName(opcode));
 #endif
 
     if(OPCODE_AND == opcode)
@@ -572,12 +575,12 @@ void ControlUnit::executeMRI(unsigned short addy, unsigned short data)
     {
         m_mem->store(addy, rPC); //store the pc in the current address
         addy += 1; //increment the address
-        addy = m_mem->checkValidAddy(addy);
+        m_mem->checkValidAddy(addy);
         setPC(addy); //set pc to the new addy
     }
     else if(OPCODE_JMP == opcode)
     {
-        addy = m_mem->checkValidAddy(addy);
+        m_mem->checkValidAddy(addy);
         setPC(addy); // set pc to the new addy
         skipIncrement = true;
     }
@@ -617,7 +620,7 @@ void ControlUnit::executeMicro(unsigned short inst)
     unsigned short bit11 = inst & BIT11_MASK;
 
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: executing micro: instruction: %o\n", inst);
+    fprintf(stdout, "DEBUG: executing micro instruction: %o\n", inst);
 #endif
 
     if(bit3 == 0)  //Group 1
@@ -751,7 +754,8 @@ void ControlUnit::loadFile(char* filename, short mode)
     }
     else
     {
-        Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
+        fprintf(stderr, "Error: Unknown File Format...\n ");
+        fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
     }
 
@@ -788,7 +792,7 @@ void ControlUnit::printMemoryHistory()
 void ControlUnit::incrementPC()
 {
     ++rPC;
-    rPC = m_mem->checkValidAddy(rPC);
+    m_mem->checkValidAddy(rPC);
 }
 
 
@@ -881,9 +885,6 @@ void InstFormat::setIR(unsigned short inst)
 {
     rIR = inst & IR_MASK;
     rIR = rIR >> 9;
-#ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: set IR: %o\n", rIR);
-#endif
 }
 
 
@@ -941,6 +942,15 @@ void InstFormat::loadInstruction(unsigned short inst)
 #ifdef DEBUG_CONTROL
     fprintf(stdout, "DEBUG: format loading instruction: %o\n", inst);
 #endif
+}
+
+
+//================================================================================== 
+//Description:returns the type of instruction in a string 
+//================================================================================== 
+char* InstFormat::getInstructionName(unsigned short opcode)
+{
+    return m_opTable->getMnemonic(opcode);
 }
 
 
@@ -1106,10 +1116,6 @@ void EffectiveAddress::setmem(memarray* mem)
 void EffectiveAddress::setPCOffset(unsigned short rpc)
 {
     m_rCurrPage = rpc & OFFSET_PC_MASK;
-
-#ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: effAddy: pc offset: %o\n", m_rCurrPage);
-#endif
 }
 
 
@@ -1125,7 +1131,7 @@ unsigned short EffectiveAddress::effAdzeroPage()
     temp = temp | m_rOffset;
 
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: effAddy: zero page: %o\n", temp);
+    fprintf(stdout, "DEBUG: zero page: %o\n", temp);
 #endif
 
     return temp;
@@ -1143,7 +1149,7 @@ unsigned short EffectiveAddress::effAdcurrentPage()
     temp = m_rCurrPage | m_rOffset;
 
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: effAddy: current page: %o\n", temp);
+    fprintf(stdout, "DEBUG: current page: %o\n", temp);
 #endif
 
     return temp;
@@ -1167,7 +1173,7 @@ unsigned short EffectiveAddress::effAdindirectAddressZero()
         temp += 1;
 
 #ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG: effAddy: auto incremented: %o\n", temp);
+        fprintf(stdout, "DEBUG: auto incremented: %o\n", temp);
 #endif
     }
 
@@ -1204,18 +1210,10 @@ void EffectiveAddress::loadOffset(unsigned short reg)
 {
     m_rOffset = 0;
 
-    if(m_pmem)
-    {
-        m_rOffset = reg & OFFSET_MASK;
-
+    m_rOffset = reg & OFFSET_MASK;
 #ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG: effAddy: offset: %o\n", m_rOffset);
+    fprintf(stdout, "DEBUG: offset: %o\n", m_rOffset);
 #endif
-    }
-    else
-    {
-        Error.printError(ERROR_NULL, FILE_CONTROL);
-    }
 }
 
 
@@ -1261,7 +1259,8 @@ unsigned short EffectiveAddress::geteffAddress(unsigned short reg, unsigned shor
     }
 
 #ifdef DEBUG_CONTROL
-    fprintf(stdout, "DEBUG: effAddy: indirect: %o \n", m_indirect);
+    fprintf(stdout, "DEBUG: offset: %o, PC offset: %o, Indirect: %o \n", 
+            m_rOffset, m_rCurrPage, m_indirect);
 #endif
 
     //zero page offset

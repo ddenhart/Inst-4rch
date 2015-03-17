@@ -54,6 +54,7 @@ public:
     //unsigned short getIOfcn(); //TestIO format, 3 bit fcn
     unsigned short getOpcode();
     unsigned short getInstruction();
+    char* getInstructionName(unsigned short opcode);
     void incrementCycles(unsigned short  ops);
     void incrementCyclesDefer(unsigned short  ops);
     void incrementInstUsage(unsigned short opcode);

@@ -81,8 +81,8 @@ memarray::~memarray()
 //================================================================================== 
 void memarray::writeline()
 {
-    rMA = checkValidAddy(rMA);
-    rMB = checkValidAddy(rMB);
+    checkValidAddy(rMA);
+    checkValidAddy(rMB);
     mem[rMA].value = rMB; //write the memarray line
     mem[rMA].access = true; //change the access flag to true
 }
@@ -93,13 +93,15 @@ void memarray::writeline()
 //================================================================================== 
 void memarray::readline()
 {
-    rMA = checkValidAddy(rMA);
+    checkValidAddy(rMA);
     if(mem[rMA].access)
     {
         rMB = mem[rMA].value; //read the memarray line
     }
     else
     {
+        fprintf(stderr, "Error: Invalid Memory Access...\n ");
+        fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
     }
     
@@ -147,8 +149,11 @@ void memarray::store(unsigned short address, unsigned short value)
 {
     short type = MWRITE;
 
-    address = checkValidAddy(address); //check for valid address
-    value = checkValidAddy(value);
+#ifdef DEBUG_MEM
+    fprintf(stdout, "DEBUG: writing at address %o value %o\n", address, value);
+#endif
+    checkValidAddy(address); //check for valid address
+    checkValidAddy(value);
     rMA = address; //set the address in the MA
     rMB = value; //set the data in the MB
     writeline(); //initiate the write
@@ -163,7 +168,10 @@ void memarray::load(unsigned short address)
 {
     short type = MREAD;
 
-    address = checkValidAddy(address);  //check for valid address
+#ifdef DEBUG_MEM
+    fprintf(stdout, "DEBUG: reading address %o\n", address);
+#endif
+    checkValidAddy(address);  //check for valid address
     rMA = address; //write the address to the MA
     readline(); //initiate the memarray read
     logtrace(address, type); //log the memarray access
@@ -177,7 +185,10 @@ void memarray::fetch(unsigned short address)
 {
     short type = MFETCH;
 
-    address = checkValidAddy(address); //check for valid address
+#ifdef DEBUG_MEM
+    fprintf(stdout, "DEBUG: fetching address %o\n", address);
+#endif
+    checkValidAddy(address); //check for valid address
     logtrace(address, type); //log the memarray access
 }
 
@@ -188,7 +199,7 @@ void memarray::fetch(unsigned short address)
 bool memarray::getAccess(unsigned short addy)
 {
     bool bRes = 0;
-    addy = checkValidAddy(addy);  //check for valid address
+    checkValidAddy(addy);  //check for valid address
     bRes = mem[addy].access; //copy the flag
 
     return bRes;
@@ -198,26 +209,14 @@ bool memarray::getAccess(unsigned short addy)
 //================================================================================== 
 //Description: checks if an address is within bounds of the memarray array
 //================================================================================== 
-unsigned short memarray::checkValidAddy(unsigned short addy)
+void memarray::checkValidAddy(unsigned short addy)
 {
-    unsigned short temp = 0;
-
-    if(MAX_OCT_ADDRESS > addy)
+    if(MAX_OCT_ADDRESS < addy)
     {
-        temp = addy;
-    }
-    else
-    {
-        temp = MAX_OCT_ADDRESS - addy;
-        //temp = REG_12BIT_MASK & addy;
-#ifdef DEBUG_MEM
-        fprintf(stdout, "DEBUG: checking memory address from %o to %o\n", addy, temp);
-#endif
-        fprintf(stderr, "ERROR: invalid address: %o\n", addy);
+        fprintf(stderr, "ERROR: Invalid Address: %o\n", addy);
+        fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
     }
-
-    return temp;
 }
 
 
@@ -226,7 +225,7 @@ unsigned short memarray::checkValidAddy(unsigned short addy)
 //================================================================================== 
 void memarray::setAccess(unsigned short addy)
 {
-    addy = checkValidAddy(addy);
+    checkValidAddy(addy);
     mem[addy].access = true;
 }
 
@@ -236,7 +235,7 @@ void memarray::setAccess(unsigned short addy)
 //================================================================================== 
 void memarray::logtrace(unsigned short address, short type)
 {
-    address = checkValidAddy(address);
+    checkValidAddy(address);
     if(tracefile)
     {
         //write the type and address to the file

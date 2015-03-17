@@ -102,6 +102,8 @@ int main(int argc, char **argv)
             //error output: -o and -v can't both be set
             bAbort = true;
             fprintf(stdout, "Error: input can't have both --o and --v flags set\n");
+            fprintf(stderr, "Shutting down...\n ");
+            pauseandexit();
         }
         strsize = strlen(memdump)+1;
         outfile = new char[strsize];
@@ -128,7 +130,7 @@ int main(int argc, char **argv)
         outfile = NULL;
     }
 
-    //std::system( "read -n 1 -s -p \"Press any key to continue...\"" );
+    fprintf(stderr, "Halt...\n ");
     pauseandexit();
 
     return 0;
@@ -137,8 +139,7 @@ int main(int argc, char **argv)
 
 void pauseandexit()
 {
-    fprintf(stderr, "Shutting down...\n ");
-    //std::system("read -n 1 -s -p \"Press any key to continue...\"");
+    //fprintf(stderr, "Shutting down...\n ");
     std::cin.sync(); // Flush The Input Buffer Just In Case
     std::cin.ignore(); // There's No Need To Actually Store The Users Input
     exit(EXIT_FAILURE);

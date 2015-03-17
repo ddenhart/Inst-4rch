@@ -66,7 +66,7 @@ public:
     void load(unsigned short addy);
     void fetch(unsigned short addy);
     bool getAccess(unsigned short addy);
-    unsigned short checkValidAddy(unsigned short addy);
+    void checkValidAddy(unsigned short addy);
     void setAccess(unsigned short addy);
     void writeMemoryAccesses();
     unsigned short readMB();
