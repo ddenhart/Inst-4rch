@@ -98,12 +98,12 @@ void memarray::readline()
     {
         rMB = mem[rMA].value; //read the memarray line
     }
-    else
+    /*else
     {
         fprintf(stderr, "Error: Invalid Memory Access...\n ");
         fprintf(stderr, "Shutting down...\n ");
         pauseandexit();
-    }
+    }*/
     
 }
 

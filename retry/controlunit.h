@@ -22,7 +22,7 @@ class alu;
 
 //Defines
 //================================================================================== 
-#define DEBUG_CONTROL 
+//#define DEBUG_CONTROL 
 
 
 //Class InstFormat

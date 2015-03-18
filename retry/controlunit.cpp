@@ -188,6 +188,7 @@ void ControlUnit::modeHex(char* filename)
 void ControlUnit::modeBin(char* filename)
 {
     bool bFirstLine = true;
+    bool bufferfound = false;
     unsigned short addyfound = 0;
     unsigned short buff = 0;
     unsigned short rpc = 0;
@@ -227,13 +228,14 @@ void ControlUnit::modeBin(char* filename)
             {
                 //skip this character.. it's a buffer
             }
-            else if(buffer[i] == '\a')
+            else if((buffer[i] == 128) && (bufferfound))
             {
                 break; //stop at the bell
             }
             else
             {
                 sBuff.push_back(buffer[i]);
+                bufferfound = true;
             }
         }
 
@@ -254,7 +256,8 @@ void ControlUnit::modeBin(char* filename)
                     {
 #ifdef DEBUG_CONTROL
                         fprintf(stdout, "DEBUG: invalid binary format: %o\n", buff);
-#endif
+#endif                  
+                        --it;
                         break;
                     }
                 }

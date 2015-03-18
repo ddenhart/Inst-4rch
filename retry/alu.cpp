@@ -238,17 +238,20 @@ void alu::rotateRight()
 {
     unsigned short temp = 0;
     unsigned short carry = 0;
+    unsigned short rlb = 0;
 
     temp = rAC;
-    carry = rAC & BIT11_MASK;
-    carry = carry << REG_12BIT;
+    rlb = rLB;
+    rlb = rLB << REG_12BIT;
+    carry = rAC & BIT0_MASK;
+    rLB = carry >> REG_12BIT;
     rAC = rAC >> 1;
+    rAC += rlb;
     rAC &= REG_12BIT_MASK;
-    rAC += carry;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG: rotate right from %o to %o with a carry %o\n",
-            temp, rAC, carry);
+    fprintf(stdout, "DEBUG: rotate right from %o to %o %o\n",
+            temp, rLB, rAC);
 #endif
 }
 
@@ -262,10 +265,12 @@ void alu::rotateLeft()
     unsigned short carry = 0;
 
     temp = rAC;
-    carry = rAC >> REG_12BIT;  
+    carry = rLB;
+    rLB = rAC & BIT0_MASK;
+    rLB = rLB >> REG_12BIT;
     rAC = rAC << 1;
-    rAC &= REG_12BIT_MASK;
     rAC += carry;
+    rAC &= REG_12BIT_MASK;
 
 #ifdef DEBUG_ALU
     fprintf(stdout, "DEBUG: rotate left from %o to %o with a carry %o\n", 
