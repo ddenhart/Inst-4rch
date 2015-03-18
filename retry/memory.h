@@ -19,7 +19,7 @@ class fstream;
 
 //Defines
 //================================================================================== 
-#define DEBUG_MEM
+//#define DEBUG_MEM
 #define MREAD 0
 #define MWRITE 1
 #define MFETCH 2
