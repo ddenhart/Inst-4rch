@@ -466,6 +466,7 @@ void ControlUnit::instructionDecode()
     m_format.incrementCycles(ops);
     currInst = m_format.getInstruction();
 
+
     if(m_format.isInstMRI())
     {
 #ifdef DEBUG_CONTROL
@@ -474,6 +475,7 @@ void ControlUnit::instructionDecode()
         addy = m_eAddy.geteffAddress(currInst, rPC); //get the address
         instructionDefer();
         data = readData(addy);
+	fprintf(stdout, "PC: %o, AC: %o, Instruction: %s address: %o data: %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), addy, data);
         executeMRI(addy, data);
     }
     else if(m_format.isInstOperate())
@@ -482,14 +484,14 @@ void ControlUnit::instructionDecode()
         fprintf(stdout, "DEBUG: micro decode opcode: %o\n", currInst);
 #endif
         //micro setup
-        executeMicro(currInst);
+		executeMicro(currInst);
+		fprintf(stdout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
     }
     else if(m_format.isInstTestIO())
     {
         //IO setup
-#ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG: IO decode: nops\n");
-#endif
+		fprintf(stdout, "DEBUG: IO decode: nops\n");
+		fprintf(stdout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
         incrementPC();
     }
     else
@@ -562,6 +564,8 @@ void ControlUnit::executeMRI(unsigned short addy, unsigned short data)
     else if(OPCODE_ISZ == opcode)
     {
         temp = data + 1; //increment the data
+		temp &= REG_12BIT_MASK;
+
         m_mem->store(addy, temp); //store back in memory
         if(temp == 0)
         {
@@ -672,7 +676,7 @@ void ControlUnit::executeMicro(unsigned short inst)
                 }
                 if(bit6 == 1)
                 {
-                    if(m_alu->isZero())
+                    if(!(m_alu->isZero()))
                         incrementPC();
                 }
                 if(bit7 == 1)
