@@ -1,136 +1,299 @@
-DEBUG: convert hex input string to octal: 200
-DEBUG: read hex in address: 200
-DEBUG: convert hex input string to octal: 1100
-DEBUG: read hex in data: addy: 200  data: 1100
-DEBUG: convert hex input string to octal: 101
-DEBUG: read hex in data: addy: 201  data: 101
-DEBUG: convert hex input string to octal: 2102
-DEBUG: read hex in data: addy: 202  data: 2102
-DEBUG: convert hex input string to octal: 7001
+ string to octal: 7001
 DEBUG: read hex in data: addy: 203  data: 7001
-DEBUG: convert hex input string to octal: 2102
+DEBUG: writing at address 203 value 7001
+DEBUG: convert hex input 442
+ string to octal: 2102
 DEBUG: read hex in data: addy: 204  data: 2102
-DEBUG: convert hex input string to octal: 3102
+DEBUG: writing at address 204 value 2102
+DEBUG: convert hex input 642
+ string to octal: 3102
 DEBUG: read hex in data: addy: 205  data: 3102
-DEBUG: convert hex input string to octal: 5210
+DEBUG: writing at address 205 value 3102
+DEBUG: convert hex input a88
+ string to octal: 5210
 DEBUG: read hex in data: addy: 206  data: 5210
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 206 value 5210
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 207  data: 7001
-DEBUG: convert hex input string to octal: 1104
+DEBUG: writing at address 207 value 7001
+DEBUG: convert hex input 244
+ string to octal: 1104
 DEBUG: read hex in data: addy: 210  data: 1104
-DEBUG: convert hex input string to octal: 6044
+DEBUG: writing at address 210 value 1104
+DEBUG: convert hex input c24
+ string to octal: 6044
 DEBUG: read hex in data: addy: 211  data: 6044
-DEBUG: convert hex input string to octal: 7000
+DEBUG: writing at address 211 value 6044
+DEBUG: convert hex input e00
+ string to octal: 7000
 DEBUG: read hex in data: addy: 212  data: 7000
-DEBUG: convert hex input string to octal: 7200
+DEBUG: writing at address 212 value 7000
+DEBUG: convert hex input e80
+ string to octal: 7200
 DEBUG: read hex in data: addy: 213  data: 7200
-DEBUG: convert hex input string to octal: 7100
+DEBUG: writing at address 213 value 7200
+DEBUG: convert hex input e40
+ string to octal: 7100
 DEBUG: read hex in data: addy: 214  data: 7100
-DEBUG: convert hex input string to octal: 7020
+DEBUG: writing at address 214 value 7100
+DEBUG: convert hex input e10
+ string to octal: 7020
 DEBUG: read hex in data: addy: 215  data: 7020
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 215 value 7020
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 216  data: 7001
-DEBUG: convert hex input string to octal: 7004
+DEBUG: writing at address 216 value 7001
+DEBUG: convert hex input e04
+ string to octal: 7004
 DEBUG: read hex in data: addy: 217  data: 7004
-DEBUG: convert hex input string to octal: 7004
+DEBUG: writing at address 217 value 7004
+DEBUG: convert hex input e04
+ string to octal: 7004
 DEBUG: read hex in data: addy: 220  data: 7004
-DEBUG: convert hex input string to octal: 7006
+DEBUG: writing at address 220 value 7004
+DEBUG: convert hex input e06
+ string to octal: 7006
 DEBUG: read hex in data: addy: 221  data: 7006
-DEBUG: convert hex input string to octal: 7012
+DEBUG: writing at address 221 value 7006
+DEBUG: convert hex input e0a
+ string to octal: 7012
 DEBUG: read hex in data: addy: 222  data: 7012
-DEBUG: convert hex input string to octal: 7010
+DEBUG: writing at address 222 value 7012
+DEBUG: convert hex input e08
+ string to octal: 7010
 DEBUG: read hex in data: addy: 223  data: 7010
-DEBUG: convert hex input string to octal: 7040
+DEBUG: writing at address 223 value 7010
+DEBUG: convert hex input e20
+ string to octal: 7040
 DEBUG: read hex in data: addy: 224  data: 7040
-DEBUG: convert hex input string to octal: 101
+DEBUG: writing at address 224 value 7040
+DEBUG: convert hex input 041
+ string to octal: 101
 DEBUG: read hex in data: addy: 225  data: 101
-DEBUG: convert hex input string to octal: 7041
+DEBUG: writing at address 225 value 101
+DEBUG: convert hex input e21
+ string to octal: 7041
 DEBUG: read hex in data: addy: 226  data: 7041
-DEBUG: convert hex input string to octal: 7500
+DEBUG: writing at address 226 value 7041
+DEBUG: convert hex input f40
+ string to octal: 7500
 DEBUG: read hex in data: addy: 227  data: 7500
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 227 value 7500
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 230  data: 7001
-DEBUG: convert hex input string to octal: 7041
+DEBUG: writing at address 230 value 7001
+DEBUG: convert hex input e21
+ string to octal: 7041
 DEBUG: read hex in data: addy: 231  data: 7041
-DEBUG: convert hex input string to octal: 7120
+DEBUG: writing at address 231 value 7041
+DEBUG: convert hex input e50
+ string to octal: 7120
 DEBUG: read hex in data: addy: 232  data: 7120
-DEBUG: convert hex input string to octal: 7500
+DEBUG: writing at address 232 value 7120
+DEBUG: convert hex input f40
+ string to octal: 7500
 DEBUG: read hex in data: addy: 233  data: 7500
-DEBUG: convert hex input string to octal: 7004
+DEBUG: writing at address 233 value 7500
+DEBUG: convert hex input e04
+ string to octal: 7004
 DEBUG: read hex in data: addy: 234  data: 7004
-DEBUG: convert hex input string to octal: 7440
+DEBUG: writing at address 234 value 7004
+DEBUG: convert hex input f20
+ string to octal: 7440
 DEBUG: read hex in data: addy: 235  data: 7440
-DEBUG: convert hex input string to octal: 1102
+DEBUG: writing at address 235 value 7440
+DEBUG: convert hex input 242
+ string to octal: 1102
 DEBUG: read hex in data: addy: 236  data: 1102
-DEBUG: convert hex input string to octal: 3102
+DEBUG: writing at address 236 value 1102
+DEBUG: convert hex input 642
+ string to octal: 3102
 DEBUG: read hex in data: addy: 237  data: 3102
-DEBUG: convert hex input string to octal: 7440
+DEBUG: writing at address 237 value 3102
+DEBUG: convert hex input f20
+ string to octal: 7440
 DEBUG: read hex in data: addy: 240  data: 7440
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 240 value 7440
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 241  data: 7001
-DEBUG: convert hex input string to octal: 7100
+DEBUG: writing at address 241 value 7001
+DEBUG: convert hex input e40
+ string to octal: 7100
 DEBUG: read hex in data: addy: 242  data: 7100
-DEBUG: convert hex input string to octal: 7020
+DEBUG: writing at address 242 value 7100
+DEBUG: convert hex input e10
+ string to octal: 7020
 DEBUG: read hex in data: addy: 243  data: 7020
-DEBUG: convert hex input string to octal: 7420
+DEBUG: writing at address 243 value 7020
+DEBUG: convert hex input f10
+ string to octal: 7420
 DEBUG: read hex in data: addy: 244  data: 7420
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 244 value 7420
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 245  data: 7001
-DEBUG: convert hex input string to octal: 7100
+DEBUG: writing at address 245 value 7001
+DEBUG: convert hex input e40
+ string to octal: 7100
 DEBUG: read hex in data: addy: 246  data: 7100
-DEBUG: convert hex input string to octal: 7040
+DEBUG: writing at address 246 value 7100
+DEBUG: convert hex input e20
+ string to octal: 7040
 DEBUG: read hex in data: addy: 247  data: 7040
-DEBUG: convert hex input string to octal: 7420
+DEBUG: writing at address 247 value 7040
+DEBUG: convert hex input f10
+ string to octal: 7420
 DEBUG: read hex in data: addy: 250  data: 7420
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 250 value 7420
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 251  data: 7001
-DEBUG: convert hex input string to octal: 7510
+DEBUG: writing at address 251 value 7001
+DEBUG: convert hex input f48
+ string to octal: 7510
 DEBUG: read hex in data: addy: 252  data: 7510
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 252 value 7510
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 253  data: 7001
-DEBUG: convert hex input string to octal: 7430
+DEBUG: writing at address 253 value 7001
+DEBUG: convert hex input f18
+ string to octal: 7430
 DEBUG: read hex in data: addy: 254  data: 7430
-DEBUG: convert hex input string to octal: 1410
+DEBUG: writing at address 254 value 7430
+DEBUG: convert hex input 308
+ string to octal: 1410
 DEBUG: read hex in data: addy: 255  data: 1410
-DEBUG: convert hex input string to octal: 7450
+DEBUG: writing at address 255 value 1410
+DEBUG: convert hex input f28
+ string to octal: 7450
 DEBUG: read hex in data: addy: 256  data: 7450
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 256 value 7450
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 257  data: 7001
-DEBUG: convert hex input string to octal: 7430
+DEBUG: writing at address 257 value 7001
+DEBUG: convert hex input f18
+ string to octal: 7430
 DEBUG: read hex in data: addy: 260  data: 7430
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 260 value 7430
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 261  data: 7001
-DEBUG: convert hex input string to octal: 4505
+DEBUG: writing at address 261 value 7001
+DEBUG: convert hex input 945
+ string to octal: 4505
 DEBUG: read hex in data: addy: 262  data: 4505
-DEBUG: convert hex input string to octal: 7100
+DEBUG: writing at address 262 value 4505
+DEBUG: convert hex input e40
+ string to octal: 7100
 DEBUG: read hex in data: addy: 263  data: 7100
-DEBUG: convert hex input string to octal: 7430
+DEBUG: writing at address 263 value 7100
+DEBUG: convert hex input f18
+ string to octal: 7430
 DEBUG: read hex in data: addy: 264  data: 7430
-DEBUG: convert hex input string to octal: 7001
+DEBUG: writing at address 264 value 7430
+DEBUG: convert hex input e01
+ string to octal: 7001
 DEBUG: read hex in data: addy: 265  data: 7001
-DEBUG: convert hex input string to octal: 3410
+DEBUG: writing at address 265 value 7001
+DEBUG: convert hex input 708
+ string to octal: 3410
 DEBUG: read hex in data: addy: 266  data: 3410
-DEBUG: convert hex input string to octal: 7402
+DEBUG: writing at address 266 value 3410
+DEBUG: convert hex input f02
+ string to octal: 7402
 DEBUG: read hex in data: addy: 267  data: 7402
-DEBUG: convert hex input string to octal: 0
+DEBUG: writing at address 267 value 7402
+DEBUG: convert hex input 000
+ string to octal: 0
 DEBUG: read hex in data: addy: 270  data: 0
-DEBUG: convert hex input string to octal: 1101
+DEBUG: writing at address 270 value 0
+DEBUG: convert hex input 241
+ string to octal: 1101
 DEBUG: read hex in data: addy: 271  data: 1101
-DEBUG: convert hex input string to octal: 5670
+DEBUG: writing at address 271 value 1101
+DEBUG: convert hex input bb8
+ string to octal: 5670
 DEBUG: read hex in data: addy: 272  data: 5670
-DEBUG: convert hex input string to octal: 10
+DEBUG: writing at address 272 value 5670
+DEBUG: convert hex input 008
+ string to octal: 10
 DEBUG: read hex in address: 10
-DEBUG: convert hex input string to octal: 101
+DEBUG: convert hex input 041
+ string to octal: 101
 DEBUG: read hex in data: addy: 10  data: 101
-DEBUG: convert hex input string to octal: 100
+DEBUG: writing at address 10 value 101
+DEBUG: convert hex input 040
+ string to octal: 100
 DEBUG: read hex in address: 100
-DEBUG: convert hex input string to octal: 3
+DEBUG: convert hex input 003
+ string to octal: 3
 DEBUG: read hex in data: addy: 100  data: 3
-DEBUG: convert hex input string to octal: 6
+DEBUG: writing at address 100 value 3
+DEBUG: convert hex input 006
+ string to octal: 6
 DEBUG: read hex in data: addy: 101  data: 6
-DEBUG: convert hex input string to octal: 7777
+DEBUG: writing at address 101 value 6
+DEBUG: convert hex input fff
+ string to octal: 7777
 DEBUG: read hex in data: addy: 102  data: 7777
-DEBUG: checking memory address from 7777 to 0
-ERROR: invalid address: 7777
+DEBUG: writing at address 102 value 7777
+DEBUG: convert hex input 000
+ string to octal: 0
+DEBUG: read hex in data: addy: 103  data: 0
+DEBUG: writing at address 103 value 0
+DEBUG: convert hex input 048
+ string to octal: 110
+DEBUG: read hex in data: addy: 104  data: 110
+DEBUG: writing at address 104 value 110
+DEBUG: convert hex input 00b8╠╠╠╠╠╠╠╠D string to octal: 13
+DEBUG: read hex in data: addy: 105  data: 13
+DEBUG: writing at address 105 value 13
+DEBUG: reading address 200
+DEBUG: fetching address 200
+DEBUG: set IR: 1
+DEBUG: format loading instruction: 1100
+DEBUG: fetched: data: 1100
+DEBUG: effAddy: offset: 100
+DEBUG: effAddy: pc offset: 200
+DEBUG: effAddy: indirect: 0
+DEBUG: effAddy: zero page: 100
+DEBUG: reading address 100
+DEBUG: loading instruction from memory: address: 100 data: 3
+DEBUG: executing mri: opcode 1
+DEBUG: sum alu rAC 3 = 3 + 0, rLB = 0
+DEBUG: mri decode: address: 100, data: 3
+DEBUG: reading address 201
+DEBUG: fetching address 201
+DEBUG: set IR: 0
+DEBUG: format loading instruction: 101
+DEBUG: fetched: data: 101
+DEBUG: effAddy: offset: 101
+DEBUG: effAddy: pc offset: 200
+DEBUG: effAddy: indirect: 0
+DEBUG: effAddy: zero page: 101
+DEBUG: reading address 101
+DEBUG: loading instruction from memory: address: 101 data: 6
+DEBUG: executing mri: opcode 0
+DEBUG: and AC from 3 to 2
+DEBUG: mri decode: address: 101, data: 6
+DEBUG: reading address 202
+DEBUG: fetching address 202
+DEBUG: set IR: 2
+DEBUG: format loading instruction: 2102
+DEBUG: fetched: data: 2102
+DEBUG: effAddy: offset: 102
+DEBUG: effAddy: pc offset: 200
+DEBUG: effAddy: indirect: 0
+DEBUG: effAddy: zero page: 102
+DEBUG: reading address 102
+DEBUG: loading instruction from memory: address: 102 data: 7777
+DEBUG: executing mri: opcode 2
+DEBUG: writing at address 102 value 10000
+ERROR: Invalid Address: 10000
 Shutting down...
- Press any key to continue . . .

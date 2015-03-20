@@ -27,7 +27,9 @@ memarray::memarray()
     int strsize = strlen(defaultfile) + 1;
     traceFileName = new char[strsize];
     strcpy(traceFileName, defaultfile);
-    tracefile = fopen(traceFileName, "a");
+    tracefile = fopen(traceFileName, "w+");
+    char filename[] = "pdp8_Memory_Accesses.txt";
+    memfile = fopen(filename, "w+");
 
     for(short i = 0; i < MSIZE; ++i)
     {
@@ -68,6 +70,12 @@ memarray::~memarray()
     }
 
 
+    if(memfile)
+    {
+        fclose(memfile);
+        memfile = NULL;
+    }
+
     if(traceFileName)
     {
         delete[] traceFileName;
@@ -94,11 +102,11 @@ void memarray::writeline()
 void memarray::readline()
 {
     checkValidAddy(rMA);
-    if(mem[rMA].access)
-    {
+    //if(mem[rMA].access)
+    //{
         rMB = mem[rMA].value; //read the memarray line
-    }
-    /*else
+    /*}
+    else
     {
         fprintf(stderr, "Error: Invalid Memory Access...\n ");
         fprintf(stderr, "Shutting down...\n ");
@@ -113,15 +121,11 @@ void memarray::readline()
 //================================================================================== 
 void memarray::writeMemoryAccesses()
 {
-    char filename[] = "pdp8_Memory_Accesses.txt";
-
-    memfile = fopen(filename, "a");
 
     if(memfile)
     {
         fprintf(memfile, "%s\n", PRINT_BREAK);
         fprintf(memfile, "PDP-8 Memory\n"); //print a header
-        fprintf(memfile, "%s\n", PRINT_BREAK);
         fprintf(memfile, "Address  Data\n");
         fprintf(memfile, "%s\n", PRINT_BREAK);
 
@@ -132,8 +136,6 @@ void memarray::writeMemoryAccesses()
                 fprintf(memfile, "%o      %o\n", i, mem[i].value);  //print the address and value
             }
         }
-
-        fclose(memfile);
     }
     else
     {
@@ -239,7 +241,7 @@ void memarray::logtrace(unsigned short address, short type)
     if(tracefile)
     {
         //write the type and address to the file
-        fprintf(tracefile, "%d   %o\n", type, address); 
+        fprintf(tracefile, "%d   %o  %o\n", type, address, mem[address].value); 
     }
     else
     {

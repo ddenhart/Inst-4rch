@@ -17,6 +17,7 @@ Description:	 This file contains the classes ErrorTable and RegTable
 #define INPUT_BINARY 0
 #define INPUT_OCTAL 1
 #define INPUT_HEX 2
+#define REG_13BIT 13
 #define REG_12BIT 12
 #define REG_8BIT 8
 #define MAX_OCT_ADDRESS 07777
@@ -44,6 +45,7 @@ Description:	 This file contains the classes ErrorTable and RegTable
 #define INST_FORM_MRI "Memory Reference\0"
 #define INST_FORM_OP "Micro Instruction\0"
 #define INST_FORM_IO "Test I/O\0"
+#define BIT_OVERFLOW_MASK 4096
 #define BIT0_MASK 2048
 #define BIT1_MASK 1024
 #define BIT2_MASK 512

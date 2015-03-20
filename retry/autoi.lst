@@ -1,0 +1,22 @@
+   1            / Program : autoi.as
+   2            / Desc : tests auto indexing
+   3            /-------------------------------------------
+   4            *0200        
+   5 00200 7200 Main, CLA
+   6 00201 1300 TAD CONST
+   7 00202 3301 DCA COUNT
+   8 00203 1302 TAD TTABLE
+   9 00204 3410 DCA I INDEX
+  10 00205 2301 ISZ COUNT
+  11 00206 5204 JMP .-2
+  12 00207 7402 HLT          / Halt program
+  13            
+  14            *10     
+  15 00010 0000 INDEX, 0
+  16            *300
+  17 00300 7000 CONST, 7000
+  18 00301 0000 COUNT, 0
+  19 00302 7777 TTABLE, 7777
+  20            *2000
+  21 02000 0000 TABLE, 0
+  22            $Main           / End of Program; Main is entry point

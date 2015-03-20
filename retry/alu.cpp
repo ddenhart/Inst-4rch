@@ -74,8 +74,9 @@ bool alu::getLB()
 //================================================================================== 
 //Description: sets the rLB to a value
 //================================================================================== 
-void alu::setLB(bool rlb)
+void alu::setLB(unsigned short rlb)
 {
+    rLB = rlb &= BIT0_MASK;
     rLB = rlb;
 }
 
@@ -148,9 +149,20 @@ bool alu::isZero()
 //================================================================================== 
 void alu::complementLC()
 {
-    bool temp = rLB;
+    unsigned short temp = rLB;
 
-    rLB = !rLB;
+    if(temp == 1)
+    {
+        rLB = 0;
+    }
+    else if(temp == 0)
+    {
+        rLB = 1;
+    }
+    else
+    {
+        Error.printError(ERROR_UNEXPECTED_VALUE, FILE_ALU);
+    }
 
 #ifdef DEBUG_ALU
     fprintf(stdout, "DEBUG: complemented rLB from %o to %o\n", temp, rLB);
@@ -241,17 +253,17 @@ void alu::rotateRight()
     unsigned short rlb = 0;
 
     temp = rAC;
-    rlb = rLB;
-    rlb = rLB << REG_12BIT;
-    carry = rAC & BIT0_MASK;
-    rLB = carry >> REG_12BIT;
+    carry = rLB;
+    rlb = carry << REG_12BIT;
+    rLB = rAC & BIT11_MASK;
+    //rLB = carry >> REG_12BIT;
     rAC = rAC >> 1;
     rAC += rlb;
     rAC &= REG_12BIT_MASK;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG: rotate right from %o to %o %o\n",
-            temp, rLB, rAC);
+    fprintf(stdout, "DEBUG: rotate right from %o %o to %o %o\n",
+            carry, temp, rLB, rAC);
 #endif
 }
 
@@ -266,15 +278,15 @@ void alu::rotateLeft()
 
     temp = rAC;
     carry = rLB;
-    rLB = rAC & BIT0_MASK;
-    rLB = rLB >> REG_12BIT;
     rAC = rAC << 1;
     rAC += carry;
+    rLB = rAC & BIT_OVERFLOW_MASK;
+    rLB = rLB >> REG_12BIT;
     rAC &= REG_12BIT_MASK;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG: rotate left from %o to %o with a carry %o\n", 
-            temp, rAC, carry);
+    fprintf(stdout, "DEBUG: rotate left from %o %o to %o %o\n",
+            carry, temp, rLB, rAC);
 #endif
 }
 
@@ -285,12 +297,18 @@ void alu::rotateLeft()
 void alu::shiftRight(unsigned short num)
 {
     unsigned short temp = rAC;
+    unsigned short carry = rLB;
+    unsigned short opshift = REG_12BIT-num;
 
+    rLB = rLB << opshift;
     rAC = rAC >> num;
+    rAC += rLB;
     rAC &= REG_12BIT_MASK;
+    rLB = 0;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG: shift right from %o to %o\n", temp, rAC);
+    fprintf(stdout, "DEBUG: shift right from %o %o to %o %o\n",
+            carry, temp, rLB, rAC);
 #endif
 }
 
@@ -301,12 +319,17 @@ void alu::shiftRight(unsigned short num)
 void alu::shiftLeft(unsigned short  num)
 {
     unsigned short temp = rAC;
+    unsigned short carry = rLB;
+    unsigned short opshift = REG_12BIT-num;
 
+    rLB = rAC >> opshift;
+    rLB &= BIT11_MASK;
     rAC = rAC << num;
     rAC &= REG_12BIT_MASK;
 
 #ifdef DEBUG_ALU
-    fprintf(stdout, "DEBUG: shift left from %o to %o\n", temp, rAC);
+    fprintf(stdout, "DEBUG: shift left from %o %o to %o %o\n", 
+            carry, temp, rLB, rAC);
 #endif
 }
 

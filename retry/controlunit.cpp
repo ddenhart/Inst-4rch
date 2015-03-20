@@ -469,30 +469,30 @@ void ControlUnit::instructionDecode()
 
     if(m_format.isInstMRI())
     {
-#ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG: MRI decode address: %o, data: %o\n", addy, data);
-#endif
         addy = m_eAddy.geteffAddress(currInst, rPC); //get the address
         instructionDefer();
         data = readData(addy);
-	fprintf(stdout, "PC: %o, AC: %o, Instruction: %s address: %o data: %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), addy, data);
+#ifdef DEBUG_CONTROL
+        fprintf(stdout, "DEBUG: MRI decode address: %o, data: %o\n", addy, data);
+#endif
         executeMRI(addy, data);
+        fprintf(stdout, "PC: %o, LB: %o, AC: %o, Instruction: %s address: %o data: %o\n", getPC(), m_alu->getLB(), m_alu->getAC(), m_format.getInstructionName(ops), addy, data);
     }
     else if(m_format.isInstOperate())
     {
 #ifdef DEBUG_CONTROL
-        fprintf(stdout, "DEBUG: micro decode opcode: %o\n", currInst);
+    fprintf(stdout, "DEBUG: micro decode opcode: %o\n", currInst);
 #endif
         //micro setup
-		executeMicro(currInst);
-		fprintf(stdout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
+	     executeMicro(currInst);
+	     fprintf(stdout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
     }
     else if(m_format.isInstTestIO())
     {
         //IO setup
-		fprintf(stdout, "DEBUG: IO decode: nops\n");
-		fprintf(stdout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
+	     fprintf(stdout, "DEBUG: IO decode: nops\n");
         incrementPC();
+        fprintf(stdout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
     }
     else
     {
@@ -564,7 +564,7 @@ void ControlUnit::executeMRI(unsigned short addy, unsigned short data)
     else if(OPCODE_ISZ == opcode)
     {
         temp = data + 1; //increment the data
-		temp &= REG_12BIT_MASK;
+		  temp &= REG_12BIT_MASK;
 
         m_mem->store(addy, temp); //store back in memory
         if(temp == 0)
@@ -580,8 +580,9 @@ void ControlUnit::executeMRI(unsigned short addy, unsigned short data)
     }
     else if(OPCODE_JMS == opcode)
     {
+        incrementPC();
         m_mem->store(addy, rPC); //store the pc in the current address
-        addy += 1; //increment the address
+        //addy += 1; //increment the address
         m_mem->checkValidAddy(addy);
         setPC(addy); //set pc to the new addy
     }
@@ -1170,14 +1171,18 @@ unsigned short EffectiveAddress::effAdcurrentPage()
 unsigned short EffectiveAddress::effAdindirectAddressZero()
 {
     unsigned short temp = 0;
+    unsigned short data = 0;
 
     temp = effAdzeroPage(); //get the effective address
 
     //auto index
     //calculate c(0010o - 0017o) + 1 effective address
-    if((temp > OFFSET_AUTOINC_MIN) && (temp <= OFFSET_AUTOINC_MAX))
+    if((temp >= OFFSET_AUTOINC_MIN) && (temp <= OFFSET_AUTOINC_MAX))
     {
-        temp += 1;
+        m_pmem->load(temp);
+        data = m_pmem->readMB();
+        data += 1;
+        m_pmem->store(temp, data);
 
 #ifdef DEBUG_CONTROL
         fprintf(stdout, "DEBUG: auto incremented: %o\n", temp);
@@ -1186,8 +1191,8 @@ unsigned short EffectiveAddress::effAdindirectAddressZero()
 
     //normal zero page indirect
     temp = readAddress(temp); //read the memory contents of the address
-    loadOffset(temp); //load the address to the offset
-    temp = effAdzeroPage(); //recalcuate the new effective address
+    //loadOffset(temp); //load the address to the offset
+    //temp = effAdzeroPage(); //recalcuate the new effective address
 
     return temp;
 }
@@ -1203,8 +1208,8 @@ unsigned short EffectiveAddress::effAdindirectAddressCurr()
 
     temp = effAdcurrentPage(); //get the effective address
     temp = readAddress(temp); //read the memory contents of the address
-    loadOffset(temp); //load the address to the offset
-    temp = effAdcurrentPage(); //recalcuate the new effective address
+    //loadOffset(temp); //load the address to the offset
+    //temp = effAdcurrentPage(); //recalcuate the new effective address
 
     return temp;
 }

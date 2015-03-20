@@ -27,7 +27,7 @@ class alu
 private:
     bool m_bZero;
     bool m_bNegative;
-    bool rLB; // 1 bit link bit (carry out)
+    unsigned short rLB; // 1 bit link bit (carry out)
     unsigned short rAC; //12 bit alu
     //unsigned short rMQ; //12 bit multiplier quotient
 
@@ -37,7 +37,7 @@ public:
     unsigned short getAC();
     bool getLB();
     void setAC(unsigned short rac);
-    void setLB(bool rac);
+    void setLB(unsigned short rlb);
     void sumALU(unsigned short reg);
     bool isNegative();
     bool isZero();
