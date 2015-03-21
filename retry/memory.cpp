@@ -17,13 +17,14 @@ Description:	 This file contains the classes memReg and memarray
 //================================================================================== 
 extern ErrorTable Error;
 extern void pauseandexit();
+extern FILE* debugout;
 
 //================================================================================== 
 //Description: constructor
 //================================================================================== 
 memarray::memarray()
 {
-    const char* defaultfile = "memarrayTrace.dmp";
+    const char* defaultfile = "memarrayTrace.txt";
     int strsize = strlen(defaultfile) + 1;
     traceFileName = new char[strsize];
     strcpy(traceFileName, defaultfile);
@@ -152,7 +153,8 @@ void memarray::store(unsigned short address, unsigned short value)
     short type = MWRITE;
 
 #ifdef DEBUG_MEM
-    fprintf(stdout, "DEBUG: writing at address %o value %o\n", address, value);
+    //fprintf(stdout, "DEBUG: writing at address %o value %o\n", address, value);
+    fprintf(debugout, "DEBUG: writing at address %o value %o\n", address, value);
 #endif
     checkValidAddy(address); //check for valid address
     checkValidAddy(value);
@@ -171,7 +173,8 @@ void memarray::load(unsigned short address)
     short type = MREAD;
 
 #ifdef DEBUG_MEM
-    fprintf(stdout, "DEBUG: reading address %o\n", address);
+    //fprintf(stdout, "DEBUG: reading address %o\n", address);
+    fprintf(debugout, "DEBUG: reading address %o\n", address);
 #endif
     checkValidAddy(address);  //check for valid address
     rMA = address; //write the address to the MA
@@ -188,7 +191,8 @@ void memarray::fetch(unsigned short address)
     short type = MFETCH;
 
 #ifdef DEBUG_MEM
-    fprintf(stdout, "DEBUG: fetching address %o\n", address);
+    //fprintf(stdout, "DEBUG: fetching address %o\n", address);
+    fprintf(debugout, "DEBUG: fetching address %o\n", address);
 #endif
     checkValidAddy(address); //check for valid address
     logtrace(address, type); //log the memarray access
@@ -241,7 +245,8 @@ void memarray::logtrace(unsigned short address, short type)
     if(tracefile)
     {
         //write the type and address to the file
-        fprintf(tracefile, "%d   %o  %o\n", type, address, mem[address].value); 
+        fprintf(tracefile, "%d   %o\n", type, address);
+        //fprintf(tracefile, "%d   %o  %o\n", type, address, mem[address].value); 
     }
     else
     {

@@ -73,6 +73,7 @@ private:
     unsigned short m_rCurrPage;  //5 bit, the current page
     unsigned short m_rResultAddress; //12 bit resulting address
     bool m_indirect;
+    bool m_autoindex;
     memarray *m_pmem;
     void setPCOffset(unsigned short rpc);
     unsigned short effAdzeroPage();  //if the memarray page bit is 0, calculate 00000 + offset, range is 0000o-0177o
@@ -89,6 +90,7 @@ public:
     unsigned short geteffAddress(unsigned short reg, unsigned short rpc);
     void setmem(memarray* mem);
     bool isIndirect();
+    bool isAutoIndex();
 };
 
 
