@@ -17,10 +17,10 @@ Description:	 This file contains the classes ErrorTable and RegTable
 #define INPUT_BINARY 0
 #define INPUT_OCTAL 1
 #define INPUT_HEX 2
-#define REG_13BIT 13
 #define REG_12BIT 12
 #define REG_8BIT 8
-#define MAX_OCT_ADDRESS 07777
+#define SHIFT_BIT0 11
+//#define MAX_OCT_ADDRESS 4095
 #define MAX_DEC_ADDRESS 4095
 #define ADDRESS_LENGTH_OCT 4
 #define ADDRESS_LENGTH_HEX 3

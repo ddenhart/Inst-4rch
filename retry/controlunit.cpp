@@ -147,7 +147,7 @@ void ControlUnit::modeHex(char* filename)
                 rpc = getPC();
 
 #ifdef DEBUG_CONTROL
-                //fprintf(stdout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
+                fprintf(stdout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
                 fprintf(debugout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
 #endif
                 m_mem->store(rpc, reg);
@@ -160,10 +160,6 @@ void ControlUnit::modeHex(char* filename)
                 {
                     memmove(line, line+1, strlen(line)); //remove @
                     reg = hexAddressHandle(line);
-#ifdef DEBUG_CONTROL
-                    //fprintf(stdout, "DEBUG: read hex address: %o\n", reg);
-                    fprintf(debugout, "DEBUG: read hex address: %o\n", reg);
-#endif
                     if(bFirstLine)
                     {
                         m_StartAddress = reg;
@@ -171,6 +167,10 @@ void ControlUnit::modeHex(char* filename)
 
                     bFirstLine = false;
                     setPC(reg);
+#ifdef DEBUG_CONTROL
+                    fprintf(stdout, "DEBUG: read hex address: %o\n", reg);
+                    fprintf(debugout, "DEBUG: read hex address: %o\n", reg);
+#endif
                 }
                 else
                 {
@@ -181,19 +181,19 @@ void ControlUnit::modeHex(char* filename)
             {
                 //it's data
                 char tempstr[(ADDRESS_LENGTH_HEX+1)];
-                tempstr[0] = '0';
-                tempstr[1] = line[0];
-                tempstr[2] = line[1];
-                tempstr[3] = line[2];
+                tempstr[0] = line[0];
+                tempstr[1] = line[1];
+                tempstr[2] = line[2];
+                tempstr[3] = '\0';
                 reg = hexAddressHandle(tempstr);
                 rpc = getPC();
 
-#ifdef DEBUG_CONTROL
-                //fprintf(stdout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
-                fprintf(debugout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
-#endif
                 m_mem->store(rpc, reg);
                 incrementPC();
+#ifdef DEBUG_CONTROL
+                fprintf(stdout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
+                fprintf(debugout, "DEBUG: read hex addy: %o  data: %o\n", rpc, reg);
+#endif
             }
             else
             {
@@ -312,7 +312,7 @@ void ControlUnit::modeBin(char* filename)
                 bFirstLine = false;
                 setPC(buff);
 #ifdef DEBUG_CONTROL
-                //fprintf(stdout, "DEBUG: read binary addy: %o  data: %o\n", rpc, buff);
+                fprintf(stdout, "DEBUG: read binary addy: %o  data: %o\n", rpc, buff);
                 fprintf(debugout, "DEBUG: read binary addy: %o  data: %o\n", rpc, buff);
 #endif
             }
@@ -322,7 +322,7 @@ void ControlUnit::modeBin(char* filename)
                 m_mem->store(rpc, buff);
                 incrementPC();
 #ifdef DEBUG_CONTROL
-                //fprintf(stdout, "DEBUG: read binary address: %o\n", buff);
+                fprintf(stdout, "DEBUG: read binary address: %o\n", buff);
                 fprintf(debugout, "DEBUG: read binary address: %o\n", buff);
 #endif
             }
@@ -422,7 +422,7 @@ void ControlUnit::modeOct(char* filename)
                     bFirstLine = false;
                     setPC(buff);
 #ifdef DEBUG_CONTROL
-                    //fprintf(stdout, "DEBUG: read octal address: %o\n", buff);
+                    fprintf(stdout, "DEBUG: read octal address: %o\n", buff);
                     fprintf(debugout, "DEBUG: read octal address: %o\n", buff);
 #endif
                 }
@@ -432,7 +432,7 @@ void ControlUnit::modeOct(char* filename)
                     m_mem->store(rpc, buff);
                     incrementPC();
 #ifdef DEBUG_CONTROL
-                    //fprintf(stdout, "DEBUG: read octal addy: %o  data: %o\n", rpc, buff);
+                    fprintf(stdout, "DEBUG: read octal addy: %o  data: %o\n", rpc, buff);
                     fprintf(debugout, "DEBUG: read octal addy: %o  data: %o\n", rpc, buff);
 #endif
                 }
@@ -498,13 +498,13 @@ void ControlUnit::instructionDecode()
     unsigned short addy = 0;
     unsigned short data = 0;
     unsigned short currInst = 0;
+    unsigned short oldpc = getPC();
 
     ops = m_format.getOpcode(); 
 
     //up cycle count
     m_format.incrementCycles(ops);
     currInst = m_format.getInstruction();
-
 
     if(m_format.isInstMRI())
     {
@@ -516,8 +516,6 @@ void ControlUnit::instructionDecode()
         fprintf(debugout, "DEBUG: MRI decode address: %o, data: %o\n", addy, data);
 #endif
         executeMRI(addy, data);
-        fprintf(stdout, "PC: %o, LB: %o, AC: %o, Instruction: %s address: %o data: %o\n", getPC(), m_alu->getLB(), m_alu->getAC(), m_format.getInstructionName(ops), addy, data);
-        fprintf(debugout, "PC: %o, LB: %o, AC: %o, Instruction: %s address: %o data: %o\n", getPC(), m_alu->getLB(), m_alu->getAC(), m_format.getInstructionName(ops), addy, data);
     }
     else if(m_format.isInstOperate())
     {
@@ -527,21 +525,22 @@ void ControlUnit::instructionDecode()
 #endif
         //micro setup
         executeMicro(currInst);
-        fprintf(stdout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
-        fprintf(debugout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
     }
     else if(m_format.isInstTestIO())
     {
         //IO setup
         fprintf(stdout, "DEBUG: IO decode: nops\n");
         incrementPC();
-        fprintf(stdout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
-        fprintf(debugout, "PC: %o, AC: %o, Instruction: %s %o\n", getPC(), m_alu->getAC(), m_format.getInstructionName(ops), m_format.getInstruction());
     }
     else
     {
         Error.printError(ERROR_UNEXPECTED_VALUE, FILE_CONTROL);
     }
+    fprintf(stdout, "PC: %o, Inst: %o, LB: %o, AC: %o, Instruction: %s address: %o data: %o\n",
+            oldpc, currInst, m_alu->getLB(), m_alu->getAC(), m_format.getInstructionName(ops), addy, data);
+    fprintf(debugout, "PC: %o, Inst: %o, LB: %o, AC: %o, Instruction: %s address: %o data: %o\n",
+            oldpc, currInst, m_alu->getLB(), m_alu->getAC(), m_format.getInstructionName(ops), addy, data);
+
 }
 
 
@@ -622,7 +621,7 @@ void ControlUnit::executeMRI(unsigned short addy, unsigned short data)
     {
         //store result of alu
         m_mem->store(addy, m_alu->getAC());
-        m_alu->clear();
+        m_alu->clearAC();
     }
     else if(OPCODE_JMS == opcode)
     {
@@ -678,119 +677,166 @@ void ControlUnit::executeMicro(unsigned short inst)
     fprintf(debugout, "DEBUG: executing micro instruction: %o\n", inst);
 #endif
 
-    if(bit3 == 0)  //Group 1
+   if(bit3 == 0)  //Group 1
     {
-        if(bit4 == 1)
+        if(bit4 == 1) //cla 7200
         {
             m_alu->clearAC();
         }
-        if(bit5 == 1)
+        if(bit5 == 1) //cll 7100
         {
             m_alu->clearLC();
         }
-        if(bit6 == 1)
+        if(bit6 == 1) //cma 7040
         {
             m_alu->complementALU();
         }
-        if(bit7 == 1)
+        if(bit7 == 1) //cml 7020
         {
             m_alu->complementLC();
-            if(bit11 == 1)
-                m_alu->incrementALU();
         }
-        if(bit8 == 1)
+        if(bit11 == 1) //iac 7001
+        {
+            m_alu->incrementALU();
+        }
+        if(bit8 == 1) //rar 7010
         {
             m_alu->rotateRight();
-            if(bit10 == 1)
+            if(bit10 == 1) //rtr 7012
+            {
                 m_alu->rotateRight();
+            }
         }
-        if(bit9 == 1)
+        if(bit9 == 1) //ral 7004
         {
             m_alu->rotateLeft();
-            if(bit10 == 1)
+            if(bit10 == 1) //rtl 7006
+            {
                 m_alu->rotateLeft();
+            }
+        }
+        if(3584 == inst) //nop 7000
+        {
+            fprintf(stdout, "No op \n");
         }
     }
     else
     {
+        bool inc = false;
         if(bit8 == 0)
         {
-            if((bit5 == 1) || (bit6 == 1) || (bit7 == 1))
+            if(bit5 == 1) //sma 7500
             {
-                if(bit5 == 1)
+                if(m_alu->isNegative())
                 {
-                    if(m_alu->isNegative())
-                        incrementPC();
+                    //incrementPC();
+                    inc = true;
                 }
-                if(bit6 == 1)
+            }
+            if(bit6 == 1) //sza 7440
+            {
+                if(m_alu->isZero())
                 {
-                    if(!(m_alu->isZero()))
-                        incrementPC();
+                    //incrementPC();
+                    inc = true;
                 }
-                if(bit7 == 1)
+            }
+            if(bit7 == 1) //snl 7420
+            {
+                if(m_alu->getLB() == 1)
                 {
-                    if(m_alu->getLB() != 0)
-                        incrementPC();
+                    //incrementPC();
+                    inc = true;
                 }
-
             }
         }
-        else
+        else //bit 8 is 1
         {
-            short skip = false;
-            /*if ( ( (bit5 == 1) && (bit6 == 1) ) 
-                || ( (bit5 == 1) && (bit7 == 1) )
-                || ( (bit6 == 1) && (bit7 == 1) ) )
+            bool and3 = false;
+            bool and2 = false;
+
+            if(bit5 && bit6 && bit7)
             {
-                incrementPC();
-            }*/
-            if(bit5 == 1)
-            {
-                skip = false;
-                if(!m_alu->isNegative())
+                if((!m_alu->isNegative()) && (!m_alu->isZero()) && (m_alu->getLB() == 0))
                 {
-                    skip = true;
+                    inc = true;
                 }
             }
-            if(bit6 == 1)
+            else if(bit5 && bit6)
             {
-                skip = false;
-                if(!m_alu->isZero())
+                if((!m_alu->isNegative()) && (!m_alu->isZero()))
                 {
-                    skip = true;
+                    inc = true;
                 }
             }
-            if(bit7 == 1)
+            else if(bit5 && bit7)
             {
-                skip = false;
-                if(m_alu->getLB() == 0)
+                if((!m_alu->isNegative()) && (m_alu->getLB() == 0))
                 {
-                    skip = true;
+                    inc = true;
                 }
             }
-            if(skip)
+            else if(bit6 && bit7)
             {
-                incrementPC();
+                if((!m_alu->isZero()) && (m_alu->getLB() == 0))
+                {
+                    inc = true;
+                }
             }
-            if((bit4 == 0) && (bit5 == 0)
-               && (bit6 == 0) && (bit7 == 0)
-               && (bit8 == 1) && (bit9 == 0)
-               && (bit10 == 0) && (bit11 == 0))
+            else
             {
-                incrementPC();
+                if(bit5 == 1) //spa 7510
+                {
+                    //skip = false;
+                    if(!m_alu->isNegative())
+                    {
+                        inc = true;
+                    }
+                }
+                else if(bit6 == 1) //sna 7450
+                {
+                    //skip = false;
+                    if(!m_alu->isZero())
+                    {
+                        inc = true;
+                    }
+                }
+                else if(bit7 == 1) //szl 7430
+                {
+                    //skip = false;
+                    if(m_alu->getLB() == 0)
+                    {
+                        inc = true;
+                    }
+                }
             }
-            if(bit4 == 1)
+            //if ( ( (bit5 == 1) && (bit6 == 1) ) 
+            //    || ( (bit5 == 1) && (bit7 == 1) )
+            //    || ( (bit6 == 1) && (bit7 == 1) ) )
+            //{
+            //    incrementPC();
+            //}
+            if(3848 == inst) //skp 7410
             {
-                m_alu->clearAC();
-                running = false;
+                //incrementPC();
+                inc = true;
             }
         }
+        if(1 == bit4) //cla 7400
+        {
+            m_alu->clearAC();
+        }
+        if(inc)
+        {
+            incrementPC();
+        }
+
     }
 
-    if(3864 == inst)
-    {
-        incrementPC();
-    }
+    //if(3864 == inst)
+    //{
+    //    incrementPC();
+    //}
     incrementPC();
 }
 
@@ -800,6 +846,7 @@ void ControlUnit::executeMicro(unsigned short inst)
 //==================================================================================
 void ControlUnit::loadFile(char* filename, short mode)
 {
+    unsigned short stopcon = 0;
     debugInit();
 
     if(INPUT_BINARY == mode)
@@ -823,10 +870,12 @@ void ControlUnit::loadFile(char* filename, short mode)
 
     m_mem->writeMemoryAccesses();
     setPC(m_StartAddress);
-    while(HALT_CODE != m_mem->readMB())
+
+    while(HALT_CODE != stopcon)
     {
         instructionFetch();
         instructionDecode();
+        stopcon = m_mem->readMB();
     }
     m_format.printStats();
     m_mem->writeMemoryAccesses();
@@ -855,8 +904,13 @@ void ControlUnit::printMemoryHistory()
 //================================================================================== 
 void ControlUnit::incrementPC()
 {
+    unsigned short temp = rPC;
     ++rPC;
     m_mem->checkValidAddy(rPC);
+#ifdef DEBUG_CONTROL
+    //fprintf(stdout, "DEBUG: incrementing pc from %o to %o\n", temp, rPC);
+    //fprintf(debugout, "DEBUG: incrementing pc from %o to %o\n", temp, rPC);
+#endif
 }
 
 

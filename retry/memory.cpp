@@ -217,7 +217,7 @@ bool memarray::getAccess(unsigned short addy)
 //================================================================================== 
 void memarray::checkValidAddy(unsigned short addy)
 {
-    if(MAX_OCT_ADDRESS < addy)
+    if(MAX_DEC_ADDRESS < addy)
     {
         fprintf(stderr, "ERROR: Invalid Address: %o\n", addy);
         fprintf(stderr, "Shutting down...\n ");
